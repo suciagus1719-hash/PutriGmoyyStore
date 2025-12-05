@@ -59,12 +59,15 @@ module.exports = async (req, res) => {
       console.error("Data layanan tidak lengkap di custom_field, cek create-order.js");
     } else {
       try {
-        const panelRes = await callPanel({
-          action: "add", // sesuaikan dengan dokumentasi panel Anda
+        const payload = {
+          action: "order", // sesuai dokumentasi PusatPanelSMM
           service: serviceId,
-          target,
-          quantity,
-        });
+          data: target,
+        };
+        if (quantity) {
+          payload.quantity = quantity;
+        }
+        const panelRes = await callPanel(payload);
         console.log("Order dikirim ke panel:", panelRes);
       } catch (e) {
         console.error("Gagal mengirim order ke panel:", e);
