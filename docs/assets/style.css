@@ -83,35 +83,35 @@ body {
 }
 
 .platform-btn {
-  border-radius: 10px;
-  padding: 12px 14px;
-  border: none;
-  background: linear-gradient(135deg, #f7f7f7, #e0e7ff);
-  color: #0f172a;
-  font-size: 14px;
+  border-radius: 8px;
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  color: #111827;
+  font-size: 13px;
   cursor: pointer;
-  transition: background 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.1s ease, border-color 0.2s ease;
   display: flex;
   align-items: center;
   gap: 6px;
-  justify-content: center;
+  justify-content: flex-start;
 }
 
 .platform-btn .logo {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
   overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #d1d5db;
+  background: #eef2ff;
   flex-shrink: 0;
 }
 
 .platform-btn .logo img {
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
 }
 
 .platform-btn:hover {
