@@ -82,6 +82,7 @@ const resellerUsername = document.getElementById("reseller-username");
 const resellerPassword = document.getElementById("reseller-password");
 const resellerButton = document.getElementById("reseller-button");
 const resellerMessage = document.getElementById("reseller-message");
+const platformLoader = document.getElementById("platform-loader");
 const platformInfo = document.getElementById("platform-info");
 const platformInfoIcon = document.getElementById("platform-info-icon");
 const platformInfoText = document.getElementById("platform-info-text");
@@ -118,6 +119,7 @@ function platformIcon(id) {
 }
 
 async function loadCatalog() {
+  showPlatformLoader();
   try {
     const data = await apiGet("/api/catalog");
     catalogPlatforms = data.platforms?.length ? data.platforms : FALLBACK_PLATFORMS;
@@ -126,8 +128,10 @@ async function loadCatalog() {
     errorMessage.textContent = "Gagal memuat katalog, gunakan daftar default.";
     catalogPlatforms = FALLBACK_PLATFORMS;
     catalogServices = [];
+    showPlatformLoader("Gagal memuat dari server, menampilkan data bawaan...");
   } finally {
     renderPlatformButtons();
+    hidePlatformLoader();
   }
 }
 
@@ -135,6 +139,7 @@ function renderPlatformButtons(list = catalogPlatforms) {
   platformList.innerHTML = "";
   if (!list.length) {
     platformList.innerHTML = `<p>Tidak ada platform.</p>`;
+    hidePlatformLoader();
     return;
   }
   list.forEach((p, index) => {
@@ -374,3 +379,14 @@ resellerButton.addEventListener("click", async () => {
 });
 
 loadCatalog();
+
+function showPlatformLoader(message = "Sedang memuat platform...") {
+  if (!platformLoader) return;
+  platformLoader.classList.remove("hidden");
+  const msg = platformLoader.querySelector("p");
+  if (msg) msg.textContent = message;
+}
+
+function hidePlatformLoader() {
+  if (platformLoader) platformLoader.classList.add("hidden");
+}
