@@ -24,6 +24,11 @@ function getServicePrice(service) {
   );
 }
 
+function getServicePricePer100(service) {
+  const perThousand = getServicePrice(service);
+  return perThousand ? perThousand / 10 : 0;
+}
+
 function getServiceDescription(service) {
   return (
     service?.description ??
@@ -50,6 +55,7 @@ module.exports = {
   getServiceId,
   getServiceCategory,
   getServicePrice,
+  getServicePricePer100,
   getServiceDescription,
   getServiceName,
   getServiceMin,

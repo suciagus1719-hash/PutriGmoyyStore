@@ -1,7 +1,12 @@
 const { callPanel } = require("./_smmClient");
 const { normalizeServicesResponse, belongsToPlatform } = require("./_platformUtils");
 const { decodeCategoryKey, isBlockedCategory } = require("./_categoryUtils");
-const { getServiceCategory, getServiceId, getServiceName } = require("./_serviceParser");
+const {
+  getServiceCategory,
+  getServiceId,
+  getServiceName,
+  getServicePricePer100,
+} = require("./_serviceParser");
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -26,10 +31,21 @@ module.exports = async (req, res) => {
       return belongsToPlatform(svc, platformKey || platformId);
     });
 
-    const services = filtered.map((svc) => ({
-      id: String(getServiceId(svc)),
-      name: getServiceName(svc),
-    }));
+    const services = filtered
+      .map((svc) => {
+        const id = String(getServiceId(svc));
+        const pricePer100 = getServicePricePer100(svc);
+        const formattedPrice = pricePer100
+          ? `Rp ${pricePer100.toLocaleString("id-ID")}`
+          : "Rp0";
+        return {
+          id,
+          sortPrice: pricePer100,
+          name: `${id} - ${getServiceName(svc)} - ${formattedPrice}`,
+        };
+      })
+      .sort((a, b) => a.sortPrice - b.sortPrice)
+      .map(({ id, name }) => ({ id, name }));
 
     res.json({ services });
   } catch (e) {
