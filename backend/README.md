@@ -2,15 +2,15 @@
 
 Proyek ini berisi dua folder:
 
-- `frontend/` -> untuk **GitHub Pages** (static website).
+- `docs/` -> untuk **GitHub Pages** (static website).
 - `backend/` -> untuk **Vercel** (API ke panel & Midtrans).
 
 ## 1. Frontend (GitHub Pages)
 
 1. Buat repository baru di GitHub.
-2. Upload isi folder `frontend/` ke repo tersebut.
+2. Upload isi folder `docs/` (folder ini sudah berisi website statis).
 3. Aktifkan GitHub Pages dari branch `main` (atau `gh-pages`).
-4. Edit file `frontend/index.html`:
+4. Edit file `docs/index.html`:
    - Ubah `window.API_BASE_URL = "https://your-vercel-app.vercel.app";`
      menjadi URL API Vercel kamu.
 
