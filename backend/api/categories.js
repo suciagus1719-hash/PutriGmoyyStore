@@ -1,5 +1,5 @@
 const { callPanel } = require("./_smmClient");
-const { detectPlatformDef } = require("./_platformUtils");
+const { detectPlatformDef, normalizeServicesResponse } = require("./_platformUtils");
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -11,8 +11,9 @@ module.exports = async (req, res) => {
   try {
     // Contoh: action=services (lihat dokumentasi panel Anda)
     const panelRes = await callPanel({ action: "services" });
+    const services = normalizeServicesResponse(panelRes);
     const categoriesMap = new Map();
-    (panelRes || []).forEach((svc) => {
+    services.forEach((svc) => {
       const detected = detectPlatformDef(svc);
       const belongToPlatform =
         (svc.platform && String(svc.platform).toLowerCase() === platformId.toLowerCase()) ||

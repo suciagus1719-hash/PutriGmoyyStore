@@ -5,9 +5,24 @@ const PLATFORM_DEFS = [
   { id: "facebook", name: "Facebook", keywords: ["facebook", "fb"] },
   { id: "whatsapp", name: "WhatsApp", keywords: ["whatsapp", "wa"] },
   { id: "telegram", name: "Telegram", keywords: ["telegram"] },
-  { id: "spotify", name: "Spotify", keywords: ["spotify"] },
-  { id: "twitter", name: "Twitter / X", keywords: ["twitter", "x "] },
   { id: "shopee", name: "Shopee", keywords: ["shopee"] },
+  { id: "threads", name: "Threads", keywords: ["threads"] },
+  { id: "spotify", name: "Spotify", keywords: ["spotify"] },
+  { id: "discord", name: "Discord", keywords: ["discord"] },
+  { id: "snackvideo", name: "Snack Video", keywords: ["snack video", "snackvideo"] },
+  { id: "twitter", name: "Twitter / X", keywords: ["twitter", "x "] },
+  { id: "twitch", name: "Twitch", keywords: ["twitch"] },
+  { id: "soundcloud", name: "SoundCloud", keywords: ["soundcloud"] },
+  { id: "pinterest", name: "Pinterest", keywords: ["pinterest"] },
+  { id: "reddit", name: "Reddit", keywords: ["reddit"] },
+  { id: "quora", name: "Quora", keywords: ["quora"] },
+  { id: "mobileapp", name: "Mobile App Install", keywords: ["mobile app", "app install"] },
+  { id: "kwai", name: "Kwai", keywords: ["kwai"] },
+  { id: "linkedin", name: "LinkedIn", keywords: ["linkedin"] },
+  { id: "likee", name: "Likee", keywords: ["likee"] },
+  { id: "googleplay", name: "Google Play Review", keywords: ["google play", "play store"] },
+  { id: "dailymotion", name: "Dailymotion", keywords: ["dailymotion"] },
+  { id: "audiomack", name: "Audiomack", keywords: ["audiomack"] },
   { id: "other", name: "Lainnya", keywords: [] },
 ];
 
@@ -46,7 +61,15 @@ function collectPlatforms(services) {
   return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
 }
 
+function normalizeServicesResponse(panelRes) {
+  if (Array.isArray(panelRes)) return panelRes;
+  if (panelRes && Array.isArray(panelRes.data)) return panelRes.data;
+  if (panelRes && Array.isArray(panelRes.services)) return panelRes.services;
+  return [];
+}
+
 module.exports = {
   collectPlatforms,
   detectPlatformDef,
+  normalizeServicesResponse,
 };

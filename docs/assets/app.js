@@ -6,13 +6,27 @@ const PLATFORM_ICON_META = {
   tiktok: { slug: "tiktok", color: "#000000" },
   youtube: { slug: "youtube", color: "#FF0000" },
   facebook: { slug: "facebook", color: "#1877F2" },
-  whatsapp: { slug: "whatsapp", color: "#25D366" },
   telegram: { slug: "telegram", color: "#229ED9" },
-  twitter: { slug: "twitter", color: "#1D9BF0" },
-  x: { slug: "twitter", color: "#1D9BF0" },
-  spotify: { slug: "spotify", color: "#1DB954" },
   shopee: { slug: "shopee", color: "#F1582C" },
   threads: { slug: "threads", color: "#101010" },
+  whatsapp: { slug: "whatsapp", color: "#25D366" },
+  spotify: { slug: "spotify", color: "#1DB954" },
+  discord: { slug: "discord", color: "#5865F2" },
+  snackvideo: { logoUrl: "https://logo.clearbit.com/snackvideo.com", color: "#FFB400" },
+  twitter: { slug: "twitter", color: "#1D9BF0" },
+  x: { slug: "twitter", color: "#1D9BF0" },
+  twitch: { slug: "twitch", color: "#9146FF" },
+  soundcloud: { slug: "soundcloud", color: "#FF7700" },
+  pinterest: { slug: "pinterest", color: "#E60023" },
+  reddit: { slug: "reddit", color: "#FF4500" },
+  quora: { slug: "quora", color: "#B92B27" },
+  mobileapp: { slug: "googleplay", color: "#0F9D58" },
+  kwai: { logoUrl: "https://logo.clearbit.com/kwai.com", color: "#FF6B00" },
+  linkedin: { slug: "linkedin", color: "#0A66C2" },
+  likee: { logoUrl: "https://logo.clearbit.com/likee.com", color: "#FF6E7F" },
+  googleplay: { slug: "googleplay", color: "#0F9D58" },
+  dailymotion: { slug: "dailymotion", color: "#0066DC" },
+  audiomack: { slug: "audiomack", color: "#FF8F00" },
   other: { slug: "hashtag", color: "#6B7280" },
 };
 
@@ -95,9 +109,12 @@ async function apiPost(path, body) {
 
 function platformIcon(id) {
   const meta = PLATFORM_ICON_META[(id || "").toLowerCase()] || PLATFORM_ICON_META.other;
+  const url =
+    meta.logoUrl ||
+    (meta.slug ? `https://cdn.simpleicons.org/${meta.slug}/ffffff` : "https://cdn.simpleicons.org/hashtag/ffffff");
   return {
-    color: meta.color,
-    url: `https://cdn.simpleicons.org/${meta.slug}/ffffff`,
+    color: meta.color || "#6B7280",
+    url,
   };
 }
 
