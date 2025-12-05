@@ -1,0 +1,16 @@
+{
+  "name": "putri-gmoyy-backend-midtrans",
+  "version": "1.0.0",
+  "description": "Backend Vercel untuk Putri Gmoyy Sosmed (API Panel + Midtrans QRIS/GoPay)",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "node-fetch": "^2.7.0"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}

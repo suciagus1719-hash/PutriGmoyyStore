@@ -1,0 +1,172 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #5c2ac7, #12002a);
+  color: #fff;
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+}
+
+.header {
+  margin-bottom: 24px;
+}
+
+.banner img {
+  width: 100%;
+  border-radius: 18px;
+  object-fit: cover;
+}
+
+.title-wrap {
+  margin-top: 16px;
+}
+
+.subtitle {
+  letter-spacing: 0.2em;
+  font-size: 12px;
+  text-transform: uppercase;
+  opacity: 0.7;
+}
+
+.title {
+  font-size: 32px;
+  margin-top: 4px;
+}
+
+.desc {
+  margin-top: 8px;
+  opacity: 0.8;
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 40px;
+}
+
+.card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  border-radius: 16px;
+  padding: 16px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(12px);
+}
+
+.card h2,
+.card h3 {
+  margin-bottom: 12px;
+}
+
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.platform-btn {
+  border-radius: 999px;
+  padding: 10px 14px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ff9a3c, #ff2f7d);
+  color: #fff;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.platform-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.platform-btn.active {
+  box-shadow: 0 0 0 2px #fff;
+}
+
+select,
+input {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 999px;
+  border: none;
+  outline: none;
+}
+
+.service-detail {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.hidden {
+  display: none;
+}
+
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.pay-button {
+  width: 100%;
+  margin-top: 8px;
+  padding: 12px;
+  border-radius: 999px;
+  border: none;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #4e9cff, #8557ff);
+  color: #fff;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.pay-button.secondary {
+  background: linear-gradient(135deg, #ff9a3c, #ff2f7d);
+}
+
+.pay-button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.error {
+  margin-top: 8px;
+  color: #ffbaba;
+  font-size: 13px;
+}
+
+.reseller-card {
+  margin-top: 10px;
+}
+
+.reseller-sub {
+  font-size: 14px;
+  opacity: 0.9;
+  margin-bottom: 10px;
+}
+
+.reseller-card input {
+  margin-bottom: 8px;
+}
+
+.reseller-msg {
+  margin-top: 8px;
+  font-size: 13px;
+}

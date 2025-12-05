@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Putri Gmoyy Sosmed</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <div class="page">
+    <header class="header">
+      <div class="banner">
+        <!-- Ganti banner.jpg dengan gambar kamu sendiri -->
+        <img src="img/banner.jpg" alt="Putri Gmoyy Store" />
+      </div>
+      <div class="title-wrap">
+        <p class="subtitle">PUTRI GMOYY STORE</p>
+        <h1 class="title">Putri Gmoyy Sosmed</h1>
+        <p class="desc">
+          Jasa kebutuhan sosmed aman, murah dan terpercaya. Langsung saja order dibawah ini maniezz...
+        </p>
+      </div>
+    </header>
+
+    <main class="content">
+      <!-- Step 1: Platform -->
+      <section class="card">
+        <h2>1. Pilih Platform &amp; Layanan</h2>
+        <div id="platform-list" class="platform-grid">
+          <!-- tombol platform akan di-render via JS -->
+        </div>
+      </section>
+
+      <!-- Step 2: Kategori -->
+      <section class="card">
+        <h3>Kategori Layanan</h3>
+        <select id="category-select">
+          <option value="">Pilih kategori layanan terlebih dahulu.</option>
+        </select>
+      </section>
+
+      <!-- Step 3: Layanan -->
+      <section class="card">
+        <h3>Pilih Layanan</h3>
+        <select id="service-select">
+          <option value="">Pilih kategori dulu.</option>
+        </select>
+
+        <div id="service-detail" class="service-detail hidden">
+          <p><strong>Deskripsi:</strong> <span id="service-description"></span></p>
+          <p><strong>Harga:</strong> <span id="service-price"></span></p>
+          <p><strong>Minimal:</strong> <span id="service-min"></span></p>
+          <p><strong>Maksimal:</strong> <span id="service-max"></span></p>
+        </div>
+      </section>
+
+      <!-- Step 4: Target & Jumlah -->
+      <section class="card">
+        <h3>Data Pesanan</h3>
+        <label>
+          Target (URL/Username)
+          <input type="text" id="target-input" placeholder="Masukkan link/username target" />
+        </label>
+        <label>
+          Jumlah
+          <input type="number" id="quantity-input" min="0" value="0" />
+        </label>
+      </section>
+
+      <!-- Step 5: Data Pemesan -->
+      <section class="card">
+        <h3>Data Pemesan (Opsional)</h3>
+        <div class="grid-3">
+          <input type="text" id="buyer-name" placeholder="Nama" />
+          <input type="text" id="buyer-whatsapp" placeholder="No. WhatsApp" />
+          <input type="email" id="buyer-email" placeholder="Email" />
+        </div>
+      </section>
+
+      <!-- Button -->
+      <section class="card">
+        <button id="pay-button" class="pay-button">Lanjutkan Pembayaran</button>
+        <p id="error-message" class="error"></p>
+      </section>
+
+      <!-- Reseller -->
+      <section class="card reseller-card">
+        <h2>Daftar Reseller</h2>
+        <p class="reseller-sub">Daftar sebagai reseller untuk mendapatkan harga spesial & support dari admin 💜</p>
+        <div class="grid-3">
+          <input type="text" id="reseller-name" placeholder="Nama lengkap" />
+          <input type="text" id="reseller-whatsapp" placeholder="No. WhatsApp (aktif)" />
+          <input type="email" id="reseller-email" placeholder="Email" />
+        </div>
+        <input type="text" id="reseller-username" placeholder="Username yang diinginkan" />
+        <input type="password" id="reseller-password" placeholder="Password" />
+        <button id="reseller-button" class="pay-button secondary">Daftar Reseller</button>
+        <p id="reseller-message" class="reseller-msg"></p>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    // Base URL Vercel kamu – GANTI ke domain API kamu
+    window.API_BASE_URL = "https://your-vercel-app.vercel.app";
+  </script>
+  <script src="assets/app.js"></script>
+</body>
+</html>
