@@ -1,4 +1,18 @@
 const API_BASE = window.API_BASE_URL;
+const PLATFORM_ICONS = {
+  instagram: "📸",
+  ig: "📸",
+  tiktok: "🎵",
+  youtube: "▶️",
+  facebook: "📘",
+  whatsapp: "💬",
+  telegram: "✈️",
+  twitter: "🐦",
+  x: "🐦",
+  spotify: "🎧",
+  shopee: "🛍️",
+  other: "#",
+};
 
 // Elemen DOM
 const platformList = document.getElementById("platform-list");
@@ -47,6 +61,11 @@ async function apiPost(path, body) {
   return res.json();
 }
 
+function iconForPlatform(id) {
+  const key = (id || "").toLowerCase();
+  return PLATFORM_ICONS[key] || "⭐";
+}
+
 // 1. Load platform
 async function loadPlatforms() {
   try {
@@ -60,7 +79,7 @@ async function loadPlatforms() {
       const btn = document.createElement("button");
       btn.className = "platform-btn";
       btn.dataset.platformId = p.id;
-      btn.textContent = p.name;
+      btn.innerHTML = `<span class="emoji">${iconForPlatform(p.id)}</span><span>${p.name}</span>`;
       btn.onclick = () => selectPlatform(p);
       platformList.appendChild(btn);
       if (index === 0) {
@@ -94,7 +113,7 @@ async function selectPlatform(platform) {
     data.categories.forEach((c) => {
       const opt = document.createElement("option");
       opt.value = c.id;
-      opt.textContent = c.name;
+      opt.textContent = `${iconForPlatform(platform.id)} ${c.name}`;
       categorySelect.appendChild(opt);
     });
   } catch (e) {
