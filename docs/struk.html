@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Struk Pembayaran | Putri Gmoyy Store</title>
+    <link rel="stylesheet" href="assets/style.css" />
+    <style>
+      body {
+        background: #f5f6fb;
+      }
+      .receipt-page {
+        max-width: 640px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 16px;
+        padding: 32px;
+        border: 1px solid #e5e7eb;
+        box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+      }
+      .receipt-header {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+      .receipt-header h1 {
+        font-size: 26px;
+        color: #111827;
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 12px;
+      }
+      .status-pill.success {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+      }
+      .status-pill.pending {
+        background: #fffbeb;
+        color: #b45309;
+        border: 1px solid #fed7aa;
+      }
+      .status-pill.failed {
+        background: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+      }
+      .receipt-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+      .receipt-list li {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f4f6;
+        font-size: 15px;
+      }
+      .receipt-list li span:first-child {
+        color: #6b7280;
+      }
+      .receipt-list li span:last-child {
+        color: #111827;
+        font-weight: 600;
+      }
+      .action-row {
+        margin-top: 30px;
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .action-row a {
+        flex: 1;
+        min-width: 140px;
+        text-align: center;
+        padding: 12px;
+        border-radius: 10px;
+        font-weight: 600;
+        text-decoration: none;
+      }
+      .action-primary {
+        background: #2563eb;
+        color: #fff;
+      }
+      .action-secondary {
+        border: 1px solid #d1d5db;
+        color: #374151;
+        background: #fff;
+      }
+      @media (max-width: 600px) {
+        .receipt-page {
+          margin: 16px;
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="receipt-page">
+      <div class="receipt-header">
+        <p class="subtitle">Putri Gmoyy Store</p>
+        <h1>Struk Pembayaran</h1>
+        <div id="status-pill" class="status-pill pending">
+          <span>Menunggu status...</span>
+        </div>
+      </div>
+      <ul class="receipt-list">
+        <li><span>Order ID</span><span id="order-id">-</span></li>
+        <li><span>Status</span><span id="status">-</span></li>
+        <li><span>Metode</span><span id="payment-type">-</span></li>
+        <li><span>Nominal</span><span id="gross-amount">-</span></li>
+        <li><span>Waktu Transaksi</span><span id="transaction-time">-</span></li>
+      </ul>
+      <div class="action-row">
+        <a href="index.html" class="action-primary">Kembali ke Beranda</a>
+        <a href="https://suciagus1719-hash.github.io/PutriGmoyyStore/" class="action-secondary">Pesan Lagi</a>
+      </div>
+    </div>
+
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const getValue = (key, fallback = "-") =>
+        (params.get(key) && decodeURIComponent(params.get(key))) || fallback;
+
+      const status = getValue("transaction_status");
+      const orderId = getValue("order_id");
+      const grossAmount = getValue("gross_amount");
+      const paymentType = getValue("payment_type");
+      const transactionTime = getValue("transaction_time");
+
+      document.getElementById("order-id").textContent = orderId;
+      document.getElementById("status").textContent = status;
+      document.getElementById("payment-type").textContent = paymentType;
+      document.getElementById("transaction-time").textContent = transactionTime;
+      document.getElementById("gross-amount").textContent = grossAmount
+        ? `Rp ${Number(grossAmount).toLocaleString("id-ID")}`
+        : "-";
+
+      const pill = document.getElementById("status-pill");
+      const pillText = pill.querySelector("span");
+      const statusLower = status.toLowerCase();
+      pill.classList.remove("success", "failed", "pending");
+      if (["settlement", "capture"].includes(statusLower)) {
+        pill.classList.add("success");
+        pillText.textContent = "Pembayaran berhasil";
+      } else if (["pending"].includes(statusLower)) {
+        pill.classList.add("pending");
+        pillText.textContent = "Menunggu pembayaran";
+      } else {
+        pill.classList.add("failed");
+        pillText.textContent = "Pembayaran gagal / dibatalkan";
+      }
+    </script>
+  </body>
+</html>

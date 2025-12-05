@@ -6,6 +6,8 @@ const { getServiceId, getServicePrice, getServiceName } = require("./_servicePar
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 const MIDTRANS_SNAP_BASE_URL =
   process.env.MIDTRANS_SNAP_BASE_URL || "https://app.sandbox.midtrans.com";
+const PUBLIC_FRONTEND_URL =
+  process.env.PUBLIC_FRONTEND_URL || "https://suciagus1719-hash.github.io/PutriGmoyyStore/";
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -43,6 +45,10 @@ module.exports = async (req, res) => {
 
     const orderId = `GMYY-${Date.now()}`;
 
+    const frontendBase = PUBLIC_FRONTEND_URL.endsWith("/")
+      ? PUBLIC_FRONTEND_URL
+      : `${PUBLIC_FRONTEND_URL}/`;
+
     const body = {
       transaction_details: {
         order_id: orderId,
@@ -65,6 +71,10 @@ module.exports = async (req, res) => {
       custom_field1: String(serviceId),
       custom_field2: target,
       custom_field3: String(quantity),
+      callbacks: {
+        finish: `${frontendBase}struk.html`,
+        error: frontendBase,
+      },
     };
 
     const snapUrl = `${MIDTRANS_SNAP_BASE_URL}/snap/v1/transactions`;
