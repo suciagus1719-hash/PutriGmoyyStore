@@ -152,26 +152,30 @@ label {
   color: #374151;
 }
 
-.service-note {
-  margin-top: 16px;
-  padding: 12px;
-  border-radius: 10px;
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  color: #1f2937;
-}
-.service-note h4 {
-  font-size: 15px;
-  margin-bottom: 6px;
+.service-detail .detail-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
 }
 
-.service-note pre {
+.service-detail .detail-row strong {
+  min-width: 120px;
+  font-weight: 600;
+  color: #111827;
+}
+
+.service-detail .detail-row.description {
+  flex-direction: column;
+  gap: 4px;
+}
+
+.service-detail .detail-row.description p {
+  margin: 0;
   white-space: pre-wrap;
-  line-height: 1.4;
-  font-family: inherit;
 }
 
-.service-note.hidden {
+.service-detail .detail-row.hidden {
   display: none;
 }
 

@@ -65,7 +65,7 @@ const serviceDetail = document.getElementById("service-detail");
 const servicePrice = document.getElementById("service-price");
 const serviceMin = document.getElementById("service-min");
 const serviceMax = document.getElementById("service-max");
-const serviceNoteBox = document.getElementById("service-note-box");
+const serviceDescriptionRow = document.getElementById("service-description-row");
 const serviceNoteText = document.getElementById("service-note-text");
 const targetInput = document.getElementById("target-input");
 const quantityInput = document.getElementById("quantity-input");
@@ -194,7 +194,7 @@ function selectPlatform(platform) {
   categorySelect.innerHTML = `<option value="">${categories.length ? "Pilih kategori layanan" : "Kategori tidak tersedia"}</option>`;
   serviceSelect.innerHTML = `<option value="">Pilih kategori dulu.</option>`;
   serviceDetail.classList.add("hidden");
-  if (serviceNoteBox) serviceNoteBox.classList.add("hidden");
+  if (serviceDescriptionRow) serviceDescriptionRow.classList.add("hidden");
   if (serviceNoteText) serviceNoteText.textContent = "";
 
   categories.forEach((name) => {
@@ -217,7 +217,7 @@ categorySelect.addEventListener("change", (e) => {
   selectedPricePer100 = 0;
   updateTotalPrice();
   serviceDetail.classList.add("hidden");
-  if (serviceNoteBox) serviceNoteBox.classList.add("hidden");
+  if (serviceDescriptionRow) serviceDescriptionRow.classList.add("hidden");
   if (serviceNoteText) serviceNoteText.textContent = "";
 
   if (!selectedCategory) {
@@ -245,7 +245,7 @@ serviceSelect.addEventListener("change", (e) => {
   const id = e.target.value;
   selectedService = null;
   serviceDetail.classList.add("hidden");
-  if (serviceNoteBox) serviceNoteBox.classList.add("hidden");
+  if (serviceDescriptionRow) serviceDescriptionRow.classList.add("hidden");
   if (serviceNoteText) serviceNoteText.textContent = "";
   selectedPricePer100 = 0;
   updateTotalPrice();
@@ -267,11 +267,11 @@ serviceSelect.addEventListener("change", (e) => {
   serviceMax.textContent = svc.max || "-";
   serviceDetail.classList.remove("hidden");
 
-  if (svc.description && serviceNoteBox && serviceNoteText) {
+  if (svc.description && serviceDescriptionRow && serviceNoteText) {
     serviceNoteText.textContent = svc.description;
-    serviceNoteBox.classList.remove("hidden");
-  } else if (serviceNoteBox) {
-    serviceNoteBox.classList.add("hidden");
+    serviceDescriptionRow.classList.remove("hidden");
+  } else if (serviceDescriptionRow) {
+    serviceDescriptionRow.classList.add("hidden");
   }
 
   selectedPricePer100 = svc.pricePer100 || 0;
