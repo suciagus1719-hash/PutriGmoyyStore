@@ -80,8 +80,9 @@ body {
   margin-bottom: 12px;
 }
 
-.platform-meta .icon {
+.platform-meta i {
   margin-right: 4px;
+  font-size: 14px;
 }
 
 .platform-grid {
@@ -105,7 +106,7 @@ body {
   justify-content: center;
 }
 
-.platform-btn .emoji {
+.platform-btn i {
   font-size: 16px;
 }
 
@@ -155,6 +156,26 @@ label {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   gap: 10px;
+}
+
+.platform-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #312e81;
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.platform-info.hidden {
+  display: none;
+}
+
+.platform-info i {
+  font-size: 18px;
 }
 
 .pay-button {

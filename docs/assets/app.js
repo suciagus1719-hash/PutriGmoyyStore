@@ -1,17 +1,18 @@
 const API_BASE = window.API_BASE_URL;
-const PLATFORM_ICONS = {
-  instagram: "📸",
-  ig: "📸",
-  tiktok: "🎵",
-  youtube: "▶️",
-  facebook: "📘",
-  whatsapp: "💬",
-  telegram: "✈️",
-  twitter: "🐦",
-  x: "🐦",
-  spotify: "🎧",
-  shopee: "🛍️",
-  other: "#",
+const PLATFORM_ICON_CLASSES = {
+  instagram: "fa-brands fa-instagram",
+  ig: "fa-brands fa-instagram",
+  tiktok: "fa-brands fa-tiktok",
+  youtube: "fa-brands fa-youtube",
+  facebook: "fa-brands fa-facebook",
+  whatsapp: "fa-brands fa-whatsapp",
+  telegram: "fa-brands fa-telegram",
+  twitter: "fa-brands fa-x-twitter",
+  x: "fa-brands fa-x-twitter",
+  spotify: "fa-brands fa-spotify",
+  shopee: "fa-solid fa-bag-shopping",
+  threads: "fa-brands fa-threads",
+  other: "fa-solid fa-hashtag",
 };
 
 // Elemen DOM
@@ -39,6 +40,9 @@ const resellerUsername = document.getElementById("reseller-username");
 const resellerPassword = document.getElementById("reseller-password");
 const resellerButton = document.getElementById("reseller-button");
 const resellerMessage = document.getElementById("reseller-message");
+const platformInfo = document.getElementById("platform-info");
+const platformInfoIcon = document.getElementById("platform-info-icon");
+const platformInfoText = document.getElementById("platform-info-text");
 
 let selectedPlatform = null;
 let selectedCategory = null;
@@ -61,9 +65,9 @@ async function apiPost(path, body) {
   return res.json();
 }
 
-function iconForPlatform(id) {
+function iconClassForPlatform(id) {
   const key = (id || "").toLowerCase();
-  return PLATFORM_ICONS[key] || "⭐";
+  return PLATFORM_ICON_CLASSES[key] || PLATFORM_ICON_CLASSES.other;
 }
 
 // 1. Load platform
@@ -78,8 +82,9 @@ async function loadPlatforms() {
     data.platforms.forEach((p, index) => {
       const btn = document.createElement("button");
       btn.className = "platform-btn";
+      btn.type = "button";
       btn.dataset.platformId = p.id;
-      btn.innerHTML = `<span class="emoji">${iconForPlatform(p.id)}</span><span>${p.name}</span>`;
+      btn.innerHTML = `<i class="${iconClassForPlatform(p.id)}"></i><span>${p.name}</span>`;
       btn.onclick = () => selectPlatform(p);
       platformList.appendChild(btn);
       if (index === 0) {
@@ -113,9 +118,12 @@ async function selectPlatform(platform) {
     data.categories.forEach((c) => {
       const opt = document.createElement("option");
       opt.value = c.id;
-      opt.textContent = `${iconForPlatform(platform.id)} ${c.name}`;
+      opt.textContent = c.name;
       categorySelect.appendChild(opt);
     });
+    platformInfo.classList.remove("hidden");
+    platformInfoIcon.className = `${iconClassForPlatform(platform.id)} platform-info-icon`;
+    platformInfoText.textContent = platform.name;
   } catch (e) {
     categorySelect.innerHTML = `<option value="">Gagal load kategori</option>`;
     errorMessage.textContent = e.message;
