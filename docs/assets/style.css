@@ -201,13 +201,12 @@ label {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 10px 12px;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-  background: #fff;
+  padding: 0;
+  margin: 12px 0;
+  background: transparent;
+  border: none;
   color: #111827;
   font-size: 14px;
-  margin-bottom: 10px;
 }
 
 .platform-info.hidden {
@@ -215,13 +214,14 @@ label {
 }
 
 .platform-info-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #eef2ff;
+  background: #f3f4f6;
+  border: 1px solid #e5e7eb;
   flex-shrink: 0;
 }
 
