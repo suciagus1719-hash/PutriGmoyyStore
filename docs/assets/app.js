@@ -297,6 +297,8 @@ function updateTotalPrice() {
 quantityInput.addEventListener("input", updateTotalPrice);
 quantityInput.addEventListener("change", updateTotalPrice);
 
+const safeValue = (input) => (input ? input.value.trim() : "");
+
 payButton.addEventListener("click", async () => {
   errorMessage.textContent = "";
   if (!selectedPlatform) return (errorMessage.textContent = "Pilih platform terlebih dahulu.");
@@ -319,9 +321,9 @@ payButton.addEventListener("click", async () => {
       target,
       quantity: qty,
       buyer: {
-        name: buyerName.value.trim(),
-        whatsapp: buyerWhatsapp.value.trim(),
-        email: buyerEmail.value.trim(),
+        name: safeValue(buyerName),
+        whatsapp: safeValue(buyerWhatsapp),
+        email: safeValue(buyerEmail),
       },
     };
     const res = await apiPost("/api/create-order", payload);
