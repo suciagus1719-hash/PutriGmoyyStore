@@ -227,8 +227,8 @@ serviceSelect.addEventListener("change", async (e) => {
   const id = e.target.value;
   selectedService = null;
   serviceDetail.classList.add("hidden");
-  serviceNoteBox.classList.add("hidden");
-  serviceNoteText.textContent = "";
+  serviceNoteBox && serviceNoteBox.classList.add("hidden");
+  if (serviceNoteText) serviceNoteText.textContent = "";
   selectedPricePer100 = 0;
   updateTotalPrice();
   if (!id) return;
@@ -240,12 +240,12 @@ serviceSelect.addEventListener("change", async (e) => {
     serviceMin.textContent = data.service.min || "-";
     serviceMax.textContent = data.service.max || "-";
     serviceDetail.classList.remove("hidden");
-    if (descText && descText !== "-") {
+    if (descText && descText !== "-" && serviceNoteText && serviceNoteBox) {
       serviceNoteText.textContent = descText;
       serviceNoteBox.classList.remove("hidden");
     } else {
-      serviceNoteText.textContent = "";
-      serviceNoteBox.classList.add("hidden");
+      if (serviceNoteText) serviceNoteText.textContent = "";
+      if (serviceNoteBox) serviceNoteBox.classList.add("hidden");
     }
     selectedPricePer100 = data.service.price_per_100_value || 0;
     updateTotalPrice();
