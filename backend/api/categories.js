@@ -1,4 +1,5 @@
 const { callPanel } = require("./_smmClient");
+const { detectPlatformDef } = require("./_platformUtils");
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -10,17 +11,15 @@ module.exports = async (req, res) => {
   try {
     // Contoh: action=services (lihat dokumentasi panel Anda)
     const panelRes = await callPanel({ action: "services" });
-
     const categoriesMap = new Map();
-
-    (panelRes || []).forEach((s) => {
-      const catName = s.category;
-      if (!catName) return;
-
-      // Contoh filter: kategori yang mengandung nama platform
-      const p = platformId.toLowerCase();
-      if (!catName.toLowerCase().includes(p)) return;
-
+    (panelRes || []).forEach((svc) => {
+      const detected = detectPlatformDef(svc);
+      const belongToPlatform =
+        (svc.platform && String(svc.platform).toLowerCase() === platformId.toLowerCase()) ||
+        (detected && detected.id === platformId) ||
+        (platformId === "other" && !detected);
+      if (!belongToPlatform) return;
+      const catName = svc.category || "Tanpa Kategori";
       if (!categoriesMap.has(catName)) {
         categoriesMap.set(catName, { id: catName, name: catName });
       }

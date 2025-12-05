@@ -1,17 +1,16 @@
+const { callPanel } = require("./_smmClient");
+const { collectPlatforms } = require("./_platformUtils");
+
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   if (req.method === "OPTIONS") return res.status(200).end();
 
-  // Hardcode daftar platform, sesuaikan nama & jumlahnya
-  const platforms = [
-    { id: "instagram", name: "Instagram" },
-    { id: "tiktok", name: "TikTok" },
-    { id: "youtube", name: "YouTube" },
-    { id: "facebook", name: "Facebook" },
-    { id: "whatsapp", name: "WhatsApp" },
-    { id: "telegram", name: "Telegram" },
-    { id: "spotify", name: "Spotify" },
-    { id: "twitter", name: "Twitter / X" }
-  ];
-  res.json({ platforms });
+  try {
+    const services = await callPanel({ action: "services" });
+    const platforms = collectPlatforms(services || []);
+    res.json({ platforms });
+  } catch (e) {
+    console.error("platforms error", e);
+    res.status(500).json({ error: "Gagal mengambil platform dari panel" });
+  }
 };

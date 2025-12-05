@@ -52,12 +52,20 @@ async function loadPlatforms() {
   try {
     const data = await apiGet("/api/platforms");
     platformList.innerHTML = "";
-    data.platforms.forEach((p) => {
+    if (!data.platforms?.length) {
+      platformList.innerHTML = `<p>Tidak ada platform ditemukan.</p>`;
+      return;
+    }
+    data.platforms.forEach((p, index) => {
       const btn = document.createElement("button");
       btn.className = "platform-btn";
+      btn.dataset.platformId = p.id;
       btn.textContent = p.name;
       btn.onclick = () => selectPlatform(p);
       platformList.appendChild(btn);
+      if (index === 0) {
+        selectPlatform(p);
+      }
     });
   } catch (e) {
     errorMessage.textContent = e.message;
@@ -73,10 +81,9 @@ async function selectPlatform(platform) {
   selectedCategory = null;
   selectedService = null;
   clearActivePlatforms();
-  // tandai aktif
   const buttons = Array.from(document.querySelectorAll(".platform-btn"));
-  const idx = buttons.findIndex((b) => b.textContent === platform.name);
-  if (idx >= 0) buttons[idx].classList.add("active");
+  const btn = buttons.find((b) => b.dataset.platformId === platform.id);
+  if (btn) btn.classList.add("active");
 
   categorySelect.innerHTML = `<option value="">Loading kategori...</option>`;
   serviceSelect.innerHTML = `<option value="">Pilih kategori dulu.</option>`;
