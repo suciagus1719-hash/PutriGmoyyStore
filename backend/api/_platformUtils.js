@@ -41,6 +41,22 @@ function detectPlatformDef(service) {
   return null;
 }
 
+function belongsToPlatform(service, platformId) {
+  const target = String(platformId || "").toLowerCase();
+  if (!target) return true;
+  const detected = detectPlatformDef(service);
+  const svcPlatform = service.platform ? String(service.platform).toLowerCase() : "";
+  if (target === "other") {
+    return !detected && !svcPlatform;
+  }
+  if (svcPlatform && svcPlatform === target) return true;
+  if (detected && detected.id === target) return true;
+  const def = PLATFORM_DEFS.find((p) => p.id === target);
+  const keywords = def ? def.keywords : [target];
+  const text = normalizeText(service);
+  return keywords.some((kw) => kw && text.includes(kw.trim()));
+}
+
 function collectPlatforms(services) {
   const map = new Map();
   services.forEach((svc) => {
@@ -72,4 +88,5 @@ module.exports = {
   collectPlatforms,
   detectPlatformDef,
   normalizeServicesResponse,
+  belongsToPlatform,
 };

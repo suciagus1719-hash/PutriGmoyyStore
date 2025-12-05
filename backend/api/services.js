@@ -1,5 +1,5 @@
 const { callPanel } = require("./_smmClient");
-const { detectPlatformDef, normalizeServicesResponse } = require("./_platformUtils");
+const { normalizeServicesResponse, belongsToPlatform } = require("./_platformUtils");
 const { decodeCategoryKey } = require("./_categoryUtils");
 const { getServiceCategory, getServiceId, getServiceName } = require("./_serviceParser");
 
@@ -20,11 +20,7 @@ module.exports = async (req, res) => {
     const filtered = servicesFromPanel.filter((svc) => {
       const catName = getServiceCategory(svc);
       if (catName !== targetCategory) return false;
-      if (!platformKey) return true;
-      const detected = detectPlatformDef(svc);
-      const svcPlatform = svc.platform ? String(svc.platform).toLowerCase() : null;
-      if (platformKey === "other") return !detected;
-      return (svcPlatform && svcPlatform === platformKey) || (detected && detected.id === platformKey);
+      return belongsToPlatform(svc, platformKey || platformId);
     });
 
     const services = filtered.map((svc) => ({
