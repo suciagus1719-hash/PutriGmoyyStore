@@ -182,6 +182,7 @@ label {
 .total-box {
   display: block;
   margin-top: 12px;
+  margin-bottom: 4px;
   color: #374151;
   font-size: 14px;
 }
