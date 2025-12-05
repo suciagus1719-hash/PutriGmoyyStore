@@ -70,6 +70,40 @@ body {
   color: #111827;
 }
 
+.platform-meta {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  font-size: 13px;
+  color: #4b5563;
+  margin-bottom: 12px;
+}
+
+.platform-meta .icon {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #fff;
+  border-radius: 50%;
+  text-transform: uppercase;
+  background: #9ca3af;
+}
+
+.icon.ig { background: linear-gradient(135deg, #f58529, #dd2a7b, #8134af); }
+.icon.tt { background: #010101; }
+.icon.fb { background: #1877f2; }
+.icon.tg { background: #3390ec; }
+.icon.wa { background: #25d366; }
+.icon.tw { background: #1d9bf0; }
+.icon.yt { background: #ff0000; }
+.icon.th { background: #111827; }
+
 .platform-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
