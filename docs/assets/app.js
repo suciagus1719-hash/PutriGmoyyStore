@@ -70,6 +70,7 @@ const serviceNoteText = document.getElementById("service-note-text");
 const targetInput = document.getElementById("target-input");
 const quantityInput = document.getElementById("quantity-input");
 const totalPriceInput = document.getElementById("total-price");
+const orderEmailInput = document.getElementById("order-email");
 const buyerName = document.getElementById("buyer-name") || { value: "" };
 const buyerWhatsapp = document.getElementById("buyer-whatsapp") || { value: "" };
 const buyerEmail = document.getElementById("buyer-email") || { value: "" };
