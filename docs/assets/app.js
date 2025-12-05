@@ -57,7 +57,7 @@ const FALLBACK_PLATFORMS = [
   { id: "audiomack", name: "Audiomack" },
 ];
 
-// Elemen DOM
+// DOM
 const platformList = document.getElementById("platform-list");
 const categorySelect = document.getElementById("category-select");
 const serviceSelect = document.getElementById("service-select");
@@ -75,8 +75,6 @@ const buyerWhatsapp = document.getElementById("buyer-whatsapp");
 const buyerEmail = document.getElementById("buyer-email");
 const payButton = document.getElementById("pay-button");
 const errorMessage = document.getElementById("error-message");
-
-// Reseller elements
 const resellerName = document.getElementById("reseller-name");
 const resellerWhatsapp = document.getElementById("reseller-whatsapp");
 const resellerEmail = document.getElementById("reseller-email");
@@ -91,8 +89,10 @@ const platformInfoText = document.getElementById("platform-info-text");
 let selectedPlatform = null;
 let selectedCategory = null;
 let selectedService = null;
+let selectedPricePer100 = 0;
+let catalogPlatforms = [];
+let catalogServices = [];
 
-// Helper fetch
 async function apiGet(path) {
   const res = await fetch(`${API_BASE}${path}`);
   if (!res.ok) throw new Error("Gagal komunikasi dengan server");
@@ -114,20 +114,34 @@ function platformIcon(id) {
   const url =
     meta.logoUrl ||
     (meta.slug ? `https://cdn.simpleicons.org/${meta.slug}/ffffff` : "https://cdn.simpleicons.org/hashtag/ffffff");
-  return {
-    color: meta.color || "#6B7280",
-    url,
-  };
+  return { color: meta.color || "#6B7280", url };
 }
 
-function renderPlatformButtons(list, { autoSelectFirst = true } = {}) {
+async function loadCatalog() {
+  try {
+    const data = await apiGet("/api/catalog");
+    catalogPlatforms = data.platforms?.length ? data.platforms : FALLBACK_PLATFORMS;
+    catalogServices = data.services || [];
+  } catch (e) {
+    errorMessage.textContent = "Gagal memuat katalog, gunakan daftar default.";
+    catalogPlatforms = FALLBACK_PLATFORMS;
+    catalogServices = [];
+  } finally {
+    renderPlatformButtons();
+  }
+}
+
+function renderPlatformButtons(list = catalogPlatforms) {
   platformList.innerHTML = "";
+  if (!list.length) {
+    platformList.innerHTML = `<p>Tidak ada platform.</p>`;
+    return;
+  }
   list.forEach((p, index) => {
     const btn = document.createElement("button");
     btn.className = "platform-btn";
     btn.type = "button";
     btn.dataset.platformId = p.id;
-
     const icon = platformIcon(p.id);
     btn.innerHTML = `
       <span class="logo" style="background:${icon.color}">
@@ -137,122 +151,132 @@ function renderPlatformButtons(list, { autoSelectFirst = true } = {}) {
     `;
     btn.onclick = () => selectPlatform(p);
     platformList.appendChild(btn);
-    if (index === 0 && autoSelectFirst) {
-      selectPlatform(p);
-    }
+    if (index === 0) selectPlatform(p);
   });
-}
-
-// 1. Load platform
-async function loadPlatforms() {
-  // render fallback dulu supaya user langsung melihat pilihan
-  if (!platformList.children.length) {
-    renderPlatformButtons(FALLBACK_PLATFORMS, { autoSelectFirst: false });
-  }
-  try {
-    const data = await apiGet("/api/platforms");
-    const list = data.platforms?.length ? data.platforms : FALLBACK_PLATFORMS;
-    renderPlatformButtons(list);
-  } catch (e) {
-    errorMessage.textContent = "Gagal memuat platform, gunakan daftar default.";
-    renderPlatformButtons(FALLBACK_PLATFORMS, { autoSelectFirst: false });
-  }
 }
 
 function clearActivePlatforms() {
   document.querySelectorAll(".platform-btn").forEach((b) => b.classList.remove("active"));
 }
 
-async function selectPlatform(platform) {
+function getCategoriesForPlatform(platformId) {
+  const set = new Set();
+  catalogServices.forEach((svc) => {
+    if ((svc.platformId || "other") === (platformId || "other")) {
+      if (svc.category) set.add(svc.category);
+    }
+  });
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+function getServicesForCategory(platformId, categoryName) {
+  return catalogServices
+    .filter(
+      (svc) =>
+        (svc.platformId || "other") === (platformId || "other") && svc.category === categoryName
+    )
+    .sort((a, b) => (a.sortPrice || 0) - (b.sortPrice || 0));
+}
+
+function selectPlatform(platform) {
   selectedPlatform = platform;
   selectedCategory = null;
   selectedService = null;
+  selectedPricePer100 = 0;
+  updateTotalPrice();
   clearActivePlatforms();
-  const buttons = Array.from(document.querySelectorAll(".platform-btn"));
-  const btn = buttons.find((b) => b.dataset.platformId === platform.id);
-  if (btn) btn.classList.add("active");
+  const buttons = document.querySelectorAll(".platform-btn");
+  buttons.forEach((btn) => {
+    if (btn.dataset.platformId === platform.id) btn.classList.add("active");
+  });
 
-  categorySelect.innerHTML = `<option value="">Loading kategori...</option>`;
+  const categories = getCategoriesForPlatform(platform.id);
+  categorySelect.innerHTML = `<option value="">${categories.length ? "Pilih kategori layanan" : "Kategori tidak tersedia"}</option>`;
   serviceSelect.innerHTML = `<option value="">Pilih kategori dulu.</option>`;
   serviceDetail.classList.add("hidden");
-  platformInfo.classList.add("hidden");
-  try {
-    const data = await apiGet(`/api/categories?platformId=${encodeURIComponent(platform.id)}`);
-    categorySelect.innerHTML = `<option value="">Pilih kategori layanan</option>`;
-    data.categories.forEach((c) => {
-      const opt = document.createElement("option");
-      opt.value = c.id;
-      opt.textContent = c.name;
-      categorySelect.appendChild(opt);
-    });
-    const icon = platformIcon(platform.id);
-    platformInfo.classList.remove("hidden");
-    platformInfoIcon.innerHTML = `<img src="${icon.url}" alt="${platform.name}" />`;
-    platformInfoIcon.style.background = icon.color;
-    platformInfoText.textContent = platform.name;
-  } catch (e) {
-    categorySelect.innerHTML = `<option value="">Gagal load kategori</option>`;
-    errorMessage.textContent = e.message;
-  }
+  if (serviceNoteBox) serviceNoteBox.classList.add("hidden");
+  if (serviceNoteText) serviceNoteText.textContent = "";
+
+  categories.forEach((name) => {
+    const opt = document.createElement("option");
+    opt.value = name;
+    opt.textContent = name;
+    categorySelect.appendChild(opt);
+  });
+
+  const icon = platformIcon(platform.id);
+  platformInfo.classList.remove("hidden");
+  platformInfoIcon.innerHTML = `<img src="${icon.url}" alt="${platform.name}" />`;
+  platformInfoIcon.style.background = icon.color;
+  platformInfoText.textContent = platform.name;
 }
 
-// 2. Saat kategori berubah
-categorySelect.addEventListener("change", async (e) => {
-  const id = e.target.value;
-  selectedCategory = id || null;
+categorySelect.addEventListener("change", (e) => {
+  selectedCategory = e.target.value || null;
   selectedService = null;
-  serviceSelect.innerHTML = `<option value="">Loading layanan...</option>`;
+  selectedPricePer100 = 0;
+  updateTotalPrice();
   serviceDetail.classList.add("hidden");
-  if (!id) {
+  if (serviceNoteBox) serviceNoteBox.classList.add("hidden");
+  if (serviceNoteText) serviceNoteText.textContent = "";
+
+  if (!selectedCategory) {
     serviceSelect.innerHTML = `<option value="">Pilih kategori dulu.</option>`;
     return;
   }
-  try {
-    const data = await apiGet(`/api/services?categoryId=${encodeURIComponent(id)}`);
-    serviceSelect.innerHTML = `<option value="">Pilih layanan</option>`;
-    data.services.forEach((s) => {
-      const opt = document.createElement("option");
-      opt.value = s.id;
-      opt.textContent = s.name;
-      serviceSelect.appendChild(opt);
-    });
-  } catch (e) {
-    serviceSelect.innerHTML = `<option value="">Gagal load layanan</option>`;
-    errorMessage.textContent = e.message;
+
+  const data = getServicesForCategory(selectedPlatform?.id, selectedCategory);
+  if (!data.length) {
+    serviceSelect.innerHTML = `<option value="">Layanan tidak tersedia.</option>`;
+    return;
   }
+
+  serviceSelect.innerHTML = `<option value="">Pilih layanan</option>`;
+  data.forEach((svc) => {
+    const opt = document.createElement("option");
+    const priceLabel = svc.pricePer100 ? `Rp ${svc.pricePer100.toLocaleString("id-ID")}` : "Rp0";
+    opt.value = svc.id;
+    opt.textContent = `${svc.id} - ${svc.name} - ${priceLabel}`;
+    serviceSelect.appendChild(opt);
+  });
 });
 
-// 3. Saat layanan berubah
-serviceSelect.addEventListener("change", async (e) => {
+serviceSelect.addEventListener("change", (e) => {
   const id = e.target.value;
   selectedService = null;
   serviceDetail.classList.add("hidden");
-  serviceNoteBox && serviceNoteBox.classList.add("hidden");
+  if (serviceNoteBox) serviceNoteBox.classList.add("hidden");
   if (serviceNoteText) serviceNoteText.textContent = "";
   selectedPricePer100 = 0;
   updateTotalPrice();
   if (!id) return;
-  try {
-    const data = await apiGet(`/api/service?id=${encodeURIComponent(id)}`);
-    selectedService = data.service;
-    const descText = data.service.description || "-";
-    servicePrice.textContent = data.service.price_per_100 || data.service.price_display || `${data.service.rate || 0}/1000`;
-    serviceMin.textContent = data.service.min || "-";
-    serviceMax.textContent = data.service.max || "-";
-    serviceDetail.classList.remove("hidden");
-    if (descText && descText !== "-" && serviceNoteText && serviceNoteBox) {
-      serviceNoteText.textContent = descText;
-      serviceNoteBox.classList.remove("hidden");
-    } else {
-      if (serviceNoteText) serviceNoteText.textContent = "";
-      if (serviceNoteBox) serviceNoteBox.classList.add("hidden");
-    }
-    selectedPricePer100 = data.service.price_per_100_value || 0;
-    updateTotalPrice();
-    if (data.service.min) quantityInput.min = data.service.min;
-  } catch (e) {
-    errorMessage.textContent = e.message;
+
+  const svc = catalogServices.find((s) => String(s.id) === String(id));
+  if (!svc) {
+    errorMessage.textContent = "Layanan tidak ditemukan.";
+    return;
   }
+  selectedService = svc;
+  const priceLabel = svc.pricePer100
+    ? `Rp ${svc.pricePer100.toLocaleString("id-ID")}`
+    : svc.rate
+    ? `Rp ${svc.rate.toLocaleString("id-ID")} / 1000`
+    : "-";
+  servicePrice.textContent = priceLabel;
+  serviceMin.textContent = svc.min || "-";
+  serviceMax.textContent = svc.max || "-";
+  serviceDetail.classList.remove("hidden");
+
+  if (svc.description && serviceNoteBox && serviceNoteText) {
+    serviceNoteText.textContent = svc.description;
+    serviceNoteBox.classList.remove("hidden");
+  } else if (serviceNoteBox) {
+    serviceNoteBox.classList.add("hidden");
+  }
+
+  selectedPricePer100 = svc.pricePer100 || 0;
+  updateTotalPrice();
+  if (svc.min) quantityInput.min = svc.min;
 });
 
 function updateTotalPrice() {
@@ -268,7 +292,6 @@ function updateTotalPrice() {
 quantityInput.addEventListener("input", updateTotalPrice);
 quantityInput.addEventListener("change", updateTotalPrice);
 
-// 4. Lanjutkan pembayaran
 payButton.addEventListener("click", async () => {
   errorMessage.textContent = "";
   if (!selectedPlatform) return (errorMessage.textContent = "Pilih platform terlebih dahulu.");
@@ -284,7 +307,6 @@ payButton.addEventListener("click", async () => {
   try {
     payButton.disabled = true;
     payButton.textContent = "Membuat pesanan...";
-
     const payload = {
       platformId: selectedPlatform.id,
       categoryId: selectedCategory,
@@ -297,10 +319,8 @@ payButton.addEventListener("click", async () => {
         email: buyerEmail.value.trim(),
       },
     };
-
     const res = await apiPost("/api/create-order", payload);
     if (!res.redirectUrl) throw new Error("redirectUrl tidak ditemukan.");
-    // Redirect ke payment page Midtrans Snap (akan menampilkan QR dinamis)
     window.location.href = res.redirectUrl;
   } catch (e) {
     errorMessage.textContent = e.message;
@@ -310,7 +330,6 @@ payButton.addEventListener("click", async () => {
   }
 });
 
-// 5. Daftar reseller
 resellerButton.addEventListener("click", async () => {
   resellerMessage.textContent = "";
   const name = resellerName.value.trim();
@@ -354,5 +373,4 @@ resellerButton.addEventListener("click", async () => {
   }
 });
 
-loadPlatforms();
-let selectedPricePer100 = 0;
+loadCatalog();
