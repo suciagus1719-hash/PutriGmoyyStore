@@ -12,8 +12,8 @@ async function callPanel(body) {
   }
 
   const form = new URLSearchParams({
-    key: API_KEY,
-    secret: SECRET,
+    api_key: API_KEY,
+    secret_key: SECRET,
     ...body,
   });
 
@@ -23,10 +23,19 @@ async function callPanel(body) {
     body: form,
   });
 
+  const json = await res.json().catch(() => null);
+
   if (!res.ok) {
+    console.error("Panel HTTP error:", res.status, json);
     throw new Error("Gagal menghubungi panel");
   }
-  return res.json();
+
+  if (json && json.status === false) {
+    const msg = (json.data && json.data.msg) || json.error || "Panel mengembalikan error";
+    throw new Error(msg);
+  }
+
+  return json;
 }
 
 module.exports = { callPanel };
