@@ -156,10 +156,10 @@ label {
   margin-top: 16px;
   padding: 12px;
   border-radius: 10px;
-  background: #f3f4f6;
+  background: #fff;
+  border: 1px solid #e5e7eb;
   color: #1f2937;
 }
-
 .service-note h4 {
   font-size: 15px;
   margin-bottom: 6px;
@@ -177,8 +177,9 @@ label {
 
 .total-box {
   margin-top: 10px;
-  padding: 10px 12px;
-  background: #eef2ff;
+  padding: 12px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
   border-radius: 10px;
   color: #111827;
 }
