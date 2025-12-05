@@ -78,16 +78,16 @@ body {
 
 .platform-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  grid-template-columns: repeat(5, minmax(0, 1fr));
   gap: 12px;
 }
 
 .platform-btn {
   border-radius: 10px;
   padding: 12px 14px;
-  border: 1px solid #d1d5db;
-  background: #f9fafb;
-  color: #1f2937;
+  border: none;
+  background: linear-gradient(135deg, #f7f7f7, #e0e7ff);
+  color: #0f172a;
   font-size: 14px;
   cursor: pointer;
   transition: background 0.2s ease, border-color 0.2s ease;
