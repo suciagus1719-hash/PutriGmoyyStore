@@ -1,19 +1,31 @@
 const API_BASE = window.API_BASE_URL;
-const PLATFORM_ICON_CLASSES = {
-  instagram: "fa-brands fa-instagram",
-  ig: "fa-brands fa-instagram",
-  tiktok: "fa-brands fa-tiktok",
-  youtube: "fa-brands fa-youtube",
-  facebook: "fa-brands fa-facebook",
-  whatsapp: "fa-brands fa-whatsapp",
-  telegram: "fa-brands fa-telegram",
-  twitter: "fa-brands fa-x-twitter",
-  x: "fa-brands fa-x-twitter",
-  spotify: "fa-brands fa-spotify",
-  shopee: "fa-solid fa-bag-shopping",
-  threads: "fa-brands fa-threads",
-  other: "fa-solid fa-hashtag",
+
+const PLATFORM_ICON_META = {
+  instagram: { slug: "instagram", color: "#E1306C" },
+  ig: { slug: "instagram", color: "#E1306C" },
+  tiktok: { slug: "tiktok", color: "#000000" },
+  youtube: { slug: "youtube", color: "#FF0000" },
+  facebook: { slug: "facebook", color: "#1877F2" },
+  whatsapp: { slug: "whatsapp", color: "#25D366" },
+  telegram: { slug: "telegram", color: "#229ED9" },
+  twitter: { slug: "twitter", color: "#1D9BF0" },
+  x: { slug: "twitter", color: "#1D9BF0" },
+  spotify: { slug: "spotify", color: "#1DB954" },
+  shopee: { slug: "shopee", color: "#F1582C" },
+  threads: { slug: "threads", color: "#101010" },
+  other: { slug: "hashtag", color: "#6B7280" },
 };
+
+const FALLBACK_PLATFORMS = [
+  { id: "instagram", name: "Instagram" },
+  { id: "tiktok", name: "TikTok" },
+  { id: "facebook", name: "Facebook" },
+  { id: "telegram", name: "Telegram" },
+  { id: "whatsapp", name: "WhatsApp" },
+  { id: "twitter", name: "Twitter / X" },
+  { id: "youtube", name: "YouTube" },
+  { id: "threads", name: "Threads" },
+];
 
 // Elemen DOM
 const platformList = document.getElementById("platform-list");
@@ -65,34 +77,46 @@ async function apiPost(path, body) {
   return res.json();
 }
 
-function iconClassForPlatform(id) {
-  const key = (id || "").toLowerCase();
-  return PLATFORM_ICON_CLASSES[key] || PLATFORM_ICON_CLASSES.other;
+function platformIcon(id) {
+  const meta = PLATFORM_ICON_META[(id || "").toLowerCase()] || PLATFORM_ICON_META.other;
+  return {
+    color: meta.color,
+    url: `https://cdn.simpleicons.org/${meta.slug}/ffffff`,
+  };
+}
+
+function renderPlatformButtons(list) {
+  platformList.innerHTML = "";
+  list.forEach((p, index) => {
+    const btn = document.createElement("button");
+    btn.className = "platform-btn";
+    btn.type = "button";
+    btn.dataset.platformId = p.id;
+
+    const icon = platformIcon(p.id);
+    btn.innerHTML = `
+      <span class="logo" style="background:${icon.color}">
+        <img src="${icon.url}" alt="${p.name}" loading="lazy" />
+      </span>
+      <span>${p.name}</span>
+    `;
+    btn.onclick = () => selectPlatform(p);
+    platformList.appendChild(btn);
+    if (index === 0) {
+      selectPlatform(p);
+    }
+  });
 }
 
 // 1. Load platform
 async function loadPlatforms() {
   try {
     const data = await apiGet("/api/platforms");
-    platformList.innerHTML = "";
-    if (!data.platforms?.length) {
-      platformList.innerHTML = `<p>Tidak ada platform ditemukan.</p>`;
-      return;
-    }
-    data.platforms.forEach((p, index) => {
-      const btn = document.createElement("button");
-      btn.className = "platform-btn";
-      btn.type = "button";
-      btn.dataset.platformId = p.id;
-      btn.innerHTML = `<i class="${iconClassForPlatform(p.id)}"></i><span>${p.name}</span>`;
-      btn.onclick = () => selectPlatform(p);
-      platformList.appendChild(btn);
-      if (index === 0) {
-        selectPlatform(p);
-      }
-    });
+    const list = data.platforms?.length ? data.platforms : FALLBACK_PLATFORMS;
+    renderPlatformButtons(list);
   } catch (e) {
-    errorMessage.textContent = e.message;
+    errorMessage.textContent = "Gagal memuat platform, gunakan daftar default.";
+    renderPlatformButtons(FALLBACK_PLATFORMS);
   }
 }
 
@@ -112,6 +136,7 @@ async function selectPlatform(platform) {
   categorySelect.innerHTML = `<option value="">Loading kategori...</option>`;
   serviceSelect.innerHTML = `<option value="">Pilih kategori dulu.</option>`;
   serviceDetail.classList.add("hidden");
+  platformInfo.classList.add("hidden");
   try {
     const data = await apiGet(`/api/categories?platformId=${encodeURIComponent(platform.id)}`);
     categorySelect.innerHTML = `<option value="">Pilih kategori layanan</option>`;
@@ -121,8 +146,10 @@ async function selectPlatform(platform) {
       opt.textContent = c.name;
       categorySelect.appendChild(opt);
     });
+    const icon = platformIcon(platform.id);
     platformInfo.classList.remove("hidden");
-    platformInfoIcon.className = `${iconClassForPlatform(platform.id)} platform-info-icon`;
+    platformInfoIcon.innerHTML = `<img src="${icon.url}" alt="${platform.name}" />`;
+    platformInfoIcon.style.background = icon.color;
     platformInfoText.textContent = platform.name;
   } catch (e) {
     categorySelect.innerHTML = `<option value="">Gagal load kategori</option>`;

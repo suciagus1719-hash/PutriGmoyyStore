@@ -4,13 +4,6 @@
   <meta charset="UTF-8" />
   <title>Putri Gmoyy Sosmed</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <link
-    rel="stylesheet"
-    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
-    integrity="sha512-NZ8P+2nS4W0N1kk3c3P7V7YHscI2ALFzEo/zqGqULlGTSY+ZkddwQ6vurIWBLL8GMDIS9ZhuttS60Trwaw2Zmw=="
-    crossorigin="anonymous"
-    referrerpolicy="no-referrer"
-  />
   <link rel="stylesheet" href="assets/style.css" />
 </head>
 <body>
@@ -33,16 +26,7 @@
       <!-- Step 1: Platform -->
       <section class="card">
         <h3>Pilih Platform &amp; Layanan</h3>
-        <ul class="platform-meta">
-          <li><i class="fa-brands fa-instagram"></i>Instagram</li>
-          <li><i class="fa-brands fa-tiktok"></i>TikTok</li>
-          <li><i class="fa-brands fa-facebook"></i>Facebook</li>
-          <li><i class="fa-brands fa-telegram"></i>Telegram</li>
-          <li><i class="fa-brands fa-whatsapp"></i>WhatsApp</li>
-          <li><i class="fa-brands fa-x-twitter"></i>Twitter / X</li>
-          <li><i class="fa-brands fa-youtube"></i>YouTube</li>
-          <li><i class="fa-brands fa-threads"></i>Threads &amp; lainnya</li>
-        </ul>
+        <p class="platform-hint">Klik salah satu logo platform untuk memuat kategori layanan otomatis dari panel.</p>
         <div id="platform-list" class="platform-grid">
           <!-- tombol platform akan di-render via JS -->
         </div>
@@ -52,7 +36,7 @@
       <section class="card">
         <h3>Kategori Layanan</h3>
         <div id="platform-info" class="platform-info hidden">
-          <i id="platform-info-icon"></i>
+          <span id="platform-info-icon" class="platform-info-icon"></span>
           <span id="platform-info-text"></span>
         </div>
         <select id="category-select">

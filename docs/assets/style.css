@@ -70,30 +70,21 @@ body {
   color: #111827;
 }
 
-.platform-meta {
-  list-style: none;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 16px;
+.platform-hint {
   font-size: 13px;
-  color: #4b5563;
-  margin-bottom: 12px;
-}
-
-.platform-meta i {
-  margin-right: 4px;
-  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 10px;
 }
 
 .platform-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
 }
 
 .platform-btn {
   border-radius: 10px;
-  padding: 10px 12px;
+  padding: 12px 14px;
   border: 1px solid #d1d5db;
   background: #f9fafb;
   color: #1f2937;
@@ -106,8 +97,21 @@ body {
   justify-content: center;
 }
 
-.platform-btn i {
-  font-size: 16px;
+.platform-btn .logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #d1d5db;
+  flex-shrink: 0;
+}
+
+.platform-btn .logo img {
+  width: 24px;
+  height: 24px;
 }
 
 .platform-btn:hover {
@@ -174,8 +178,19 @@ label {
   display: none;
 }
 
-.platform-info i {
-  font-size: 18px;
+.platform-info-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: #4f46e5;
+}
+
+.platform-info-icon img {
+  width: 18px;
+  height: 18px;
 }
 
 .pay-button {
