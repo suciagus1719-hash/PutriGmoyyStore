@@ -4,6 +4,7 @@ const {
   getServiceId,
   getServiceDescription,
   getServicePrice,
+  getServicePricePer100,
   getServiceMin,
   getServiceMax,
   getServiceName,
@@ -24,12 +25,18 @@ module.exports = async (req, res) => {
     if (!svc) return res.status(404).json({ error: "Layanan tidak ditemukan" });
 
     const rate = getServicePrice(svc);
+    const per100 = getServicePricePer100(svc);
+    const rawDesc = getServiceDescription(svc) || "";
+    const formattedDesc = rawDesc.replace(/\r/g, "\n").replace(/\n{2,}/g, "\n\n");
+
     const service = {
       id: String(getServiceId(svc)),
       name: getServiceName(svc),
-      description: getServiceDescription(svc),
+      description: formattedDesc,
       rate,
-      price_display: rate ? `Rp ${rate.toLocaleString("id-ID")} / 1000` : "-",
+      price_display: per100 ? `Rp ${per100.toLocaleString("id-ID")} / 100` : "-",
+      price_per_100: per100 ? `Rp ${per100.toLocaleString("id-ID")}` : null,
+      price_per_100_value: per100 || 0,
       min: getServiceMin(svc),
       max: getServiceMax(svc),
       category: getServiceCategory(svc),

@@ -165,8 +165,22 @@ label {
   margin-bottom: 6px;
 }
 
+.service-note pre {
+  white-space: pre-wrap;
+  line-height: 1.4;
+  font-family: inherit;
+}
+
 .service-note.hidden {
   display: none;
+}
+
+.total-box {
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: #eef2ff;
+  border-radius: 10px;
+  color: #111827;
 }
 
 .hidden {

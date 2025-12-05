@@ -52,14 +52,13 @@
         </select>
 
         <div id="service-detail" class="service-detail hidden">
-          <p><strong>Deskripsi:</strong> <span id="service-description"></span></p>
-          <p><strong>Harga:</strong> <span id="service-price"></span></p>
+          <p><strong>Harga / 100:</strong> <span id="service-price"></span></p>
           <p><strong>Minimal:</strong> <span id="service-min"></span></p>
           <p><strong>Maksimal:</strong> <span id="service-max"></span></p>
         </div>
         <div id="service-note-box" class="service-note hidden">
           <h4>Deskripsi Layanan</h4>
-          <p id="service-note-text"></p>
+          <pre id="service-note-text"></pre>
         </div>
       </section>
 
@@ -74,6 +73,9 @@
           Jumlah
           <input type="number" id="quantity-input" min="0" value="0" />
         </label>
+        <div class="total-box">
+          <p><strong>Total Harga:</strong> <span id="total-price">Rp0</span></p>
+        </div>
       </section>
 
       <!-- Step 5: Data Pemesan -->

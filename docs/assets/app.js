@@ -62,7 +62,6 @@ const platformList = document.getElementById("platform-list");
 const categorySelect = document.getElementById("category-select");
 const serviceSelect = document.getElementById("service-select");
 const serviceDetail = document.getElementById("service-detail");
-const serviceDesc = document.getElementById("service-description");
 const servicePrice = document.getElementById("service-price");
 const serviceMin = document.getElementById("service-min");
 const serviceMax = document.getElementById("service-max");
@@ -70,6 +69,7 @@ const serviceNoteBox = document.getElementById("service-note-box");
 const serviceNoteText = document.getElementById("service-note-text");
 const targetInput = document.getElementById("target-input");
 const quantityInput = document.getElementById("quantity-input");
+const totalPriceText = document.getElementById("total-price");
 const buyerName = document.getElementById("buyer-name");
 const buyerWhatsapp = document.getElementById("buyer-whatsapp");
 const buyerEmail = document.getElementById("buyer-email");
@@ -229,13 +229,14 @@ serviceSelect.addEventListener("change", async (e) => {
   serviceDetail.classList.add("hidden");
   serviceNoteBox.classList.add("hidden");
   serviceNoteText.textContent = "";
+  selectedPricePer100 = 0;
+  updateTotalPrice();
   if (!id) return;
   try {
     const data = await apiGet(`/api/service?id=${encodeURIComponent(id)}`);
     selectedService = data.service;
     const descText = data.service.description || "-";
-    serviceDesc.textContent = descText;
-    servicePrice.textContent = data.service.price_display || `${data.service.rate || 0}/1000`;
+    servicePrice.textContent = data.service.price_per_100 || data.service.price_display || `${data.service.rate || 0}/1000`;
     serviceMin.textContent = data.service.min || "-";
     serviceMax.textContent = data.service.max || "-";
     serviceDetail.classList.remove("hidden");
@@ -246,11 +247,26 @@ serviceSelect.addEventListener("change", async (e) => {
       serviceNoteText.textContent = "";
       serviceNoteBox.classList.add("hidden");
     }
+    selectedPricePer100 = data.service.price_per_100_value || 0;
+    updateTotalPrice();
     if (data.service.min) quantityInput.min = data.service.min;
   } catch (e) {
     errorMessage.textContent = e.message;
   }
 });
+
+function updateTotalPrice() {
+  const qty = Number(quantityInput.value || 0);
+  if (!selectedPricePer100 || !qty) {
+    totalPriceText.textContent = "Rp0";
+    return;
+  }
+  const total = (selectedPricePer100 / 100) * qty;
+  totalPriceText.textContent = `Rp ${Math.round(total).toLocaleString("id-ID")}`;
+}
+
+quantityInput.addEventListener("input", updateTotalPrice);
+quantityInput.addEventListener("change", updateTotalPrice);
 
 // 4. Lanjutkan pembayaran
 payButton.addEventListener("click", async () => {
@@ -339,3 +355,4 @@ resellerButton.addEventListener("click", async () => {
 });
 
 loadPlatforms();
+let selectedPricePer100 = 0;
