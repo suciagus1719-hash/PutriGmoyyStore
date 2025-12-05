@@ -198,13 +198,14 @@ label {
 }
 
 .platform-info {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: #eef2ff;
-  color: #312e81;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fff;
+  color: #111827;
   font-size: 14px;
   margin-bottom: 10px;
 }
@@ -214,13 +215,14 @@ label {
 }
 
 .platform-info-icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: #4f46e5;
+  background: #eef2ff;
+  flex-shrink: 0;
 }
 
 .platform-info-icon img {
