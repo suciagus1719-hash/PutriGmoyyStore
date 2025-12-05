@@ -69,7 +69,7 @@ const serviceDescriptionRow = document.getElementById("service-description-row")
 const serviceNoteText = document.getElementById("service-note-text");
 const targetInput = document.getElementById("target-input");
 const quantityInput = document.getElementById("quantity-input");
-const totalPriceText = document.getElementById("total-price");
+const totalPriceInput = document.getElementById("total-price");
 const buyerName = document.getElementById("buyer-name");
 const buyerWhatsapp = document.getElementById("buyer-whatsapp");
 const buyerEmail = document.getElementById("buyer-email");
@@ -282,11 +282,11 @@ serviceSelect.addEventListener("change", (e) => {
 function updateTotalPrice() {
   const qty = Number(quantityInput.value || 0);
   if (!selectedPricePer100 || !qty) {
-    totalPriceText.textContent = "Rp0";
+  totalPriceInput.value = "Rp0";
     return;
   }
   const total = (selectedPricePer100 / 100) * qty;
-  totalPriceText.textContent = `Rp ${Math.round(total).toLocaleString("id-ID")}`;
+  totalPriceInput.value = `Rp ${Math.round(total).toLocaleString("id-ID")}`;
 }
 
 quantityInput.addEventListener("input", updateTotalPrice);
