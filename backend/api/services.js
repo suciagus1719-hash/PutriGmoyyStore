@@ -1,6 +1,6 @@
 const { callPanel } = require("./_smmClient");
 const { normalizeServicesResponse, belongsToPlatform } = require("./_platformUtils");
-const { decodeCategoryKey } = require("./_categoryUtils");
+const { decodeCategoryKey, isBlockedCategory } = require("./_categoryUtils");
 const { getServiceCategory, getServiceId, getServiceName } = require("./_serviceParser");
 
 module.exports = async (req, res) => {
@@ -13,6 +13,9 @@ module.exports = async (req, res) => {
   try {
     const { platformId, categoryName } = decodeCategoryKey(categoryId);
     const targetCategory = categoryName || categoryId;
+    if (isBlockedCategory(targetCategory)) {
+      return res.json({ services: [] });
+    }
     const platformKey = platformId ? String(platformId).toLowerCase() : null;
     const panelRes = await callPanel({ action: "services" });
     const servicesFromPanel = normalizeServicesResponse(panelRes);

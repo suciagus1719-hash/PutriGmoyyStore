@@ -1,3 +1,5 @@
+const CATEGORY_BLOCK_KEYWORDS = ["website traffic"];
+
 function encodeCategoryKey(platformId, categoryName) {
   try {
     const payload = {
@@ -23,7 +25,14 @@ function decodeCategoryKey(key) {
   }
 }
 
+function isBlockedCategory(name) {
+  const text = String(name || "").toLowerCase();
+  if (!text) return false;
+  return CATEGORY_BLOCK_KEYWORDS.some((kw) => text.includes(kw));
+}
+
 module.exports = {
   encodeCategoryKey,
   decodeCategoryKey,
+  isBlockedCategory,
 };

@@ -1,6 +1,6 @@
 const { callPanel } = require("./_smmClient");
 const { normalizeServicesResponse, belongsToPlatform } = require("./_platformUtils");
-const { encodeCategoryKey } = require("./_categoryUtils");
+const { encodeCategoryKey, isBlockedCategory } = require("./_categoryUtils");
 const { getServiceCategory } = require("./_serviceParser");
 
 module.exports = async (req, res) => {
@@ -18,6 +18,7 @@ module.exports = async (req, res) => {
     services.forEach((svc) => {
       if (!belongsToPlatform(svc, platformId)) return;
       const catName = getServiceCategory(svc) || "Tanpa Kategori";
+      if (isBlockedCategory(catName)) return;
       if (!categoriesMap.has(catName)) {
         categoriesMap.set(catName, {
           id: encodeCategoryKey(platformId, catName),
