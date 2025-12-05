@@ -85,7 +85,7 @@ function platformIcon(id) {
   };
 }
 
-function renderPlatformButtons(list) {
+function renderPlatformButtons(list, { autoSelectFirst = true } = {}) {
   platformList.innerHTML = "";
   list.forEach((p, index) => {
     const btn = document.createElement("button");
@@ -102,7 +102,7 @@ function renderPlatformButtons(list) {
     `;
     btn.onclick = () => selectPlatform(p);
     platformList.appendChild(btn);
-    if (index === 0) {
+    if (index === 0 && autoSelectFirst) {
       selectPlatform(p);
     }
   });
@@ -110,13 +110,17 @@ function renderPlatformButtons(list) {
 
 // 1. Load platform
 async function loadPlatforms() {
+  // render fallback dulu supaya user langsung melihat pilihan
+  if (!platformList.children.length) {
+    renderPlatformButtons(FALLBACK_PLATFORMS, { autoSelectFirst: false });
+  }
   try {
     const data = await apiGet("/api/platforms");
     const list = data.platforms?.length ? data.platforms : FALLBACK_PLATFORMS;
     renderPlatformButtons(list);
   } catch (e) {
     errorMessage.textContent = "Gagal memuat platform, gunakan daftar default.";
-    renderPlatformButtons(FALLBACK_PLATFORMS);
+    renderPlatformButtons(FALLBACK_PLATFORMS, { autoSelectFirst: false });
   }
 }
 
