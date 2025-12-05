@@ -1,4 +1,4 @@
-const API_BASE = window.API_BASE_URL;
+﻿const API_BASE = window.API_BASE_URL;
 
 const PLATFORM_ICON_META = {
   instagram: { slug: "instagram", color: "#E1306C" },
@@ -70,9 +70,9 @@ const serviceNoteText = document.getElementById("service-note-text");
 const targetInput = document.getElementById("target-input");
 const quantityInput = document.getElementById("quantity-input");
 const totalPriceInput = document.getElementById("total-price");
-const buyerName = document.getElementById("buyer-name");
-const buyerWhatsapp = document.getElementById("buyer-whatsapp");
-const buyerEmail = document.getElementById("buyer-email");
+const buyerName = document.getElementById("buyer-name") || { value: "" };
+const buyerWhatsapp = document.getElementById("buyer-whatsapp") || { value: "" };
+const buyerEmail = document.getElementById("buyer-email") || { value: "" };
 const payButton = document.getElementById("pay-button");
 const errorMessage = document.getElementById("error-message");
 const resellerName = document.getElementById("reseller-name");
