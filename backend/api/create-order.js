@@ -1,5 +1,7 @@
 const fetch = require("node-fetch");
 const { callPanel } = require("./_smmClient");
+const { normalizeServicesResponse } = require("./_platformUtils");
+const { getServiceId, getServicePrice, getServiceName } = require("./_serviceParser");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 const MIDTRANS_SNAP_BASE_URL =
@@ -30,11 +32,12 @@ module.exports = async (req, res) => {
     }
 
     // Ambil detail layanan untuk hitung total harga
-    const services = await callPanel({ action: "services" });
-    const svc = (services || []).find((s) => String(s.service) === String(serviceId));
+    const panelRes = await callPanel({ action: "services" });
+    const services = normalizeServicesResponse(panelRes);
+    const svc = services.find((s) => String(getServiceId(s)) === String(serviceId));
     if (!svc) return res.status(400).json({ error: "Layanan tidak ditemukan" });
 
-    const rate = Number(svc.rate); // harga per 1000
+    const rate = getServicePrice(svc); // harga per 1000
     const qty = Number(quantity);
     const paymentAmount = Math.round((rate / 1000) * qty);
 
@@ -56,7 +59,7 @@ module.exports = async (req, res) => {
           id: String(serviceId),
           price: paymentAmount,
           quantity: 1,
-          name: svc.name.substring(0, 50),
+          name: getServiceName(svc).substring(0, 50),
         },
       ],
       custom_field1: String(serviceId),

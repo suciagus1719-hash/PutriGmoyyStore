@@ -66,6 +66,8 @@ const serviceDesc = document.getElementById("service-description");
 const servicePrice = document.getElementById("service-price");
 const serviceMin = document.getElementById("service-min");
 const serviceMax = document.getElementById("service-max");
+const serviceNoteBox = document.getElementById("service-note-box");
+const serviceNoteText = document.getElementById("service-note-text");
 const targetInput = document.getElementById("target-input");
 const quantityInput = document.getElementById("quantity-input");
 const buyerName = document.getElementById("buyer-name");
@@ -225,15 +227,25 @@ serviceSelect.addEventListener("change", async (e) => {
   const id = e.target.value;
   selectedService = null;
   serviceDetail.classList.add("hidden");
+  serviceNoteBox.classList.add("hidden");
+  serviceNoteText.textContent = "";
   if (!id) return;
   try {
     const data = await apiGet(`/api/service?id=${encodeURIComponent(id)}`);
     selectedService = data.service;
-    serviceDesc.textContent = data.service.description || "-";
-    servicePrice.textContent = data.service.price_display || `${data.service.rate}/1000`;
+    const descText = data.service.description || "-";
+    serviceDesc.textContent = descText;
+    servicePrice.textContent = data.service.price_display || `${data.service.rate || 0}/1000`;
     serviceMin.textContent = data.service.min || "-";
     serviceMax.textContent = data.service.max || "-";
     serviceDetail.classList.remove("hidden");
+    if (descText && descText !== "-") {
+      serviceNoteText.textContent = descText;
+      serviceNoteBox.classList.remove("hidden");
+    } else {
+      serviceNoteText.textContent = "";
+      serviceNoteBox.classList.add("hidden");
+    }
     if (data.service.min) quantityInput.min = data.service.min;
   } catch (e) {
     errorMessage.textContent = e.message;

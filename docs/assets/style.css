@@ -152,6 +152,23 @@ label {
   color: #374151;
 }
 
+.service-note {
+  margin-top: 16px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #f3f4f6;
+  color: #1f2937;
+}
+
+.service-note h4 {
+  font-size: 15px;
+  margin-bottom: 6px;
+}
+
+.service-note.hidden {
+  display: none;
+}
+
 .hidden {
   display: none;
 }
