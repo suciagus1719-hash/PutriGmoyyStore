@@ -26,15 +26,31 @@ const PLATFORM_DEFS = [
   { id: "other", name: "Lainnya", keywords: [] },
 ];
 
+function sanitize(str) {
+  return String(str || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function keywordMatch(text, keyword) {
+  const normalizedKeyword = sanitize(keyword);
+  if (!normalizedKeyword) return false;
+  return text.includes(` ${normalizedKeyword} `);
+}
+
 function normalizeText(service) {
-  return `${service.platform || ""} ${service.category || ""} ${service.name || ""}`.toLowerCase();
+  const raw = `${service.platform || ""} ${service.category || ""} ${service.name || ""}`;
+  const normalized = sanitize(raw);
+  return normalized ? ` ${normalized} ` : " ";
 }
 
 function detectPlatformDef(service) {
   const text = normalizeText(service);
   for (const def of PLATFORM_DEFS) {
     if (def.id === "other") continue;
-    if (def.keywords.some((kw) => text.includes(kw.trim()))) {
+    if (def.keywords.some((kw) => keywordMatch(text, kw))) {
       return { id: def.id, name: def.name };
     }
   }
@@ -54,7 +70,7 @@ function belongsToPlatform(service, platformId) {
   const def = PLATFORM_DEFS.find((p) => p.id === target);
   const keywords = def ? def.keywords : [target];
   const text = normalizeText(service);
-  return keywords.some((kw) => kw && text.includes(kw.trim()));
+  return keywords.some((kw) => keywordMatch(text, kw));
 }
 
 function collectPlatforms(services) {
