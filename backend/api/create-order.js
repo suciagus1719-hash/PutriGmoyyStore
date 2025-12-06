@@ -59,7 +59,7 @@ module.exports = async (req, res) => {
         email: buyer.email || "noemail@example.com",
         phone: buyer.whatsapp || "08123456789",
       },
-      enabled_payments: ["qris", "gopay"],
+      enabled_payments: ["qris"],
       item_details: [
         {
           id: String(serviceId),
