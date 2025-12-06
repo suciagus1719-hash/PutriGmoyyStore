@@ -156,11 +156,21 @@ body {
 }
 
 .header {
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   background: #ac2acf;
   border-radius: 16px;
   padding: 20px;
   box-shadow: 0 10px 25px rgba(172, 42, 207, 0.2);
+  color: #fff;
+}
+
+.hero-card {
+  margin-bottom: 24px;
+  background: #fff;
+  border-radius: 20px;
+  padding: 20px 22px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
 }
 
 .banner img {
