@@ -496,6 +496,10 @@ body {
   .hero-slider {
     height: 210px;
   }
+  .hero-slider::before,
+  .hero-slider::after {
+    display: none;
+  }
   .hero-slide {
     padding: 18px;
   }
@@ -510,6 +514,10 @@ body {
   }
   .hero-slider {
     height: 190px;
+  }
+  .hero-slider::before,
+  .hero-slider::after {
+    display: none;
   }
   .hero-slide {
     padding: 16px;
