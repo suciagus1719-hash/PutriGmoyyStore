@@ -332,18 +332,18 @@ payButton.addEventListener("click", async () => {
     payButton.disabled = true;
     payButton.textContent = "Membuat pesanan...";
     showPaymentLoader();
-    const payload = {
-      platformId: selectedPlatform.id,
-      categoryId: selectedCategory,
-      serviceId: selectedService.id,
-      target,
-      quantity: qty,
-      buyer: {
-        name: safeValue(buyerName),
-        whatsapp: safeValue(buyerWhatsapp),
-        email: safeValue(buyerEmail),
-      },
-    };
+  const payload = {
+    platformId: selectedPlatform.id,
+    categoryId: selectedCategory,
+    serviceId: selectedService.id,
+    target,
+    quantity: qty,
+    buyer: {
+      name: safeValue(buyerName),
+      whatsapp: safeValue(buyerWhatsapp),
+      email: safeValue(orderEmailInput) || safeValue(buyerEmail) || "noemail@example.com",
+    },
+  };
     const res = await apiPost("/api/create-order", payload);
     if (!res.redirectUrl) throw new Error("redirectUrl tidak ditemukan.");
     window.location.href = res.redirectUrl;
