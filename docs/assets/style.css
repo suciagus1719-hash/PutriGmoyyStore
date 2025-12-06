@@ -156,12 +156,11 @@ body {
 }
 
 .hero-card {
-  margin-bottom: 24px;
-  background: #fff;
-  border-radius: 20px;
-  padding: 20px 22px;
-  border: 1px solid #e5e7eb;
-  box-shadow: 0 15px 35px rgba(15, 23, 42, 0.12);
+  margin-bottom: 12px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
 }
 
 .banner img {
