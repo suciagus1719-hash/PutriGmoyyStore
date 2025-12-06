@@ -210,17 +210,24 @@ body {
   z-index: 9999;
 }
 
-.payment-overlay .loading-box {
+.payment-loader-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
   background: transparent;
   border: none;
   border-radius: 0;
   padding: 0;
   box-shadow: none;
   text-align: center;
+  color: #f9fafb;
 }
 
-.payment-overlay .loading-box p {
-  margin-top: 12px;
+.payment-loader-content p {
+  margin: 0;
+  font-size: 14px;
   color: #f9fafb;
 }
 
