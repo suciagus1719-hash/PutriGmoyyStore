@@ -211,12 +211,17 @@ body {
 }
 
 .payment-overlay .loading-box {
-  background: #fff;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 18px 20px;
-  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0;
+  box-shadow: none;
   text-align: center;
+}
+
+.payment-overlay .loading-box p {
+  margin-top: 12px;
+  color: #f9fafb;
 }
 
 .payment-overlay.hidden {
