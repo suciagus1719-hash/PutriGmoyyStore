@@ -10,6 +10,7 @@
         background: #f5f6fb;
       }
       .receipt-page {
+        position: relative;
         max-width: 640px;
         margin: 40px auto;
         background: #fff;
@@ -17,6 +18,24 @@
         padding: 32px;
         border: 1px solid #e5e7eb;
         box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+        overflow: hidden;
+      }
+      .receipt-page::after {
+        content: "Putri Gmoyy Store 2025";
+        position: absolute;
+        inset: 0;
+        font-size: 32px;
+        font-weight: 700;
+        color: rgba(37, 99, 235, 0.08);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transform: rotate(-25deg);
+        pointer-events: none;
+      }
+      .receipt-content {
+        position: relative;
+        z-index: 1;
       }
       .receipt-header {
         text-align: center;
@@ -104,6 +123,7 @@
   </head>
   <body>
     <div class="receipt-page">
+      <div class="receipt-content">
       <div class="receipt-header">
         <p class="subtitle">Putri Gmoyy Store</p>
         <h1>Struk Pembayaran</h1>
@@ -113,6 +133,11 @@
       </div>
       <ul class="receipt-list">
         <li><span>Order ID</span><span id="order-id">-</span></li>
+        <li><span>ID Layanan</span><span id="service-id">-</span></li>
+        <li><span>Kategori</span><span id="category-name">-</span></li>
+        <li><span>Nama Layanan</span><span id="service-name">-</span></li>
+        <li><span>Target</span><span id="target-value">-</span></li>
+        <li><span>Jumlah</span><span id="quantity-value">-</span></li>
         <li><span>Status</span><span id="status">-</span></li>
         <li><span>Metode</span><span id="payment-type">-</span></li>
         <li><span>Nominal</span><span id="gross-amount">-</span></li>
@@ -123,22 +148,36 @@
         <a href="https://suciagus1719-hash.github.io/PutriGmoyyStore/" class="action-secondary">Pesan Lagi</a>
       </div>
     </div>
+    </div>
 
     <script>
       const params = new URLSearchParams(window.location.search);
-      const getValue = (key, fallback = "-") =>
-        (params.get(key) && decodeURIComponent(params.get(key))) || fallback;
+      const getValue = (keys, fallback = "-") => {
+        if (!Array.isArray(keys)) keys = [keys];
+        for (const key of keys) {
+          const val = params.get(key);
+          if (val) return decodeURIComponent(val);
+        }
+        return fallback;
+      };
 
-      const status = getValue("transaction_status");
-      const orderId = getValue("order_id");
-      const grossAmount = getValue("gross_amount");
-      const paymentType = getValue("payment_type");
-      const transactionTime = getValue("transaction_time");
+      const status = getValue(["transaction_status", "status"], "-");
+      const orderId = getValue(["order_id", "orderId"], "-");
+      const grossAmount = getValue(["gross_amount", "grossAmount"], null);
+      const paymentType = getValue(["payment_type"], "QRIS (GoPay)");
+      const transactionTimeRaw =
+        getValue(["transaction_time", "transactionTime"], null) ||
+        getValue("request_time", null);
 
       document.getElementById("order-id").textContent = orderId;
-      document.getElementById("status").textContent = status;
-      document.getElementById("payment-type").textContent = paymentType;
-      document.getElementById("transaction-time").textContent = transactionTime;
+      document.getElementById("service-id").textContent = getValue("service_id");
+      document.getElementById("category-name").textContent = getValue("category");
+      document.getElementById("service-name").textContent = getValue("service_name");
+      document.getElementById("target-value").textContent = getValue("target");
+      document.getElementById("quantity-value").textContent = getValue("quantity");
+      document.getElementById("status").textContent = formatStatus(status);
+      document.getElementById("payment-type").textContent = paymentType || "-";
+      document.getElementById("transaction-time").textContent = formatDate(transactionTimeRaw);
       document.getElementById("gross-amount").textContent = grossAmount
         ? `Rp ${Number(grossAmount).toLocaleString("id-ID")}`
         : "-";
@@ -156,6 +195,28 @@
       } else {
         pill.classList.add("failed");
         pillText.textContent = "Pembayaran gagal / dibatalkan";
+      }
+
+      function formatStatus(value) {
+        const map = {
+          settlement: "Pembayaran berhasil",
+          capture: "Pembayaran berhasil",
+          pending: "Menunggu pembayaran",
+          expire: "Pembayaran kedaluwarsa",
+          cancel: "Pembayaran dibatalkan",
+          deny: "Pembayaran ditolak",
+        };
+        return map[value?.toLowerCase()] || value || "-";
+      }
+
+      function formatDate(val) {
+        if (!val || val === "-") return "-";
+        const date = new Date(val);
+        if (Number.isNaN(date.getTime())) return val;
+        return date.toLocaleString("id-ID", {
+          dateStyle: "full",
+          timeStyle: "medium",
+        });
       }
     </script>
   </body>

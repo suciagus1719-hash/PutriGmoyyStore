@@ -48,6 +48,17 @@ module.exports = async (req, res) => {
     const frontendBase = PUBLIC_FRONTEND_URL.endsWith("/")
       ? PUBLIC_FRONTEND_URL
       : `${PUBLIC_FRONTEND_URL}/`;
+    const receiptParams = new URLSearchParams({
+      order_id: orderId,
+      service_id: String(serviceId),
+      service_name: getServiceName(svc),
+      category: svc.category || categoryId || "",
+      target,
+      quantity: String(quantity),
+      gross_amount: String(paymentAmount),
+      payment_type: "QRIS (GoPay)",
+      request_time: new Date().toISOString(),
+    }).toString();
 
     const body = {
       transaction_details: {
@@ -72,7 +83,7 @@ module.exports = async (req, res) => {
       custom_field2: target,
       custom_field3: String(quantity),
       callbacks: {
-        finish: `${frontendBase}struk.html`,
+        finish: `${frontendBase}struk.html?${receiptParams}`,
         error: frontendBase,
       },
     };
