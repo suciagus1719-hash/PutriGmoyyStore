@@ -1,8 +1,10 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap");
+
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: Arial, sans-serif;
+  font-family: "Inter", Arial, sans-serif;
 }
 
 body {
@@ -19,6 +21,10 @@ body {
 
 .header {
   margin-bottom: 24px;
+  background: #ac2acf;
+  border-radius: 16px;
+  padding: 20px;
+  box-shadow: 0 10px 25px rgba(172, 42, 207, 0.2);
 }
 
 .banner img {
@@ -34,19 +40,19 @@ body {
 .subtitle {
   font-size: 12px;
   text-transform: uppercase;
-  color: #6b7280;
+  color: #fdf4ff;
   letter-spacing: 0.08em;
 }
 
 .title {
   font-size: 28px;
   margin-top: 4px;
-  color: #111827;
+  color: #ffffff;
 }
 
 .desc {
   margin-top: 6px;
-  color: #374151;
+  color: #f5f3ff;
 }
 
 .content {
@@ -360,7 +366,7 @@ label {
   font-size: 16px;
   font-weight: 600;
   cursor: pointer;
-  background: #2563eb;
+  background: #2033df;
   color: #fff;
   transition: background 0.2s ease;
 }
@@ -370,7 +376,7 @@ label {
 }
 
 .pay-button:hover {
-  background: #1d4ed8;
+  background: #1b2bb7;
 }
 
 .error {
