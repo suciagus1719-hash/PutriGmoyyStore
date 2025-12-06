@@ -9,16 +9,60 @@
 <body>
   <div class="page">
     <header class="header">
-      <div class="banner">
-        <!-- Ganti banner.jpg dengan gambar kamu sendiri -->
-        <img src="img/banner.jpg" alt="Putri Gmoyy Store" />
-      </div>
       <div class="title-wrap">
         <p class="subtitle">PUTRI GMOYY STORE</p>
         <h1 class="title">Putri Gmoyy Sosmed</h1>
         <p class="desc">
           Jasa kebutuhan sosmed aman, murah dan terpercaya. Langsung saja order dibawah ini maniezz...
         </p>
+      </div>
+      <div class="hero-slider" id="hero-slider">
+        <article class="hero-slide active">
+          <div class="hero-copy">
+            <span class="hero-tag">QRIS Dinamis</span>
+            <h2>Bayar Sekali Scan</h2>
+            <p>QR GoPay otomatis setiap order. Tidak perlu ribet pilih metode lain, proses langsung dari HP kamu.</p>
+          </div>
+          <div class="hero-media">
+            <img src="img/banner.jpg" alt="QRIS Dinamis Putri Gmoyy" loading="lazy" />
+          </div>
+        </article>
+        <article class="hero-slide">
+          <div class="hero-copy">
+            <span class="hero-tag">Order Instan</span>
+            <h2>Kategori Sosmed Lengkap</h2>
+            <p>Instagram, TikTok, Threads sampai WhatsApp tersedia. Tinggal pilih platform favoritmu.</p>
+          </div>
+          <div class="hero-media gradient">
+            <div class="hero-shape hero-shape-one"></div>
+            <div class="hero-shape hero-shape-two"></div>
+            <div class="hero-shape hero-shape-three"></div>
+          </div>
+        </article>
+        <article class="hero-slide">
+          <div class="hero-copy">
+            <span class="hero-tag">Midtrans Snap</span>
+            <h2>Struk Otomatis</h2>
+            <p>Setiap pembayaran berhasil langsung diarahkan ke struk dan pesanan masuk panel tanpa delay.</p>
+          </div>
+          <div class="hero-media mockup">
+            <div class="mockup-card">
+              <p>Order ID</p>
+              <strong>GMYY-2025</strong>
+              <span>QRIS • Rp 50.000</span>
+            </div>
+            <div class="mockup-card light">
+              <p>Status</p>
+              <strong>Berhasil</strong>
+              <span>05 Des 2025</span>
+            </div>
+          </div>
+        </article>
+        <div class="slider-dots" id="hero-dots">
+          <button class="hero-dot active" data-slide="0" aria-label="Slide 1"></button>
+          <button class="hero-dot" data-slide="1" aria-label="Slide 2"></button>
+          <button class="hero-dot" data-slide="2" aria-label="Slide 3"></button>
+        </div>
       </div>
     </header>
 
@@ -121,10 +165,15 @@
     </main>
   </div>
 
+    <script src="assets/slider.js"></script>
+    <script src="assets/slider.js"></script>
   <script>
     // Base URL Vercel kamu – GANTI ke domain API kamu
     window.API_BASE_URL = "https://putri-gmoyy-store.vercel.app";
   </script>
+  <script src="assets/app.js"></script>
+
+
   <script src="assets/app.js"></script>
 </body>
 </html>
