@@ -85,6 +85,7 @@ const resellerButton = document.getElementById("reseller-button");
 const resellerMessage = document.getElementById("reseller-message");
 const platformLoader = document.getElementById("platform-loader");
 const paymentLoader = document.getElementById("payment-loader");
+const paymentLoader = document.getElementById("payment-loader");
 const platformInfo = document.getElementById("platform-info");
 const platformInfoIcon = document.getElementById("platform-info-icon");
 const platformInfoText = document.getElementById("platform-info-text");
@@ -299,6 +300,16 @@ function updateTotalPrice() {
 quantityInput.addEventListener("input", updateTotalPrice);
 quantityInput.addEventListener("change", updateTotalPrice);
 
+function showPaymentLoader(message = "Menyiapkan pembayaran...") {
+  if (!paymentLoader) return;
+  paymentLoader.classList.remove("hidden");
+  const msg = paymentLoader.querySelector("p");
+  if (msg) msg.textContent = message;
+}
+
+function hidePaymentLoader() {
+  if (paymentLoader) paymentLoader.classList.add("hidden");
+}
 const safeValue = (input) => (input ? input.value.trim() : "");
 
 payButton.addEventListener("click", async () => {

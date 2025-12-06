@@ -76,8 +76,7 @@ body {
   margin-bottom: 10px;
 }
 
-.platform-loader,
-.loading-box {
+.platform-loader {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -91,8 +90,7 @@ body {
   background: #f9fafb;
 }
 
-.platform-loader.hidden,
-.loading-box.hidden {
+.platform-loader.hidden {
   display: none;
 }
 
@@ -195,11 +193,34 @@ body {
     width: 8px;
     height: 8px;
   }
-  .platform-loader,
-  .loading-box {
+  .platform-loader {
     font-size: 12px;
     padding: 8px 10px;
   }
+}
+
+.payment-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, 0.45);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.payment-overlay .loading-box {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 18px 20px;
+  box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+  text-align: center;
+}
+
+.payment-overlay.hidden {
+  display: none;
 }
 
 .platform-btn:hover {

@@ -92,14 +92,17 @@
       <!-- Button -->
       <section class="card">
         <button id="pay-button" class="pay-button">Lanjutkan Pembayaran</button>
-        <div id="payment-loader" class="platform-loader loading-box hidden">
+        <p id="error-message" class="error"></p>
+      </section>
+
+      <div id="payment-loader" class="payment-overlay hidden">
+        <div class="loading-box">
           <div class="loader-dots">
             <span></span><span></span><span></span><span></span><span></span>
           </div>
           <p>Menyiapkan pembayaran...</p>
         </div>
-        <p id="error-message" class="error"></p>
-      </section>
+      </div>
 
       <!-- Reseller -->
       <section class="card reseller-card">
