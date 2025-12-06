@@ -25,35 +25,34 @@
           <span></span><span></span><span></span>
         </button>
         <div class="topbar-nav" id="topbar-nav">
-          <div class="nav-section">
-            <h4>Menu Utama</h4>
-            <ul>
-              <li><a href="#">Dashboard</a></li>
-              <li><a href="#">Order</a></li>
-              <li><a href="#">Deposit</a></li>
-              <li><a href="#">Riwayat Deposit</a></li>
-              <li><a href="#">Monitoring Sosmed</a></li>
-              <li><a href="#">Daftar Harga</a></li>
-              <li><a href="#">Tiket</a></li>
-              <li><a href="#">Kontak</a></li>
-            </ul>
-          </div>
-          <div class="nav-section">
-            <h4>Panduan</h4>
-            <ul>
-              <li><a href="#">Mulai Transaksi</a></li>
-              <li><a href="#">Cara Deposit</a></li>
-            </ul>
-          </div>
-          <div class="nav-section">
-            <h4>Informasi</h4>
-            <ul>
-              <li><a href="#">Status Order</a></li>
-              <li><a href="#">Target Pesanan</a></li>
-            </ul>
-          </div>
+          <ul class="menu-list" id="menu-list">
+            <li>
+              <button type="button" class="menu-item" data-action="login">
+                <span class="icon">◇</span> Masuk Reseller
+              </button>
+            </li>
+            <li>
+              <button type="button" class="menu-item" data-action="register">
+                <span class="icon">✉</span> Daftar Reseller
+              </button>
+            </li>
+            <li>
+              <a class="menu-item" href="#" data-action="prices"><span class="icon">💰</span> Daftar Harga</a>
+            </li>
+            <li>
+              <a class="menu-item" href="#" data-action="contact"><span class="icon">☎</span> Kontak</a>
+            </li>
+            <li>
+              <a class="menu-item" href="#" data-action="guide"><span class="icon">📘</span> Cara Order</a>
+            </li>
+            <li>
+              <a class="menu-item" href="#" data-action="target"><span class="icon">🎯</span> Target Pesanan</a>
+            </li>
+            <li>
+              <a class="menu-item" href="#" data-action="status"><span class="icon">📈</span> Status Order</a>
+            </li>
+          </ul>
           <div class="nav-section account-section hidden" id="account-section">
-            <h4>Akun</h4>
             <button class="menu-logout" id="logout-btn">Logout</button>
           </div>
         </div>

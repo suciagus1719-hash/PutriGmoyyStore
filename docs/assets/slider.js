@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const menuBtn = document.getElementById("menu-toggle");
   const navPanel = document.getElementById("topbar-nav");
+  const menuList = document.getElementById("menu-list");
   if (menuBtn && navPanel) {
     menuBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -61,6 +62,15 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     navPanel.addEventListener("click", (e) => e.stopPropagation());
     document.addEventListener("click", () => navPanel.classList.remove("open"));
+  }
+  if (menuList) {
+    menuList.addEventListener("click", (e) => {
+      const action = e.target.closest(".menu-item")?.dataset?.action;
+      if (!action) return;
+      navPanel.classList.remove("open");
+      if (action === "login") openLogin?.click();
+      if (action === "register") openRegister?.click();
+    });
   }
 
   const openLogin = document.getElementById("open-login");
