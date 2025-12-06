@@ -47,6 +47,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const loginModal = document.getElementById("login-modal");
   const loginInput = document.getElementById("login-identifier");
   const nextBtn = document.querySelector(".next-btn");
+  const confirmModal = document.getElementById("confirm-modal");
+  const confirmTitle = document.getElementById("confirm-title");
+  const confirmMessage = document.getElementById("confirm-message");
+  const confirmIdentifier = document.getElementById("confirm-identifier");
+  const confirmEdit = document.getElementById("confirm-edit");
+  const confirmRegister = document.getElementById("confirm-register");
 
   if (menuBtn && navPanel) {
     menuBtn.addEventListener("click", (e) => {
@@ -79,6 +85,34 @@ document.addEventListener("DOMContentLoaded", () => {
           nextBtn.classList.remove("ready");
         }
       });
+      nextBtn.addEventListener("click", () => {
+        if (nextBtn.disabled) return;
+        if (!confirmModal) return;
+        const value = loginInput.value.trim();
+        const isEmail = value.includes("@");
+        confirmTitle.textContent = isEmail ? "Email Belum Terdaftar" : "Nomor Ini Belum Terdaftar";
+        confirmMessage.textContent = isEmail ? "Lanjut daftar dengan email ini" : "Lanjut daftar dengan nomor ini";
+        confirmIdentifier.textContent = value;
+        confirmModal.classList.remove("hidden");
+      });
+    }
+    if (confirmModal) {
+      confirmModal.addEventListener("click", (e) => {
+        if (e.target === confirmModal) confirmModal.classList.add("hidden");
+      });
+      if (confirmEdit) {
+        confirmEdit.addEventListener("click", () => {
+          confirmModal.classList.add("hidden");
+          loginInput?.focus();
+        });
+      }
+      if (confirmRegister) {
+        confirmRegister.addEventListener("click", () => {
+          confirmModal.classList.add("hidden");
+          loginModal.classList.add("hidden");
+          document.getElementById("reseller-name")?.scrollIntoView({ behavior: "smooth" });
+        });
+      }
     }
   }
 });

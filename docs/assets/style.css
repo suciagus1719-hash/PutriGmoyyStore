@@ -286,6 +286,60 @@ body {
   text-decoration: none;
 }
 
+.confirm-modal {
+  width: min(340px, calc(100% - 48px));
+  background: #fff;
+  border-radius: 18px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 25px 45px rgba(15, 23, 42, 0.25);
+}
+
+.confirm-title {
+  font-size: 20px;
+  color: #111827;
+  margin-bottom: 6px;
+}
+
+.confirm-sub {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 4px;
+}
+
+#confirm-identifier {
+  display: block;
+  font-size: 18px;
+  color: #111827;
+  margin-bottom: 18px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.neutral-btn,
+.primary-btn {
+  flex: 1;
+  border-radius: 12px;
+  padding: 10px;
+  font-weight: 600;
+  border: 1px solid transparent;
+  cursor: pointer;
+}
+
+.neutral-btn {
+  border-color: #d1d5db;
+  background: #fff;
+  color: #374151;
+}
+
+.primary-btn {
+  background: #f97316;
+  color: #fff;
+}
+
 .hero-card {
   margin-bottom: 12px;
   padding: 0;
