@@ -1,4 +1,4 @@
-﻿const API_BASE = window.API_BASE_URL;
+const API_BASE = window.API_BASE_URL;
 
 const PLATFORM_ICON_META = {
   instagram: { slug: "instagram", color: "#E1306C" },
@@ -80,14 +80,13 @@ const resellerName = document.getElementById("reseller-name");
 const resellerWhatsapp = document.getElementById("reseller-whatsapp");
 const resellerEmail = document.getElementById("reseller-email");
 const resellerUsername = document.getElementById("reseller-username");
-const resellerPassword = document.getElementById("reseller-password");
-const resellerButton = document.getElementById("reseller-button");
-const resellerMessage = document.getElementById("reseller-message");
-const platformLoader = document.getElementById("platform-loader");
-const paymentLoader = document.getElementById("payment-loader");
-const paymentLoader = document.getElementById("payment-loader");
-const platformInfo = document.getElementById("platform-info");
-const platformInfoIcon = document.getElementById("platform-info-icon");
+  const resellerPassword = document.getElementById("reseller-password");
+  const resellerButton = document.getElementById("reseller-button");
+  const resellerMessage = document.getElementById("reseller-message");
+  const platformLoader = document.getElementById("platform-loader");
+  const paymentLoader = document.getElementById("payment-loader");
+  const platformInfo = document.getElementById("platform-info");
+  const platformInfoIcon = document.getElementById("platform-info-icon");
 const platformInfoText = document.getElementById("platform-info-text");
 
 let selectedPlatform = null;
@@ -299,7 +298,6 @@ function updateTotalPrice() {
 
 quantityInput.addEventListener("input", updateTotalPrice);
 quantityInput.addEventListener("change", updateTotalPrice);
-
 function showPaymentLoader(message = "Menyiapkan pembayaran...") {
   if (!paymentLoader) return;
   paymentLoader.classList.remove("hidden");
@@ -310,6 +308,12 @@ function showPaymentLoader(message = "Menyiapkan pembayaran...") {
 function hidePaymentLoader() {
   if (paymentLoader) paymentLoader.classList.add("hidden");
 }
+
+
+
+
+
+
 const safeValue = (input) => (input ? input.value.trim() : "");
 
 payButton.addEventListener("click", async () => {
@@ -408,13 +412,7 @@ function hidePlatformLoader() {
   if (platformLoader) platformLoader.classList.add("hidden");
 }
 
-function showPaymentLoader(message = "Menyiapkan pembayaran...") {
-  if (!paymentLoader) return;
-  paymentLoader.classList.remove("hidden");
-  const msg = paymentLoader.querySelector("p");
-  if (msg) msg.textContent = message;
-}
 
-function hidePaymentLoader() {
-  if (paymentLoader) paymentLoader.classList.add("hidden");
-}
+
+
+
