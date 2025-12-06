@@ -155,15 +155,6 @@ body {
   padding: 24px 16px 48px;
 }
 
-.header {
-  margin-bottom: 20px;
-  background: #ac2acf;
-  border-radius: 16px;
-  padding: 20px;
-  box-shadow: 0 10px 25px rgba(172, 42, 207, 0.2);
-  color: #fff;
-}
-
 .hero-card {
   margin-bottom: 24px;
   background: #fff;
