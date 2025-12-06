@@ -1,7 +1,9 @@
 const fs = require("fs");
 const path = require("path");
 
-const DATA_DIR = path.join(__dirname, "../data");
+const DATA_DIR =
+  process.env.ACCOUNT_DATA_DIR ||
+  (process.env.VERCEL ? path.join("/tmp", "pg-users") : path.join(__dirname, "../data"));
 const USERS_FILE = path.join(DATA_DIR, "users.json");
 
 function ensureFile() {
