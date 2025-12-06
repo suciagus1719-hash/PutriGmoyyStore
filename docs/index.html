@@ -17,7 +17,7 @@
         </div>
       </div>
       <div class="topbar-actions">
-        <button class="link-btn">Masuk</button>
+        <button class="link-btn" id="open-login">Masuk</button>
         <button class="outline-btn">Daftar Reseller</button>
         <button class="menu-btn" id="menu-toggle" aria-label="Menu">
           <span></span><span></span><span></span>
@@ -51,6 +51,26 @@
             </ul>
           </div>
         </div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="login-modal">
+      <div class="login-modal">
+        <button class="modal-close" id="close-login" aria-label="Tutup">&times;</button>
+        <p class="login-subtitle">Masuk ke</p>
+        <h2>Reseller Area</h2>
+        <label>
+          Nomor WhatsApp atau Email
+          <input type="text" id="login-identifier" placeholder="contoh: email@putrigmoyy.com" />
+        </label>
+        <div class="login-actions">
+          <button class="next-btn" disabled>Selanjutnya</button>
+          <p class="forgot-link"><a href="#">Lupa kata sandi?</a></p>
+        </div>
+        <div class="divider">
+          <span>Belum jadi reseller?</span>
+        </div>
+        <button class="outline-btn block">Daftar Reseller</button>
+        <p class="support-text">Butuh bantuan? <a href="#">Hubungi Customer Support</a></p>
       </div>
     </div>
     <section class="hero-card">
@@ -203,15 +223,11 @@
     </main>
   </div>
 
-    <script src="assets/slider.js"></script>
-    <script src="assets/slider.js"></script>
+  <script src="assets/slider.js"></script>
   <script>
     // Base URL Vercel kamu – GANTI ke domain API kamu
     window.API_BASE_URL = "https://putri-gmoyy-store.vercel.app";
   </script>
-  <script src="assets/app.js"></script>
-
-
   <script src="assets/app.js"></script>
 </body>
 </html>

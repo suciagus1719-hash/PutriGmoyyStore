@@ -42,6 +42,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const menuBtn = document.getElementById("menu-toggle");
   const navPanel = document.getElementById("topbar-nav");
+  const openLogin = document.getElementById("open-login");
+  const closeLogin = document.getElementById("close-login");
+  const loginModal = document.getElementById("login-modal");
+  const loginInput = document.getElementById("login-identifier");
+  const nextBtn = document.querySelector(".next-btn");
 
   if (menuBtn && navPanel) {
     menuBtn.addEventListener("click", (e) => {
@@ -54,5 +59,26 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("click", () => {
       navPanel.classList.remove("open");
     });
+  }
+  if (openLogin && closeLogin && loginModal) {
+    openLogin.addEventListener("click", () => {
+      loginModal.classList.remove("hidden");
+    });
+    const closeModal = () => loginModal.classList.add("hidden");
+    closeLogin.addEventListener("click", closeModal);
+    loginModal.addEventListener("click", (e) => {
+      if (e.target === loginModal) closeModal();
+    });
+    if (loginInput && nextBtn) {
+      loginInput.addEventListener("input", () => {
+        if (loginInput.value.trim()) {
+          nextBtn.disabled = false;
+          nextBtn.classList.add("ready");
+        } else {
+          nextBtn.disabled = true;
+          nextBtn.classList.remove("ready");
+        }
+      });
+    }
   }
 });
