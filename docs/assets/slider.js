@@ -80,6 +80,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const accountSection = document.getElementById("account-section");
   const balancePill = document.getElementById("balance-pill");
   const accountPill = document.getElementById("account-pill");
+  const brandTitle = document.getElementById("brand-title");
+  const brandSubtitle = document.getElementById("brand-subtitle");
 
   const loginModal = document.getElementById("login-modal");
   const closeLogin = document.getElementById("close-login");
@@ -171,6 +173,12 @@ document.addEventListener("DOMContentLoaded", () => {
     showIdentifierStep();
   };
 
+  const extractUsername = (identifier) => {
+    if (!identifier) return "";
+    if (identifier.includes("@")) return identifier.split("@")[0];
+    return identifier;
+  };
+
   const setLoggedIn = (user, persist = true) => {
     if (!user) return;
     if (persist) localStorage.setItem(ACCOUNT_KEY, JSON.stringify(user));
@@ -186,6 +194,9 @@ document.addEventListener("DOMContentLoaded", () => {
     openRegister?.classList.add("hidden");
     accountSection?.classList.remove("hidden");
     logoutBtn?.classList.remove("hidden");
+    const username = extractUsername(user.identifier);
+    brandTitle && (brandTitle.textContent = username || "PutriGmoyy");
+    brandSubtitle && (brandSubtitle.textContent = "Akun Reseller");
   };
 
   const setLoggedOut = () => {
@@ -196,6 +207,8 @@ document.addEventListener("DOMContentLoaded", () => {
     openRegister?.classList.remove("hidden");
     accountSection?.classList.add("hidden");
     logoutBtn?.classList.add("hidden");
+    brandTitle && (brandTitle.textContent = "PutriGmoyy");
+    brandSubtitle && (brandSubtitle.textContent = "Store");
   };
 
   const loadAccount = () => {
