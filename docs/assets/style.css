@@ -76,20 +76,23 @@ body {
   margin-bottom: 10px;
 }
 
-.platform-loader {
+.platform-loader,
+.loading-box {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 10px;
-  padding: 12px;
+  gap: 8px;
+  padding: 10px 12px;
   border: 1px dashed #d1d5db;
   border-radius: 10px;
   margin-bottom: 12px;
   color: #6b7280;
-  font-size: 14px;
+  font-size: 13px;
+  background: #f9fafb;
 }
 
-.platform-loader.hidden {
+.platform-loader.hidden,
+.loading-box.hidden {
   display: none;
 }
 
@@ -99,8 +102,8 @@ body {
 }
 
 .loader-dots span {
-  width: 14px;
-  height: 14px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   display: inline-block;
   animation: bounce 1s infinite ease-in-out;
@@ -187,6 +190,15 @@ body {
     flex-direction: column;
     align-items: flex-start;
     gap: 6px;
+  }
+  .loader-dots span {
+    width: 8px;
+    height: 8px;
+  }
+  .platform-loader,
+  .loading-box {
+    font-size: 12px;
+    padding: 8px 10px;
   }
 }
 

@@ -84,6 +84,7 @@ const resellerPassword = document.getElementById("reseller-password");
 const resellerButton = document.getElementById("reseller-button");
 const resellerMessage = document.getElementById("reseller-message");
 const platformLoader = document.getElementById("platform-loader");
+const paymentLoader = document.getElementById("payment-loader");
 const platformInfo = document.getElementById("platform-info");
 const platformInfoIcon = document.getElementById("platform-info-icon");
 const platformInfoText = document.getElementById("platform-info-text");
@@ -315,6 +316,7 @@ payButton.addEventListener("click", async () => {
   try {
     payButton.disabled = true;
     payButton.textContent = "Membuat pesanan...";
+    showPaymentLoader();
     const payload = {
       platformId: selectedPlatform.id,
       categoryId: selectedCategory,
@@ -335,6 +337,7 @@ payButton.addEventListener("click", async () => {
   } finally {
     payButton.disabled = false;
     payButton.textContent = "Lanjutkan Pembayaran";
+    hidePaymentLoader();
   }
 });
 
@@ -392,4 +395,15 @@ function showPlatformLoader(message = "Sedang memuat platform...") {
 
 function hidePlatformLoader() {
   if (platformLoader) platformLoader.classList.add("hidden");
+}
+
+function showPaymentLoader(message = "Menyiapkan pembayaran...") {
+  if (!paymentLoader) return;
+  paymentLoader.classList.remove("hidden");
+  const msg = paymentLoader.querySelector("p");
+  if (msg) msg.textContent = message;
+}
+
+function hidePaymentLoader() {
+  if (paymentLoader) paymentLoader.classList.add("hidden");
 }
