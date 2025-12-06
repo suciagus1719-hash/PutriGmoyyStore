@@ -52,6 +52,21 @@ body {
   color: #6b7280;
 }
 
+.balance-pill {
+  margin-left: auto;
+  margin-right: 16px;
+  background: rgba(32, 51, 223, 0.08);
+  color: #2033df;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.balance-pill.hidden {
+  display: none;
+}
+
 .topbar-actions {
   display: flex;
   align-items: center;
@@ -203,6 +218,10 @@ body {
   color: #111827;
 }
 
+.login-step.hidden {
+  display: none;
+}
+
 .login-modal label {
   display: block;
   text-align: left;
@@ -219,6 +238,26 @@ body {
   border: 1px solid #e5e7eb;
   font-size: 14px;
   background: #f9fafb;
+}
+
+.input-with-toggle {
+  position: relative;
+}
+
+.input-with-toggle input {
+  padding-right: 40px;
+}
+
+.toggle-pass {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  cursor: pointer;
+  color: #9ca3af;
 }
 
 .login-actions {
@@ -275,6 +314,14 @@ body {
   margin-top: 0;
 }
 
+.primary-btn.block {
+  width: 100%;
+  margin-top: 12px;
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+}
+
 .support-text {
   margin-top: 12px;
   font-size: 13px;
@@ -284,6 +331,12 @@ body {
 .support-text a {
   color: #f97316;
   text-decoration: none;
+}
+
+.password-error {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #dc2626;
 }
 
 .confirm-modal {
@@ -338,6 +391,10 @@ body {
 .primary-btn {
   background: #f97316;
   color: #fff;
+}
+
+.primary-btn.ready {
+  background: #2033df;
 }
 
 .hero-card {

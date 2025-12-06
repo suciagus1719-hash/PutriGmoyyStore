@@ -16,6 +16,7 @@
           <small>Store</small>
         </div>
       </div>
+      <div class="balance-pill hidden" id="balance-pill">Saldo: Rp0</div>
       <div class="topbar-actions">
         <button class="link-btn" id="open-login">Masuk</button>
         <button class="outline-btn">Daftar Reseller</button>
@@ -56,21 +57,43 @@
     <div class="modal-overlay hidden" id="login-modal">
       <div class="login-modal">
         <button class="modal-close" id="close-login" aria-label="Tutup">&times;</button>
-        <p class="login-subtitle">Masuk ke</p>
-        <h2>Reseller Area</h2>
-        <label>
-          Nomor WhatsApp atau Email
-          <input type="text" id="login-identifier" placeholder="contoh: email@putrigmoyy.com" />
-        </label>
-        <div class="login-actions">
-          <button class="next-btn" disabled>Selanjutnya</button>
-          <p class="forgot-link"><a href="#">Lupa kata sandi?</a></p>
+        <div class="login-step login-step-identifier">
+          <p class="login-subtitle">Masuk ke</p>
+          <h2>Reseller Area</h2>
+          <label>
+            Nomor WhatsApp atau Email
+            <input type="text" id="login-identifier" placeholder="contoh: email@putrigmoyy.com" />
+          </label>
+          <div class="login-actions">
+            <button class="next-btn" disabled>Selanjutnya</button>
+            <p class="forgot-link"><a href="#">Lupa kata sandi?</a></p>
+          </div>
+          <div class="divider">
+            <span>Belum jadi reseller?</span>
+          </div>
+          <button class="outline-btn block">Daftar Reseller</button>
+          <p class="support-text">Butuh bantuan? <a href="#">Hubungi Customer Support</a></p>
         </div>
-        <div class="divider">
-          <span>Belum jadi reseller?</span>
+        <div class="login-step login-step-password hidden">
+          <p class="login-subtitle">Buat Password</p>
+          <h2>Aktifkan Akun</h2>
+          <label>
+            Password
+            <div class="input-with-toggle">
+              <input type="password" id="password-input" placeholder="Minimal 6 karakter" />
+              <button type="button" class="toggle-pass" data-target="password-input">👁</button>
+            </div>
+          </label>
+          <label>
+            Konfirmasi Password
+            <div class="input-with-toggle">
+              <input type="password" id="confirm-password-input" placeholder="Ulangi password" />
+              <button type="button" class="toggle-pass" data-target="confirm-password-input">👁</button>
+            </div>
+          </label>
+          <p class="password-error hidden" id="password-error">Password tidak sama.</p>
+          <button class="primary-btn block" id="create-account-btn" disabled>Buat &amp; Masuk</button>
         </div>
-        <button class="outline-btn block">Daftar Reseller</button>
-        <p class="support-text">Butuh bantuan? <a href="#">Hubungi Customer Support</a></p>
       </div>
     </div>
     <div class="modal-overlay hidden" id="confirm-modal">
