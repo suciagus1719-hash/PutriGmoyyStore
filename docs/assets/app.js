@@ -57,6 +57,40 @@ const FALLBACK_PLATFORMS = [
   { id: "audiomack", name: "Audiomack" },
 ];
 
+const POPULAR_PLATFORM_ORDER = [
+  "instagram",
+  "tiktok",
+  "youtube",
+  "facebook",
+  "whatsapp",
+  "telegram",
+  "threads",
+  "twitter",
+  "x",
+  "shopee",
+  "spotify",
+  "discord",
+  "twitch",
+  "soundcloud",
+  "pinterest",
+  "reddit",
+  "quora",
+  "mobileapp",
+  "kwai",
+  "linkedin",
+  "likee",
+  "googleplay",
+  "dailymotion",
+  "audiomack",
+  "snackvideo",
+  "other",
+];
+
+const PLATFORM_ORDER_LOOKUP = POPULAR_PLATFORM_ORDER.reduce((acc, id, idx) => {
+  acc[id] = idx;
+  return acc;
+}, {});
+
 // DOM
 const platformList = document.getElementById("platform-list");
 const categorySelect = document.getElementById("category-select");
@@ -120,15 +154,27 @@ function platformIcon(id) {
   return { color: meta.color || "#6B7280", url };
 }
 
+function sortPlatforms(list = []) {
+  return [...list].sort((a, b) => {
+    const idxA = PLATFORM_ORDER_LOOKUP[(a.id || "").toLowerCase()];
+    const idxB = PLATFORM_ORDER_LOOKUP[(b.id || "").toLowerCase()];
+    const scoreA = typeof idxA === "number" ? idxA : Number.MAX_SAFE_INTEGER;
+    const scoreB = typeof idxB === "number" ? idxB : Number.MAX_SAFE_INTEGER;
+    if (scoreA !== scoreB) return scoreA - scoreB;
+    return (a.name || "").localeCompare(b.name || "");
+  });
+}
+
 async function loadCatalog() {
   showPlatformLoader();
   try {
     const data = await apiGet("/api/catalog");
-    catalogPlatforms = data.platforms?.length ? data.platforms : FALLBACK_PLATFORMS;
+    const sourcePlatforms = data.platforms?.length ? data.platforms : FALLBACK_PLATFORMS;
+    catalogPlatforms = sortPlatforms(sourcePlatforms);
     catalogServices = data.services || [];
   } catch (e) {
     errorMessage.textContent = "Gagal memuat katalog, gunakan daftar default.";
-    catalogPlatforms = FALLBACK_PLATFORMS;
+    catalogPlatforms = sortPlatforms(FALLBACK_PLATFORMS);
     catalogServices = [];
     showPlatformLoader("Gagal memuat dari server, menampilkan data bawaan...");
   } finally {
