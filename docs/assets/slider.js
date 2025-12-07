@@ -117,9 +117,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoutBtn = document.getElementById("logout-btn");
   const accountSection = document.getElementById("account-section");
   const balancePill = document.getElementById("balance-pill");
-  const accountPill = document.getElementById("account-pill");
   const brandTitle = document.getElementById("brand-title");
   const brandSubtitle = document.getElementById("brand-subtitle");
+  const brandAvatar = document.getElementById("brand-avatar");
+  const defaultAvatar =
+    "https://ui-avatars.com/api/?name=PG&background=ac2acf&color=fff";
 
   const loginModal = document.getElementById("login-modal");
   const closeLogin = document.getElementById("close-login");
@@ -260,10 +262,6 @@ document.addEventListener("DOMContentLoaded", () => {
       balancePill.textContent = `Saldo: Rp ${Number(user.balance || 0).toLocaleString("id-ID")}`;
       balancePill.classList.remove("hidden");
     }
-    if (accountPill) {
-      accountPill.textContent = user.displayName || user.identifier;
-      accountPill.classList.remove("hidden");
-    }
     openLogin?.classList.add("hidden");
     openRegister?.classList.add("hidden");
     accountSection?.classList.remove("hidden");
@@ -274,13 +272,16 @@ document.addEventListener("DOMContentLoaded", () => {
     const username = extractUsername(user.identifier);
     brandTitle && (brandTitle.textContent = username || "PutriGmoyy");
     brandSubtitle && (brandSubtitle.textContent = "Akun Reseller");
+    const avatarSrc =
+      user.avatarUrl ||
+      `https://ui-avatars.com/api/?name=${encodeURIComponent(username || "PG")}&background=ac2acf&color=fff`;
+    brandAvatar && (brandAvatar.src = avatarSrc);
   };
 
   const setLoggedOut = () => {
     localStorage.removeItem(ACCOUNT_KEY);
     currentUser = null;
     balancePill?.classList.add("hidden");
-    accountPill?.classList.add("hidden");
     openLogin?.classList.remove("hidden");
     openRegister?.classList.remove("hidden");
     accountSection?.classList.add("hidden");
@@ -290,6 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
     broadcastAccount();
     brandTitle && (brandTitle.textContent = "PutriGmoyy");
     brandSubtitle && (brandSubtitle.textContent = "Store");
+    brandAvatar && (brandAvatar.src = defaultAvatar);
   };
 
   const loadAccount = () => {
