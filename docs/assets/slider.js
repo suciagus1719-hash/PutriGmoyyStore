@@ -158,7 +158,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (action === "monitor") return openMonitorModal();
       if (action === "reward") return openRewardSection();
       if (action === "prices") return showInfoMessage("Daftar harga");
-      if (action === "target") return showInfoMessage("Target pesanan");
+      if (action === "target") return openTargetPage();
       if (action === "status") return openStatusPage();
       if (action === "contact") return switchPage("contact");
       if (action === "guide") return showInfoMessage("Cara order");
@@ -901,6 +901,10 @@ let authMode = "login"; // login, register
 
   const openStatusPage = () => {
     switchPage("status");
+  };
+
+  const openTargetPage = () => {
+    switchPage("target");
   };
 
   const openRewardSection = async () => {
