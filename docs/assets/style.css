@@ -950,11 +950,14 @@ body {
 
 .contact-section {
   text-align: center;
+  background: linear-gradient(145deg, rgba(172, 42, 207, 0.12), rgba(32, 51, 223, 0.08));
+  border: 1px solid #e0e7ff;
 }
 
 .contact-header h3 {
   font-size: 22px;
   margin-bottom: 8px;
+  color: #1e1b4b;
 }
 
 .contact-header p {
@@ -976,19 +979,49 @@ body {
 }
 
 .contact-pill.primary {
-  background: #2033df;
+  background: linear-gradient(130deg, #4732df, #ac2acf);
   color: #fff;
-  box-shadow: 0 12px 30px rgba(32, 51, 223, 0.35);
+  box-shadow: 0 12px 30px rgba(71, 50, 223, 0.35);
 }
 
 .contact-pill.outline {
   border: 1px solid #e5e7eb;
-  color: #111827;
+  color: #1f2937;
   background: #fff;
 }
 
 .contact-pill:hover {
   transform: translateY(-1px);
+}
+
+.pill-icon {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  background: currentColor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+
+.pill-icon.icon-whatsapp {
+  mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/whatsapp.svg");
+}
+
+.pill-icon.icon-telegram {
+  mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/telegram.svg");
+}
+
+.pill-icon.icon-gmail {
+  mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/gmail.svg");
+}
+
+.pill-icon.icon-instagram {
+  mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/instagram.svg");
+}
+
+.pill-icon.icon-facebook {
+  mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/facebook.svg");
 }
 
 .card {
