@@ -97,7 +97,6 @@ const PLATFORM_ORDER_LOOKUP = POPULAR_PLATFORM_ORDER.reduce((acc, id, idx) => {
 }, {});
 
 const CATALOG_CACHE_KEY = "pg_catalog_cache_v1";
-const RESELLER_DISCOUNT = 0.1;
 const SIMPLE_ICONS_VERSION = "11.0.0";
 const PUBLIC_PROFIT_MARGIN = 0.4;
 const RESELLER_MARGIN = 0.2;
@@ -259,14 +258,10 @@ function formatCurrency(value) {
   return `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
 }
 
-function getResellerPrice(value) {
-  if (!isResellerActive()) return value;
-  return Math.round(Number(value || 0) * (1 - RESELLER_DISCOUNT));
-}
-
 function getEffectivePricePer100(service) {
-  const base = Number(service.pricePer100 || 0);
-  return getResellerPrice(base);
+  if (service.pricePer100) return Number(service.pricePer100);
+  if (service.rate) return Number(service.rate) / 10;
+  return 0;
 }
 
 async function loadCatalog() {
@@ -537,12 +532,9 @@ function updateTotalPrice() {
     totalPriceField.value = "Rp0";
     return;
   }
-  let total = (selectedPricePer100 / 100) * qty;
-  if (!isResellerActive()) {
-    total += total * PUBLIC_PROFIT_MARGIN;
-  } else {
-    total += total * RESELLER_MARGIN;
-  }
+  const baseTotal = (selectedPricePer100 / 100) * qty;
+  const margin = isResellerActive() ? RESELLER_MARGIN : PUBLIC_PROFIT_MARGIN;
+  const total = baseTotal * (1 + margin);
   totalPriceField.value = formatCurrency(Math.round(total));
 }
 
