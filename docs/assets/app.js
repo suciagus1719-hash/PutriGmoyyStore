@@ -121,6 +121,8 @@ function writeCatalogCache(platforms = [], services = []) {
   }
 }
 
+
+function initOrderApp() {
 // DOM
 const platformList = document.getElementById("platform-list");
 const categorySelect = document.getElementById("category-select");
@@ -152,6 +154,10 @@ const resellerMessage = document.getElementById("reseller-message");
   const platformInfo = document.getElementById("platform-info");
   const platformInfoIcon = document.getElementById("platform-info-icon");
 const platformInfoText = document.getElementById("platform-info-text");
+if (!platformList || !categorySelect || !serviceSelect || !targetInput || !quantityInput || !totalPriceInput || !orderEmailInput || !payButton || !errorMessage) {
+  console.warn("Elemen utama form tidak ditemukan, melewati initOrderApp.");
+  return;
+}
 
 let selectedPlatform = null;
 let selectedCategory = null;
@@ -472,8 +478,10 @@ function showPlatformLoader(message = "Sedang memuat platform...") {
 function hidePlatformLoader() {
   if (platformLoader) platformLoader.classList.add("hidden");
 }
+}
 
-
-
-
-
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initOrderApp);
+} else {
+  initOrderApp();
+}
