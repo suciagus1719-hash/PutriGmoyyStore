@@ -99,6 +99,8 @@ const PLATFORM_ORDER_LOOKUP = POPULAR_PLATFORM_ORDER.reduce((acc, id, idx) => {
 const CATALOG_CACHE_KEY = "pg_catalog_cache_v1";
 const RESELLER_DISCOUNT = 0.1;
 const SIMPLE_ICONS_VERSION = "11.0.0";
+const PUBLIC_PROFIT_MARGIN = 0.4;
+const RESELLER_MARGIN = 0.2;
 
 function readCatalogCache() {
   if (typeof localStorage === "undefined") return null;
@@ -535,7 +537,12 @@ function updateTotalPrice() {
     totalPriceField.value = "Rp0";
     return;
   }
-  const total = (selectedPricePer100 / 100) * qty;
+  let total = (selectedPricePer100 / 100) * qty;
+  if (!isResellerActive()) {
+    total += total * PUBLIC_PROFIT_MARGIN;
+  } else {
+    total += total * RESELLER_MARGIN;
+  }
   totalPriceField.value = formatCurrency(Math.round(total));
 }
 
