@@ -54,6 +54,7 @@ async function handleRegister(req, res) {
     normalized,
     password: hashed,
     balance: 0,
+    coins: 0,
     createdAt: new Date().toISOString(),
     displayName,
     email,

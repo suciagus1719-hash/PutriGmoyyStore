@@ -56,26 +56,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const navPanel = document.getElementById("topbar-nav");
   const menuList = document.getElementById("menu-list");
   const platformSection = document.getElementById("platform-list");
-  const globalLoader = document.getElementById("payment-loader");
-  const loaderMessage = globalLoader?.querySelector("p");
+  const loaderOverlay = document.getElementById("profile-loader");
+  const loaderMessage = loaderOverlay?.querySelector("p");
   const showLoader = (message = "Memproses...") => {
-    if (!globalLoader) return;
+    if (!loaderOverlay) return;
     loaderMessage && (loaderMessage.textContent = message);
-    globalLoader.classList.remove("hidden");
+    loaderOverlay.classList.remove("hidden");
   };
-  const hideLoader = () => globalLoader?.classList.add("hidden");
+  const hideLoader = () => loaderOverlay?.classList.add("hidden");
   const defaultMenu = [
-    { action: "platforms", icon: "🌐", label: "Platform Sosmed" },
     { action: "login", icon: "◇", label: "Masuk Reseller" },
     { action: "register", icon: "✉", label: "Daftar Reseller" },
     { action: "prices", icon: "💰", label: "Daftar Harga" },
     { action: "contact", icon: "☎", label: "Kontak" },
     { action: "guide", icon: "📘", label: "Cara Order" },
     { action: "target", icon: "🎯", label: "Target Pesanan" },
+    { action: "reward", icon: "🎁", label: "Menu Hadiah" },
     { action: "status", icon: "📈", label: "Status Order" },
   ];
   const resellerMenu = [
-    { action: "platforms", icon: "🌐", label: "Platform Sosmed" },
     { action: "profile", icon: "👤", label: "Profil Reseller" },
     { action: "deposit", icon: "💳", label: "Deposit Saldo" },
     { action: "history", icon: "🧾", label: "Riwayat Deposit" },
@@ -120,7 +119,6 @@ document.addEventListener("DOMContentLoaded", () => {
       navPanel.classList.remove("open");
       if (action === "login") return openLogin?.click();
       if (action === "register") return openRegister?.click();
-      if (action === "platforms") return platformSection?.scrollIntoView({ behavior: "smooth" });
       if (action === "profile") return openProfileModal();
       if (action === "deposit") return openDepositModal();
       if (action === "history") return openHistoryModal();
@@ -128,6 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (action === "prices") return showInfoMessage("Daftar harga");
       if (action === "target") return showInfoMessage("Target pesanan");
       if (action === "status") return showInfoMessage("Status order");
+      if (action === "reward") return showInfoMessage("Menu hadiah");
       if (action === "contact") return showInfoMessage("Kontak");
       if (action === "guide") return showInfoMessage("Cara order");
       if (action === "logout") return setLoggedOut();
@@ -139,6 +138,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const openRegister = document.getElementById("open-register");
   const goRegisterFromLogin = document.getElementById("go-register-from-login");
   const balancePill = document.getElementById("balance-pill");
+  const coinPill = document.getElementById("coin-pill");
   const brandTitle = document.getElementById("brand-title");
   const brandSubtitle = document.getElementById("brand-subtitle");
   const brandAvatar = document.getElementById("brand-avatar");
@@ -285,6 +285,10 @@ document.addEventListener("DOMContentLoaded", () => {
       balancePill.textContent = `Saldo: Rp ${Number(user.balance || 0).toLocaleString("id-ID")}`;
       balancePill.classList.remove("hidden");
     }
+    if (coinPill) {
+      coinPill.textContent = `Koin: ${Number(user.coins || 0).toLocaleString("id-ID")}`;
+      coinPill.classList.remove("hidden");
+    }
     openLogin?.classList.add("hidden");
     openRegister?.classList.add("hidden");
     menuState = "reseller";
@@ -303,6 +307,7 @@ document.addEventListener("DOMContentLoaded", () => {
     localStorage.removeItem(ACCOUNT_KEY);
     currentUser = null;
     balancePill?.classList.add("hidden");
+    coinPill?.classList.add("hidden");
     openLogin?.classList.remove("hidden");
     openRegister?.classList.remove("hidden");
     menuState = "guest";

@@ -73,6 +73,20 @@ body {
   display: none;
 }
 
+.coin-pill {
+  margin-right: 12px;
+  background: rgba(249, 115, 22, 0.15);
+  color: #f97316;
+  border-radius: 999px;
+  padding: 6px 14px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.coin-pill.hidden {
+  display: none;
+}
+
 .topbar-actions {
   display: flex;
   align-items: center;

@@ -97,6 +97,7 @@ module.exports = async (req, res) => {
             phone: updated.phone,
             avatarUrl: updated.avatarUrl,
             balance: updated.balance,
+            coins: updated.coins || 0,
           }
         : null;
 

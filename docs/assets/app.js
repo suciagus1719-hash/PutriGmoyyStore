@@ -415,51 +415,6 @@ payButton.addEventListener("click", async () => {
   }
 });
 
-if (resellerButton) {
-  resellerButton.addEventListener("click", async () => {
-    resellerMessage.textContent = "";
-    const name = resellerName.value.trim();
-    const wa = resellerWhatsapp.value.trim();
-    const email = resellerEmail.value.trim();
-    const username = resellerUsername.value.trim();
-    const password = resellerPassword.value.trim();
-
-    if (!name || !wa || !email || !username || !password) {
-      resellerMessage.textContent = "Lengkapi semua data reseller.";
-      return;
-    }
-
-    try {
-      resellerButton.disabled = true;
-      resellerButton.textContent = "Mengirim pendaftaran...";
-
-      const res = await apiPost("/api/register-reseller", {
-        name,
-        whatsapp: wa,
-        email,
-        username,
-        password,
-      });
-
-      if (res.success) {
-        resellerMessage.textContent =
-          "Pendaftaran reseller berhasil! Admin akan menghubungi kamu via WhatsApp.";
-        resellerName.value = "";
-        resellerWhatsapp.value = "";
-        resellerEmail.value = "";
-        resellerUsername.value = "";
-        resellerPassword.value = "";
-      } else {
-        resellerMessage.textContent = res.error || "Gagal daftar reseller.";
-      }
-    } catch (e) {
-      resellerMessage.textContent = e.message;
-    } finally {
-      resellerButton.disabled = false;
-      resellerButton.textContent = "Daftar Reseller";
-    }
-  });
-}
 
 loadCatalog();
 
