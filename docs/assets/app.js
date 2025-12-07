@@ -97,6 +97,8 @@ const PLATFORM_ORDER_LOOKUP = POPULAR_PLATFORM_ORDER.reduce((acc, id, idx) => {
 }, {});
 
 const CATALOG_CACHE_KEY = "pg_catalog_cache_v1";
+const RESELLER_DISCOUNT = 0.1;
+const SIMPLE_ICONS_VERSION = "11.0.0";
 
 function readCatalogCache() {
   if (typeof localStorage === "undefined") return null;
@@ -154,7 +156,11 @@ const resellerUsername = document.getElementById("reseller-username");
 const resellerPassword = document.getElementById("reseller-password");
 const resellerButton = document.getElementById("reseller-button");
 const resellerMessage = document.getElementById("reseller-message");
-  const platformLoader = document.getElementById("platform-loader");
+  let platformLoader = document.getElementById("platform-loader");
+  if (platformLoader) {
+    platformLoader.remove();
+    platformLoader = null;
+  }
   const paymentLoader = document.getElementById("payment-loader");
   const platformInfo = document.getElementById("platform-info");
   const platformInfoIcon = document.getElementById("platform-info-icon");
@@ -197,6 +203,7 @@ let catalogServices = [];
 let resellerAccount = window.currentAccount || null;
 window.addEventListener("account:change", (e) => {
   resellerAccount = e.detail || null;
+  refreshServicePricing();
 });
 
 async function apiGet(path) {
@@ -217,9 +224,13 @@ async function apiPost(path, body) {
 
 function platformIcon(id) {
   const meta = PLATFORM_ICON_META[(id || "").toLowerCase()] || PLATFORM_ICON_META.other;
-  const url =
-    meta.logoUrl ||
-    (meta.slug ? `https://cdn.simpleicons.org/${meta.slug}/ffffff` : "https://cdn.simpleicons.org/hashtag/ffffff");
+  if (meta.logoUrl) {
+    return { color: meta.color || "#6B7280", url: meta.logoUrl };
+  }
+  const slug = (meta.slug || "hashtag").toLowerCase();
+  const url = `https://cdn.jsdelivr.net/npm/simple-icons@${SIMPLE_ICONS_VERSION}/icons/${encodeURIComponent(
+    slug
+  )}.svg`;
   return { color: meta.color || "#6B7280", url };
 }
 
@@ -232,6 +243,24 @@ function sortPlatforms(list = []) {
     if (scoreA !== scoreB) return scoreA - scoreB;
     return (a.name || "").localeCompare(b.name || "");
   });
+}
+
+function isResellerActive() {
+  return Boolean(resellerAccount);
+}
+
+function formatCurrency(value) {
+  return `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
+}
+
+function getResellerPrice(value) {
+  if (!isResellerActive()) return value;
+  return Math.round(Number(value || 0) * (1 - RESELLER_DISCOUNT));
+}
+
+function getEffectivePricePer100(service) {
+  const base = Number(service.pricePer100 || 0);
+  return getResellerPrice(base);
 }
 
 async function loadCatalog() {
@@ -361,7 +390,16 @@ categorySelect.addEventListener("change", (e) => {
     return;
   }
 
-  const data = getServicesForCategory(selectedPlatform?.id, selectedCategory);
+  buildServiceOptions();
+});
+
+function buildServiceOptions(preserveSelection) {
+  if (!selectedPlatform || !selectedCategory) {
+    serviceSelect.innerHTML = `<option value="">Pilih kategori dulu.</option>`;
+    return;
+  }
+
+  const data = getServicesForCategory(selectedPlatform.id, selectedCategory);
   if (!data.length) {
     serviceSelect.innerHTML = `<option value="">Layanan tidak tersedia.</option>`;
     return;
@@ -370,12 +408,25 @@ categorySelect.addEventListener("change", (e) => {
   serviceSelect.innerHTML = `<option value="">Pilih layanan</option>`;
   data.forEach((svc) => {
     const opt = document.createElement("option");
-    const priceLabel = svc.pricePer100 ? `Rp ${svc.pricePer100.toLocaleString("id-ID")}` : "Rp0";
+    const priceValue = getEffectivePricePer100(svc);
+    const priceLabel = priceValue ? formatCurrency(priceValue) : "Rp0";
     opt.value = svc.id;
-    opt.textContent = `${svc.id} - ${svc.name} - ${priceLabel}`;
+    opt.textContent = `${svc.id} - ${svc.name} - ${priceLabel}${isResellerActive() ? " (Reseller)" : ""}`;
+    if (preserveSelection && String(preserveSelection) === String(svc.id)) {
+      opt.selected = true;
+    }
     serviceSelect.appendChild(opt);
   });
-});
+}
+
+function refreshServicePricing() {
+  if (!selectedPlatform || !selectedCategory) return;
+  const current = serviceSelect.value;
+  buildServiceOptions(current);
+  if (current) {
+    serviceSelect.dispatchEvent(new Event("change"));
+  }
+}
 
 serviceSelect.addEventListener("change", (e) => {
   const id = e.target.value;
@@ -393,10 +444,11 @@ serviceSelect.addEventListener("change", (e) => {
     return;
   }
   selectedService = svc;
-  const priceLabel = svc.pricePer100
-    ? `Rp ${svc.pricePer100.toLocaleString("id-ID")}`
+  const effectivePrice = getEffectivePricePer100(svc);
+  const priceLabel = effectivePrice
+    ? formatCurrency(effectivePrice)
     : svc.rate
-    ? `Rp ${svc.rate.toLocaleString("id-ID")} / 1000`
+    ? `${formatCurrency(svc.rate)} / 1000`
     : "-";
   servicePrice.textContent = priceLabel;
   serviceMin.textContent = svc.min || "-";
@@ -410,7 +462,7 @@ serviceSelect.addEventListener("change", (e) => {
     serviceDescriptionRow.classList.add("hidden");
   }
 
-  selectedPricePer100 = svc.pricePer100 || 0;
+  selectedPricePer100 = effectivePrice || 0;
   updateTotalPrice();
   if (svc.min) quantityField.min = svc.min;
 });
@@ -418,11 +470,11 @@ serviceSelect.addEventListener("change", (e) => {
 function updateTotalPrice() {
   const qty = Number(quantityField.value || 0);
   if (!selectedPricePer100 || !qty) {
-  totalPriceField.value = "Rp0";
+    totalPriceField.value = "Rp0";
     return;
   }
   const total = (selectedPricePer100 / 100) * qty;
-  totalPriceField.value = `Rp ${Math.round(total).toLocaleString("id-ID")}`;
+  totalPriceField.value = formatCurrency(Math.round(total));
 }
 
 quantityField.addEventListener("input", updateTotalPrice);
@@ -459,7 +511,7 @@ payButtonEl.addEventListener("click", async () => {
 
   try {
     payButtonEl.disabled = true;
-    payButtonEl.textContent = "Membuat pesanan...";
+    payButtonEl.textContent = isResellerActive() ? "Memproses saldo..." : "Membuat pesanan...";
     showPaymentLoader();
     const payload = {
       platformId: selectedPlatform.id,

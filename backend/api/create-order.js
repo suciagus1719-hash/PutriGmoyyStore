@@ -46,7 +46,8 @@ module.exports = async (req, res) => {
 
     const rate = getServicePrice(svc); // harga per 1000
     const qty = Number(quantity);
-    const paymentAmount = Math.round((rate / 1000) * qty);
+    const baseAmount = Math.round((rate / 1000) * qty);
+    const paymentAmount = wantsBalance ? Math.round(baseAmount * 0.9) : baseAmount;
 
     const orderId = `GMYY-${Date.now()}`;
 

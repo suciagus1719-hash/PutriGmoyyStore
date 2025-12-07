@@ -20,6 +20,30 @@ function authPost(path, body) {
   });
 }
 
+function apiGet(path) {
+  return fetch(`${API_BASE}${path}`).then(async (res) => {
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.error) {
+      throw new Error(data.error || "Permintaan gagal");
+    }
+    return data;
+  });
+}
+
+function apiPost(path, body) {
+  return fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  }).then(async (res) => {
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.error) {
+      throw new Error(data.error || "Permintaan gagal");
+    }
+    return data;
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const slides = Array.from(document.querySelectorAll(".hero-slide"));
   const dots = Array.from(document.querySelectorAll(".hero-dot"));
@@ -60,6 +84,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const menuBtn = document.getElementById("menu-toggle");
   const navPanel = document.getElementById("topbar-nav");
   const menuList = document.getElementById("menu-list");
+  const modeButtons = document.querySelectorAll(".mode-btn");
+  const modeLabel = document.getElementById("mode-label");
   const platformSection = document.getElementById("platform-list");
   const loaderOverlay = document.getElementById("profile-loader");
   const loaderMessage = loaderOverlay?.querySelector("p");
@@ -70,27 +96,27 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   const hideLoader = () => loaderOverlay?.classList.add("hidden");
   const defaultMenu = [
-    { action: "login", icon: "IN", label: "Masuk Reseller" },
-    { action: "register", icon: "RG", label: "Daftar Reseller" },
-    { action: "prices", icon: "P$", label: "Daftar Harga" },
-    { action: "contact", icon: "CT", label: "Kontak" },
-    { action: "guide", icon: "GD", label: "Cara Order" },
-    { action: "target", icon: "TG", label: "Target Pesanan" },
-    { action: "reward", icon: "RW", label: "Menu Hadiah" },
-    { action: "status", icon: "ST", label: "Status Order" },
+    { action: "login", icon: "🔐", label: "Masuk Reseller" },
+    { action: "register", icon: "✍️", label: "Daftar Reseller" },
+    { action: "prices", icon: "💰", label: "Daftar Harga" },
+    { action: "contact", icon: "☎️", label: "Kontak" },
+    { action: "guide", icon: "📘", label: "Cara Order" },
+    { action: "target", icon: "🎯", label: "Target Pesanan" },
+    { action: "reward", icon: "🎁", label: "Menu Hadiah" },
+    { action: "status", icon: "📊", label: "Status Order" },
   ];
 
   const resellerMenu = [
-    { action: "profile", icon: "PR", label: "Profil Reseller" },
-    { action: "deposit", icon: "DP", label: "Deposit Saldo" },
-    { action: "history", icon: "RH", label: "Riwayat Deposit" },
-    { action: "monitor", icon: "MN", label: "Monitoring Sosmed" },
-    { action: "reward", icon: "RW", label: "Menu Hadiah" },
-    { action: "prices", icon: "P$", label: "Daftar Harga" },
-    { action: "target", icon: "TG", label: "Target Pesanan" },
-    { action: "status", icon: "ST", label: "Status Order" },
-    { action: "contact", icon: "CT", label: "Kontak" },
-    { action: "logout", icon: "LO", label: "Logout" },
+    { action: "profile", icon: "👤", label: "Profil Reseller" },
+    { action: "deposit", icon: "➕", label: "Deposit Saldo" },
+    { action: "history", icon: "🧾", label: "Riwayat Deposit" },
+    { action: "monitor", icon: "📡", label: "Monitoring Sosmed" },
+    { action: "reward", icon: "🎁", label: "Menu Hadiah" },
+    { action: "prices", icon: "💰", label: "Daftar Harga" },
+    { action: "target", icon: "🎯", label: "Target Pesanan" },
+    { action: "status", icon: "📊", label: "Status Order" },
+    { action: "contact", icon: "☎️", label: "Kontak" },
+    { action: "logout", icon: "🚪", label: "Logout" },
   ];
 
   let menuState = "guest";
@@ -109,6 +135,33 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
   };
   renderMenu();
+  const modeMap = {
+    sosmed: "Sosmed",
+    games: "Games",
+    pulsa: "Pulsa & Data",
+    apps: "Aplikasi Premium",
+    ewallet: "E-Wallet",
+    panel: "Panel Website",
+    bot: "Bot",
+  };
+  const setMode = (mode) => {
+    if (!modeMap[mode]) mode = "sosmed";
+    localStorage.setItem("PG_ACTIVE_MODE", mode);
+    modeButtons.forEach((btn) => {
+      const active = btn.dataset.mode === mode;
+      btn.classList.toggle("active", active);
+    });
+    modeLabel && (modeLabel.textContent = modeMap[mode]);
+    window.dispatchEvent(new CustomEvent("mode:change", { detail: { mode } }));
+  };
+  if (modeButtons.length) {
+    const saved = localStorage.getItem("PG_ACTIVE_MODE") || "sosmed";
+    setMode(saved);
+    modeButtons.forEach((btn) =>
+      btn.addEventListener("click", () => setMode(btn.dataset.mode || "sosmed"))
+    );
+  }
+
   if (menuBtn && navPanel) {
     menuBtn.addEventListener("click", (e) => {
       e.stopPropagation();

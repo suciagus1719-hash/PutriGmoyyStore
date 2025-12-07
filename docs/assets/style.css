@@ -847,6 +847,73 @@ body {
   gap: 8px;
 }
 
+.mode-switch {
+  margin: 24px auto;
+  max-width: 920px;
+  background: linear-gradient(120deg, #172554, #1e1b4b);
+  border-radius: 50px;
+  padding: 18px 24px;
+  color: #e0e7ff;
+  box-shadow: 0 20px 35px rgba(23, 37, 84, 0.25);
+}
+
+.mode-switch-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+  margin-bottom: 12px;
+  color: #c7d2fe;
+}
+
+.mode-switch-header span {
+  font-weight: 600;
+  color: #fff;
+}
+
+.mode-switch-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.mode-btn {
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  background: rgba(15, 23, 42, 0.5);
+  color: #f8fafc;
+  font-weight: 600;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.1s ease;
+}
+
+.mode-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  transform: translateY(-1px);
+}
+
+.mode-btn.active {
+  background: #2563eb;
+  color: #fff;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45);
+}
+
+@media (max-width: 640px) {
+  .mode-switch {
+    border-radius: 30px;
+    padding: 16px;
+  }
+  .mode-btn {
+    flex: 1 1 calc(50% - 8px);
+    justify-content: center;
+  }
+}
+
 .hero-dot {
   width: 12px;
   height: 12px;
@@ -1059,6 +1126,7 @@ body {
 .platform-btn .logo img {
   width: 18px;
   height: 18px;
+  filter: brightness(0) invert(1);
 }
 
 @media (max-width: 640px) {
@@ -1236,6 +1304,7 @@ label {
 .platform-info-icon img {
   width: 18px;
   height: 18px;
+  filter: brightness(0) invert(1);
 }
 
 .pay-button {
