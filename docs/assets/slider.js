@@ -55,7 +55,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const menuBtn = document.getElementById("menu-toggle");
   const navPanel = document.getElementById("topbar-nav");
   const menuList = document.getElementById("menu-list");
+  const platformSection = document.getElementById("platform-list");
+  const globalLoader = document.getElementById("payment-loader");
+  const loaderMessage = globalLoader?.querySelector("p");
+  const showLoader = (message = "Memproses...") => {
+    if (!globalLoader) return;
+    loaderMessage && (loaderMessage.textContent = message);
+    globalLoader.classList.remove("hidden");
+  };
+  const hideLoader = () => globalLoader?.classList.add("hidden");
   const defaultMenu = [
+    { action: "platforms", icon: "🌐", label: "Platform Sosmed" },
     { action: "login", icon: "◇", label: "Masuk Reseller" },
     { action: "register", icon: "✉", label: "Daftar Reseller" },
     { action: "prices", icon: "💰", label: "Daftar Harga" },
@@ -65,6 +75,7 @@ document.addEventListener("DOMContentLoaded", () => {
     { action: "status", icon: "📈", label: "Status Order" },
   ];
   const resellerMenu = [
+    { action: "platforms", icon: "🌐", label: "Platform Sosmed" },
     { action: "profile", icon: "👤", label: "Profil Reseller" },
     { action: "deposit", icon: "💳", label: "Deposit Saldo" },
     { action: "history", icon: "🧾", label: "Riwayat Deposit" },
@@ -109,6 +120,7 @@ document.addEventListener("DOMContentLoaded", () => {
       navPanel.classList.remove("open");
       if (action === "login") return openLogin?.click();
       if (action === "register") return openRegister?.click();
+      if (action === "platforms") return platformSection?.scrollIntoView({ behavior: "smooth" });
       if (action === "profile") return openProfileModal();
       if (action === "deposit") return openDepositModal();
       if (action === "history") return openHistoryModal();
@@ -278,7 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
     menuState = "reseller";
     renderMenu();
     broadcastAccount();
-    const username = extractUsername(user.identifier);
+    const username = user.displayName || extractUsername(user.identifier);
     brandTitle && (brandTitle.textContent = username || "PutriGmoyy");
     brandSubtitle && (brandSubtitle.textContent = "Akun Reseller");
     const avatarSrc =
@@ -522,6 +534,7 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
     try {
+      showLoader("Menyimpan perubahan...");
       const payload = {
         identifier: currentUser.identifier,
         displayName: profileNameInput.value.trim(),
@@ -538,6 +551,8 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
       profileError.textContent = e.message;
       profileError.classList.remove("hidden");
+    } finally {
+      hideLoader();
     }
   });
 
