@@ -17,6 +17,8 @@ const PUBLIC_FRONTEND_URL =
 function sanitizeUser(user) {
   if (!user) return null;
   const { password, depositHistory, ...rest } = user;
+  rest.coins = Number(rest.coins || 0);
+  rest.referralCount = Number(rest.referralCount || 0);
   return rest;
 }
 
@@ -55,6 +57,7 @@ async function handleRegister(req, res) {
     password: hashed,
     balance: 0,
     coins: 0,
+    referralCount: 0,
     createdAt: new Date().toISOString(),
     displayName,
     email,
@@ -197,7 +200,78 @@ async function handleHistory(req, res) {
   res.json({
     history: Array.isArray(user.depositHistory) ? user.depositHistory : [],
     balance: user.balance || 0,
+    coins: user.coins || 0,
   });
+}
+
+async function handleReward(req, res) {
+  if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
+  const identifier = req.query.identifier;
+  if (!identifier) return res.status(400).json({ error: "Identifier diperlukan" });
+  const { user } = findUser(identifier);
+  if (!user) return res.status(404).json({ error: "Akun tidak ditemukan" });
+  const referralCode = user.referralCode || user.id.slice(-6);
+  if (!user.referralCode) {
+    const { users, index } = findUser(identifier);
+    if (index >= 0) {
+      users[index].referralCode = referralCode;
+      saveUsers(users);
+    }
+  }
+  res.json({
+    coins: Number(user.coins || 0),
+    referralCount: Number(user.referralCount || 0),
+    referralCode,
+  });
+}
+
+async function handleRewardUpdate(req, res) {
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  const { identifier, type, amount } = req.body || {};
+  if (!identifier || !type) return res.status(400).json({ error: "Data tidak lengkap" });
+  const { users, index, user } = findUser(identifier);
+  if (index < 0) return res.status(404).json({ error: "Akun tidak ditemukan" });
+
+  let coins = Number(user.coins || 0);
+  let balance = Number(user.balance || 0);
+  let referralCount = Number(user.referralCount || 0);
+
+  switch (type) {
+    case "referral":
+      coins += 1000;
+      referralCount += 1;
+      break;
+    case "game":
+      coins += 200;
+      break;
+    case "redeem_balance": {
+      const redeem = Math.floor(Number(amount) || 0);
+      if (redeem < 1000) return res.status(400).json({ error: "Minimal tukar 1000 koin" });
+      if (redeem > coins) return res.status(400).json({ error: "Koin tidak cukup" });
+      coins -= redeem;
+      balance += redeem;
+      break;
+    }
+    case "redeem_dana": {
+      const redeem = Math.floor(Number(amount) || 0);
+      if (redeem < 1000) return res.status(400).json({ error: "Minimal tukar 1000 koin" });
+      if (redeem > coins) return res.status(400).json({ error: "Koin tidak cukup" });
+      coins -= redeem;
+      break;
+    }
+    default:
+      return res.status(400).json({ error: "Aksi hadiah tidak dikenal" });
+  }
+
+  users[index] = {
+    ...user,
+    coins,
+    balance,
+    referralCount,
+  };
+  saveUsers(users);
+
+  res.json({ success: true, user: sanitizeUser(users[index]) });
 }
 
 module.exports = async (req, res) => {
@@ -220,6 +294,10 @@ module.exports = async (req, res) => {
         return handleCreateDeposit(req, res);
       case "history":
         return handleHistory(req, res);
+      case "reward":
+        return handleReward(req, res);
+      case "reward-update":
+        return handleRewardUpdate(req, res);
       default:
         return res.status(404).json({ error: "Action tidak dikenal" });
     }

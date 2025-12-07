@@ -123,6 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (action === "deposit") return openDepositModal();
       if (action === "history") return openHistoryModal();
       if (action === "monitor") return openMonitorModal();
+      if (action === "reward") return openRewardSection();
       if (action === "prices") return showInfoMessage("Daftar harga");
       if (action === "target") return showInfoMessage("Target pesanan");
       if (action === "status") return showInfoMessage("Status order");
@@ -199,6 +200,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const historyList = document.getElementById("history-list");
   const historyBalance = document.getElementById("history-balance");
   const monitorSection = document.getElementById("monitor-section");
+  const rewardSection = document.getElementById("reward-section");
+  const rewardCoins = document.getElementById("reward-coins");
+  const rewardReferrals = document.getElementById("reward-referrals");
+  const rewardCode = document.getElementById("reward-code");
+  const rewardError = document.getElementById("reward-error");
+  const rewardCopyBtn = document.getElementById("reward-copy");
+  const rewardInviteBtn = document.getElementById("reward-invite");
+  const rewardGameBtn = document.getElementById("reward-game");
+  const rewardRedeemAmount = document.getElementById("reward-redeem-amount");
+  const rewardRedeemBalance = document.getElementById("reward-redeem-balance");
+  const rewardRedeemDana = document.getElementById("reward-redeem-dana");
 
   const toggleButtons = Array.from(document.querySelectorAll(".toggle-pass"));
   let avatarData = "";
@@ -519,6 +531,23 @@ document.addEventListener("DOMContentLoaded", () => {
     monitorSection?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const openRewardSection = async () => {
+    if (!currentUser) return openLogin?.click();
+    try {
+      rewardError?.classList.add("hidden");
+      const params = new URLSearchParams({ identifier: currentUser.identifier });
+      const data = await apiGet(`/api/reseller?action=reward&${params.toString()}`);
+      rewardCoins && (rewardCoins.textContent = Number(data.coins || 0).toLocaleString("id-ID"));
+      rewardReferrals && (rewardReferrals.textContent = Number(data.referralCount || 0).toLocaleString("id-ID"));
+      rewardCode && (rewardCode.textContent = data.referralCode || "-");
+      rewardSection?.classList.remove("hidden");
+      rewardSection?.scrollIntoView({ behavior: "smooth" });
+    } catch (e) {
+      rewardError.textContent = e.message;
+      rewardError.classList.remove("hidden");
+    }
+  };
+
   profileAvatarInput?.addEventListener("change", (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -598,6 +627,86 @@ document.addEventListener("DOMContentLoaded", () => {
     modal?.addEventListener("click", (e) => {
       if (e.target === modal) closeOverlay(modal);
     });
+  });
+
+  const postReward = async (type, extra = {}) => {
+    if (!currentUser) throw new Error("Login terlebih dahulu.");
+    return apiPost("/api/reseller?action=reward-update", {
+      identifier: currentUser.identifier,
+      type,
+      ...extra,
+    });
+  };
+
+  rewardCopyBtn?.addEventListener("click", () => {
+    if (!rewardCode) return;
+    const code = rewardCode.textContent || "";
+    navigator.clipboard?.writeText(code);
+    rewardError.textContent = "Kode referral disalin.";
+    rewardError.classList.remove("hidden");
+    setTimeout(() => rewardError.classList.add("hidden"), 1500);
+  });
+
+  rewardInviteBtn?.addEventListener("click", async () => {
+    try {
+      rewardError.classList.add("hidden");
+      const res = await postReward("referral");
+      setLoggedIn(res.user, true);
+      openRewardSection();
+    } catch (e) {
+      rewardError.textContent = e.message;
+      rewardError.classList.remove("hidden");
+    }
+  });
+
+  rewardGameBtn?.addEventListener("click", async () => {
+    try {
+      rewardError.classList.add("hidden");
+      const res = await postReward("game");
+      setLoggedIn(res.user, true);
+      openRewardSection();
+    } catch (e) {
+      rewardError.textContent = e.message;
+      rewardError.classList.remove("hidden");
+    }
+  });
+
+  rewardRedeemBalance?.addEventListener("click", async () => {
+    const coins = Math.floor(Number(rewardRedeemAmount?.value || 0));
+    if (!coins || coins < 1000) {
+      rewardError.textContent = "Minimal 1000 koin.";
+      rewardError.classList.remove("hidden");
+      return;
+    }
+    try {
+      rewardError.classList.add("hidden");
+      const res = await postReward("redeem_balance", { amount: coins });
+      setLoggedIn(res.user, true);
+      openRewardSection();
+    } catch (e) {
+      rewardError.textContent = e.message;
+      rewardError.classList.remove("hidden");
+    }
+  });
+
+  rewardRedeemDana?.addEventListener("click", async () => {
+    const coins = Math.floor(Number(rewardRedeemAmount?.value || 0));
+    if (!coins || coins < 1000) {
+      rewardError.textContent = "Minimal 1000 koin.";
+      rewardError.classList.remove("hidden");
+      return;
+    }
+    try {
+      rewardError.classList.add("hidden");
+      const res = await postReward("redeem_dana", { amount: coins });
+      setLoggedIn(res.user, true);
+      rewardError.textContent = "Permintaan tukar DANA dikirim. Admin akan memprosesnya.";
+      rewardError.classList.remove("hidden");
+      openRewardSection();
+    } catch (e) {
+      rewardError.textContent = e.message;
+      rewardError.classList.remove("hidden");
+    }
   });
 
   if (createAccountBtn) {

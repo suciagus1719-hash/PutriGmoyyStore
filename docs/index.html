@@ -159,6 +159,50 @@
         <button class="primary-btn block" id="deposit-submit">Lanjutkan Pembayaran</button>
       </div>
     </div>
+    <section class="card info-card hidden" id="reward-section">
+      <h3>Menu Hadiah</h3>
+      <p class="modal-desc">Kumpulkan koin dari referral, game, dan tukarkan menjadi saldo akun atau DANA.</p>
+      <div class="reward-stats">
+        <div class="reward-box">
+          <p>Jumlah Koin</p>
+          <strong id="reward-coins">0</strong>
+        </div>
+        <div class="reward-box">
+          <p>Teman Diundang</p>
+          <strong id="reward-referrals">0</strong>
+        </div>
+        <div class="reward-box">
+          <p>Kode Referral</p>
+          <strong id="reward-code">-</strong>
+        </div>
+      </div>
+      <div class="reward-grid">
+        <div class="reward-card">
+          <h4>Undang Teman</h4>
+          <p>1 teman = +1000 koin. Bagikan kode referralmu.</p>
+          <div class="reward-buttons">
+            <button class="outline-btn small" id="reward-copy">Salin Kode</button>
+            <button class="primary-btn small" id="reward-invite">Catat Teman</button>
+          </div>
+        </div>
+        <div class="reward-card">
+          <h4>Mini Game</h4>
+          <p>Tap tombol di bawah untuk mendapatkan +200 koin secara acak.</p>
+          <button class="primary-btn small" id="reward-game">Mainkan Game</button>
+        </div>
+        <div class="reward-card">
+          <h4>Tukar Koin</h4>
+          <label for="reward-redeem-amount">Nominal koin (≥1000)</label>
+          <input type="number" id="reward-redeem-amount" min="1000" placeholder="1000" />
+          <div class="reward-buttons">
+            <button class="primary-btn small" id="reward-redeem-balance">Tukar ke Saldo</button>
+            <button class="outline-btn small" id="reward-redeem-dana">Tukar ke DANA</button>
+          </div>
+        </div>
+      </div>
+      <p class="profile-error hidden" id="reward-error"></p>
+      <p class="reward-note">Catatan: penambahan saldo DANA membutuhkan proses manual admin.</p>
+    </section>
     <section class="card info-card hidden" id="history-section">
       <div class="info-header">
         <h3>Riwayat Deposit</h3>
