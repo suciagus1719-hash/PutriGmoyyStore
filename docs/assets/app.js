@@ -154,10 +154,34 @@ const resellerMessage = document.getElementById("reseller-message");
   const platformInfo = document.getElementById("platform-info");
   const platformInfoIcon = document.getElementById("platform-info-icon");
 const platformInfoText = document.getElementById("platform-info-text");
-if (!platformList || !categorySelect || !serviceSelect || !targetInput || !quantityInput || !totalPriceInput || !orderEmailInput || !payButton || !errorMessage) {
-  console.warn("Elemen utama form tidak ditemukan, melewati initOrderApp.");
+if (!platformList || !categorySelect || !serviceSelect) {
+  console.warn("Elemen utama platform tidak ditemukan, melewati initOrderApp.");
   return;
 }
+
+const createInputStub = () => ({
+  value: "",
+  min: 0,
+  addEventListener() {},
+  setAttribute() {},
+  focus() {},
+});
+const createButtonStub = () => ({
+  disabled: false,
+  textContent: "",
+  addEventListener() {},
+});
+const createMessageStub = () => ({
+  textContent: "",
+  classList: { add() {}, remove() {} },
+});
+
+const targetField = targetInput || createInputStub();
+const quantityField = quantityInput || createInputStub();
+const totalPriceField = totalPriceInput || createInputStub();
+const orderEmailField = orderEmailInput || createInputStub();
+const payButtonEl = payButton || createButtonStub();
+const errorMessageEl = errorMessage || createMessageStub();
 
 let selectedPlatform = null;
 let selectedCategory = null;
@@ -229,7 +253,7 @@ async function loadCatalog() {
   } catch (e) {
     console.error("Gagal memuat katalog:", e);
     if (!catalogServices.length) {
-      errorMessage.textContent = "Gagal memuat katalog, gunakan daftar default.";
+      errorMessageEl.textContent = "Gagal memuat katalog, gunakan daftar default.";
     }
   } finally {
     renderPlatformButtons();
@@ -360,7 +384,7 @@ serviceSelect.addEventListener("change", (e) => {
 
   const svc = catalogServices.find((s) => String(s.id) === String(id));
   if (!svc) {
-    errorMessage.textContent = "Layanan tidak ditemukan.";
+    errorMessageEl.textContent = "Layanan tidak ditemukan.";
     return;
   }
   selectedService = svc;
@@ -383,21 +407,21 @@ serviceSelect.addEventListener("change", (e) => {
 
   selectedPricePer100 = svc.pricePer100 || 0;
   updateTotalPrice();
-  if (svc.min) quantityInput.min = svc.min;
+  if (svc.min) quantityField.min = svc.min;
 });
 
 function updateTotalPrice() {
-  const qty = Number(quantityInput.value || 0);
+  const qty = Number(quantityField.value || 0);
   if (!selectedPricePer100 || !qty) {
-  totalPriceInput.value = "Rp0";
+  totalPriceField.value = "Rp0";
     return;
   }
   const total = (selectedPricePer100 / 100) * qty;
-  totalPriceInput.value = `Rp ${Math.round(total).toLocaleString("id-ID")}`;
+  totalPriceField.value = `Rp ${Math.round(total).toLocaleString("id-ID")}`;
 }
 
-quantityInput.addEventListener("input", updateTotalPrice);
-quantityInput.addEventListener("change", updateTotalPrice);
+quantityField.addEventListener("input", updateTotalPrice);
+quantityField.addEventListener("change", updateTotalPrice);
 function showPaymentLoader(message = "Menyiapkan pembayaran...") {
   if (!paymentLoader) return;
   paymentLoader.classList.remove("hidden");
@@ -416,21 +440,21 @@ function hidePaymentLoader() {
 
 const safeValue = (input) => (input ? input.value.trim() : "");
 
-payButton.addEventListener("click", async () => {
-  errorMessage.textContent = "";
-  if (!selectedPlatform) return (errorMessage.textContent = "Pilih platform terlebih dahulu.");
-  if (!selectedCategory) return (errorMessage.textContent = "Pilih kategori layanan.");
-  if (!selectedService) return (errorMessage.textContent = "Pilih layanan.");
+payButtonEl.addEventListener("click", async () => {
+  errorMessageEl.textContent = "";
+  if (!selectedPlatform) return (errorMessageEl.textContent = "Pilih platform terlebih dahulu.");
+  if (!selectedCategory) return (errorMessageEl.textContent = "Pilih kategori layanan.");
+  if (!selectedService) return (errorMessageEl.textContent = "Pilih layanan.");
 
-  const target = targetInput.value.trim();
-  const qty = Number(quantityInput.value || 0);
+  const target = targetField.value.trim();
+  const qty = Number(quantityField.value || 0);
 
-  if (!target) return (errorMessage.textContent = "Target tidak boleh kosong.");
-  if (!qty || qty <= 0) return (errorMessage.textContent = "Jumlah harus lebih dari 0.");
+  if (!target) return (errorMessageEl.textContent = "Target tidak boleh kosong.");
+  if (!qty || qty <= 0) return (errorMessageEl.textContent = "Jumlah harus lebih dari 0.");
 
   try {
-    payButton.disabled = true;
-    payButton.textContent = "Membuat pesanan...";
+    payButtonEl.disabled = true;
+    payButtonEl.textContent = "Membuat pesanan...";
     showPaymentLoader();
     const payload = {
       platformId: selectedPlatform.id,
@@ -443,7 +467,7 @@ payButton.addEventListener("click", async () => {
       buyer: {
         name: safeValue(buyerName),
         whatsapp: safeValue(buyerWhatsapp),
-        email: safeValue(orderEmailInput) || safeValue(buyerEmail) || "noemail@example.com",
+        email: safeValue(orderEmailField) || safeValue(buyerEmail) || "noemail@example.com",
       },
     };
     const res = await apiPost("/api/create-order", payload);
@@ -457,10 +481,10 @@ payButton.addEventListener("click", async () => {
     if (!res.redirectUrl) throw new Error("redirectUrl tidak ditemukan.");
     window.location.href = res.redirectUrl;
   } catch (e) {
-    errorMessage.textContent = e.message;
+    errorMessageEl.textContent = e.message;
   } finally {
-    payButton.disabled = false;
-    payButton.textContent = "Lanjutkan Pembayaran";
+    payButtonEl.disabled = false;
+    payButtonEl.textContent = "Lanjutkan Pembayaran";
     hidePaymentLoader();
   }
 });
