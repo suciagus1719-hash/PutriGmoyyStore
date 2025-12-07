@@ -252,6 +252,69 @@
     </section>
       </div>
     </div>
+    <div class="page-screen" id="page-status">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+        <section class="card info-card" id="status-section">
+          <div class="status-header">
+            <h3>Status Order Sosmed &amp; Top Up</h3>
+            <p>Klik ikon detail untuk melihat informasi pesanan lengkap.</p>
+          </div>
+          <div class="status-filters">
+            <label>
+              Tampilkan
+              <select id="status-limit">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </label>
+            <label>
+              Status
+              <select id="status-filter">
+                <option value="all">Semua</option>
+                <option value="pending_payment">Menunggu Pembayaran</option>
+                <option value="processing">Processing</option>
+                <option value="success">Success</option>
+                <option value="error">Error</option>
+              </select>
+            </label>
+            <label class="status-search">
+              Cari Order ID / Target
+              <input type="text" id="status-search" placeholder="contoh: GMYY-123 / username" />
+            </label>
+            <button class="primary-btn" id="status-filter-btn">Filter</button>
+          </div>
+          <div class="status-table-wrapper">
+            <table class="status-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Waktu</th>
+                  <th>Layanan</th>
+                  <th>Target</th>
+                  <th>Jumlah</th>
+                  <th>Harga</th>
+                  <th>Status</th>
+                  <th>Detail</th>
+                </tr>
+              </thead>
+              <tbody id="status-table-body">
+                <tr>
+                  <td colspan="8">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="status-footer">
+            <span id="status-total">Total: 0</span>
+            <div id="status-pagination" class="status-pagination"></div>
+          </div>
+        </section>
+      </div>
+    </div>
     <div class="page-screen" id="page-monitor">
       <div class="content">
         <div class="page-back">

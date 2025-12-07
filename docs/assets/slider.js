@@ -159,8 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (action === "reward") return openRewardSection();
       if (action === "prices") return showInfoMessage("Daftar harga");
       if (action === "target") return showInfoMessage("Target pesanan");
-      if (action === "status") return showInfoMessage("Status order");
-      if (action === "reward") return showInfoMessage("Menu hadiah");
+      if (action === "status") return openStatusPage();
       if (action === "contact") return switchPage("contact");
       if (action === "guide") return showInfoMessage("Cara order");
       if (action === "logout") return setLoggedOut();
@@ -244,6 +243,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const rewardRedeemAmount = document.getElementById("reward-redeem-amount");
   const rewardRedeemBalance = document.getElementById("reward-redeem-balance");
   const rewardRedeemDana = document.getElementById("reward-redeem-dana");
+  const statusTableBody = document.getElementById("status-table-body");
+  const statusLimitSelect = document.getElementById("status-limit");
+  const statusFilterSelect = document.getElementById("status-filter");
+  const statusSearchInput = document.getElementById("status-search");
+  const statusFilterBtn = document.getElementById("status-filter-btn");
+  const statusTotalText = document.getElementById("status-total");
+  const statusPagination = document.getElementById("status-pagination");
   const pageScreens = Array.from(document.querySelectorAll(".page-screen"));
   const pageBackButtons = document.querySelectorAll(".page-back-btn");
 
@@ -260,6 +266,81 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", () => switchPage(btn.dataset.target || "default"))
   );
   switchPage("default");
+
+  const formatStatusCurrency = (value) =>
+    `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
+
+  const renderStatusTable = (rows) => {
+    if (!statusTableBody) return;
+    if (!rows.length) {
+      statusTableBody.innerHTML = `<tr><td colspan="8">Belum ada data order.</td></tr>`;
+      return;
+    }
+    statusTableBody.innerHTML = rows
+      .map((row) => {
+        const time = row.createdAt ? new Date(row.createdAt).toLocaleString("id-ID") : "-";
+        const statusClass = row.status || "processing";
+        const targetValue = row.target || "-";
+        return `<tr>
+          <td>${row.id || "-"}</td>
+          <td>${time}</td>
+          <td>${row.serviceName || "-"}</td>
+          <td>
+            <div class="status-target">
+              <span>${targetValue}</span>
+              ${
+                targetValue && targetValue !== "-"
+                  ? `<button class="status-action-btn" data-copy="${targetValue}" title="Salin target">&#128203;</button>`
+                  : ""
+              }
+            </div>
+          </td>
+          <td>${row.quantity || "-"}</td>
+          <td>${formatStatusCurrency(row.price || 0)}</td>
+          <td><span class="status-pill ${statusClass}">${String(statusClass).replace("_", " ")}</span></td>
+          <td><button class="status-action-btn" title="Detail">&#9776;</button></td>
+        </tr>`;
+      })
+      .join("");
+  };
+
+  const renderStatusPagination = (total, current, limit) => {
+    if (!statusPagination) return;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    let buttons = "";
+    const btn = (label, page, active = false, disabled = false) =>
+      `<button ${disabled ? "disabled" : ""} data-page="${page}" class="${active ? "active" : ""}">${label}</button>`;
+    buttons += btn("&laquo;", Math.max(1, current - 1), false, current === 1);
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || Math.abs(i - current) <= 1) {
+        buttons += btn(i, i, i === current);
+      } else if (Math.abs(i - current) === 2) {
+        buttons += "<span>...</span>";
+      }
+    }
+    buttons += btn("&raquo;", Math.min(totalPages, current + 1), false, current === totalPages);
+    statusPagination.innerHTML = buttons;
+  };
+
+  const loadStatusOrders = async () => {
+    if (!statusTableBody) return;
+    try {
+      statusTableBody.innerHTML = `<tr><td colspan="8">Memuat data...</td></tr>`;
+      const params = new URLSearchParams({
+        page: statusState.page,
+        limit: statusState.limit,
+        status: statusState.status,
+        q: statusState.search,
+      });
+      const data = await apiGet(`/api/orders?${params.toString()}`);
+      const rows = data.rows || [];
+      renderStatusTable(rows);
+      statusTotalText && (statusTotalText.textContent = `Total: ${Number(data.total || 0).toLocaleString("id-ID")}`);
+      renderStatusPagination(Number(data.total || 0), statusState.page, statusState.limit);
+    } catch (e) {
+      statusTableBody.innerHTML = `<tr><td colspan="8">${e.message}</td></tr>`;
+    }
+  };
 
   const forgotStep = loginModal?.querySelector(".login-step-forgot");
   const forgotUsernameInput = document.getElementById("forgot-username");
@@ -281,7 +362,31 @@ document.addEventListener("DOMContentLoaded", () => {
 
   let pendingIdentifier = "";
   let currentUser = null;
-  let authMode = "login"; // login, register
+let authMode = "login"; // login, register
+let statusState = {
+  page: 1,
+  limit: Number(statusLimitSelect?.value || 10),
+  status: statusFilterSelect?.value || "all",
+  search: "",
+};
+
+  statusFilterBtn?.addEventListener("click", () => {
+    statusState = {
+      ...statusState,
+      page: 1,
+      limit: Number(statusLimitSelect?.value || 10),
+      status: statusFilterSelect?.value || "all",
+      search: statusSearchInput?.value.trim() || "",
+    };
+    loadStatusOrders();
+  });
+
+  statusPagination?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-page]");
+    if (!btn || btn.disabled) return;
+    statusState.page = Number(btn.dataset.page) || 1;
+    loadStatusOrders();
+  });
 
   const showStep = (step) => {
     identifierStep?.classList.add("hidden");
@@ -517,6 +622,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  document.addEventListener("click", (e) => {
+    const copyBtn = e.target.closest(".status-action-btn[data-copy]");
+    if (copyBtn && navigator.clipboard) {
+      navigator.clipboard.writeText(copyBtn.dataset.copy || "");
+      alert("Target disalin.");
+    }
+  });
+
   if (forgotLink) {
     forgotLink.addEventListener("click", (e) => {
       e.preventDefault();
@@ -682,6 +795,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const openMonitorModal = () => {
     switchPage("monitor");
+  };
+
+  const openStatusPage = () => {
+    switchPage("status");
   };
 
   const openRewardSection = async () => {

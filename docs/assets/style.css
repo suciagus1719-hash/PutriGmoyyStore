@@ -1024,6 +1024,132 @@ body {
   mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/facebook.svg");
 }
 
+.status-header {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.status-filters {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.status-filters label {
+  font-size: 13px;
+  color: #4b5563;
+}
+
+.status-filters input,
+.status-filters select {
+  width: 100%;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 14px;
+}
+
+.status-table-wrapper {
+  overflow-x: auto;
+}
+
+.status-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.status-table th,
+.status-table td {
+  padding: 12px 14px;
+  border-bottom: 1px solid #f1f5f9;
+  text-align: left;
+  font-size: 14px;
+}
+
+.status-table th {
+  background: #f8fafc;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-pill.processing {
+  background: rgba(59, 130, 246, 0.15);
+  color: #2563eb;
+}
+
+.status-pill.pending_payment {
+  background: rgba(245, 158, 11, 0.15);
+  color: #d97706;
+}
+
+.status-pill.success {
+  background: rgba(16, 185, 129, 0.15);
+  color: #059669;
+}
+
+.status-pill.error {
+  background: rgba(239, 68, 68, 0.15);
+  color: #dc2626;
+}
+
+.status-target {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.status-action-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.status-footer {
+  margin-top: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 14px;
+}
+
+.status-pagination button {
+  border: 1px solid #e5e7eb;
+  background: #fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  margin-left: 4px;
+  cursor: pointer;
+}
+
+.status-pagination button.active {
+  background: #2033df;
+  color: #fff;
+}
+
 .card {
   background: #fff;
   border-radius: 12px;

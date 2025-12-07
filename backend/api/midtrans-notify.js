@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const { callPanel } = require("../lib/smmClient");
 const { updateUser } = require("../lib/accountStore");
+const { updateOrder } = require("../lib/orderStore");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 
@@ -85,6 +86,11 @@ module.exports = async (req, res) => {
       console.error("Data layanan tidak lengkap di custom_field, cek create-order.js");
     } else {
       try {
+        updateOrder(order_id, {
+          status: "processing",
+          paymentType: data.payment_type || "midtrans",
+          paidAt: new Date().toISOString(),
+        });
         const payload = {
           action: "order", // sesuai dokumentasi PusatPanelSMM
           service: field1,
@@ -95,8 +101,18 @@ module.exports = async (req, res) => {
         }
         const panelRes = await callPanel(payload);
         console.log("Order dikirim ke panel:", panelRes);
+        updateOrder(order_id, {
+          panelResponse: panelRes,
+          status: "processing",
+          lastUpdate: new Date().toISOString(),
+        });
       } catch (e) {
         console.error("Gagal mengirim order ke panel:", e);
+        updateOrder(order_id, {
+          status: "error",
+          errorMessage: String(e.message || e),
+          lastUpdate: new Date().toISOString(),
+        });
       }
     }
 

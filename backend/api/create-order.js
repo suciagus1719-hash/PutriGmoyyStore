@@ -3,6 +3,7 @@ const { callPanel } = require("../lib/smmClient");
 const { normalizeServicesResponse } = require("../lib/platformUtils");
 const { getServiceId, getServicePrice, getServiceName } = require("../lib/serviceParser");
 const { findUser, updateUser } = require("../lib/accountStore");
+const { appendOrder, updateOrder } = require("../lib/orderStore");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 const MIDTRANS_SNAP_BASE_URL =
@@ -66,6 +67,23 @@ module.exports = async (req, res) => {
       request_time: new Date().toISOString(),
     }).toString();
 
+    const orderRecord = {
+      id: orderId,
+      serviceId: String(serviceId),
+      serviceName: getServiceName(svc),
+      category: svc.category || "",
+      platformId: svc.platformId || svc.platform,
+      platformName: svc.platformName || "",
+      target,
+      quantity: qty,
+      price: paymentAmount,
+      buyer,
+      status: wantsBalance ? "processing" : "pending_payment",
+      type: wantsBalance ? "reseller" : "midtrans",
+      createdAt: new Date().toISOString(),
+    };
+    appendOrder(orderRecord);
+
     if (wantsBalance) {
       const { user } = findUser(resellerIdentifier);
       if (!user) return res.status(404).json({ error: "Akun reseller tidak ditemukan" });
@@ -101,6 +119,11 @@ module.exports = async (req, res) => {
             coins: updated.coins || 0,
           }
         : null;
+
+      updateOrder(orderId, {
+        status: "processing",
+        lastUpdate: new Date().toISOString(),
+      });
 
       return res.json({
         success: true,
