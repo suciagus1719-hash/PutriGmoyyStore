@@ -161,7 +161,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (action === "target") return showInfoMessage("Target pesanan");
       if (action === "status") return showInfoMessage("Status order");
       if (action === "reward") return showInfoMessage("Menu hadiah");
-      if (action === "contact") return showInfoMessage("Kontak");
+      if (action === "contact") return switchPage("contact");
       if (action === "guide") return showInfoMessage("Cara order");
       if (action === "logout") return setLoggedOut();
       showInfoMessage("Menu");
@@ -261,6 +261,15 @@ document.addEventListener("DOMContentLoaded", () => {
   );
   switchPage("default");
 
+  const forgotStep = loginModal?.querySelector(".login-step-forgot");
+  const forgotUsernameInput = document.getElementById("forgot-username");
+  const forgotIdentifierInput = document.getElementById("forgot-identifier");
+  const forgotPasswordInput = document.getElementById("forgot-password");
+  const forgotPasswordConfirmInput = document.getElementById("forgot-password-confirm");
+  const forgotSubmitBtn = document.getElementById("forgot-submit");
+  const forgotError = document.getElementById("forgot-error");
+  const forgotLink = document.querySelector(".forgot-link a");
+
   const toggleButtons = Array.from(document.querySelectorAll(".toggle-pass"));
   let avatarData = "";
   const broadcastAccount = () => {
@@ -278,6 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
     identifierStep?.classList.add("hidden");
     passwordStep?.classList.add("hidden");
     registerStep?.classList.add("hidden");
+    forgotStep?.classList.add("hidden");
     step?.classList.remove("hidden");
   };
 
@@ -287,11 +297,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const showIdentifierStep = () => {
     showStep(identifierStep);
     loginError?.classList.add("hidden");
+    loginError?.classList.remove("success");
     if (loginInput) loginInput.value = "";
     if (nextBtn) {
       nextBtn.disabled = true;
       nextBtn.classList.remove("ready");
     }
+    resetForgotForm();
   };
 
   const showLoginPasswordStep = (mode) => {
@@ -326,6 +338,33 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     registerIdentifierInput?.focus();
   };
+
+  const validateForgotForm = () => {
+    if (
+      !forgotUsernameInput ||
+      !forgotIdentifierInput ||
+      !forgotPasswordInput ||
+      !forgotPasswordConfirmInput ||
+      !forgotSubmitBtn
+    )
+      return;
+    const username = forgotUsernameInput.value.trim();
+    const identifier = forgotIdentifierInput.value.trim();
+    const pass = forgotPasswordInput.value.trim();
+    const conf = forgotPasswordConfirmInput.value.trim();
+    const ok = username && identifier && pass.length >= 6 && pass === conf;
+    if (ok) {
+      forgotSubmitBtn.disabled = false;
+      forgotSubmitBtn.classList.add("ready");
+    } else {
+      forgotSubmitBtn.disabled = true;
+      forgotSubmitBtn.classList.remove("ready");
+    }
+  };
+
+  [forgotUsernameInput, forgotIdentifierInput, forgotPasswordInput, forgotPasswordConfirmInput].forEach((input) => {
+    input?.addEventListener("input", validateForgotForm);
+  });
 
   const closeLoginModal = () => {
     loginModal?.classList.add("hidden");
@@ -399,6 +438,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!value) return;
     try {
       loginError?.classList.add("hidden");
+      loginError?.classList.remove("success");
       nextBtn.disabled = true;
       nextBtn.textContent = "Memeriksa...";
       const { exists } = await authPost("/api/reseller?action=check", { identifier: value });
@@ -415,6 +455,7 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
       loginError.textContent = e.message;
       loginError.classList.remove("hidden");
+      loginError.classList.remove("success");
     } finally {
       nextBtn.textContent = "Selanjutnya";
       nextBtn.disabled = false;
@@ -476,6 +517,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  if (forgotLink) {
+    forgotLink.addEventListener("click", (e) => {
+      e.preventDefault();
+      showForgotStep();
+    });
+  }
+
   const validatePasswords = () => {
     if (!passwordInput || !confirmPasswordInput || !createAccountBtn || !passwordError) return;
     const pass = passwordInput.value.trim();
@@ -531,6 +579,43 @@ document.addEventListener("DOMContentLoaded", () => {
     confirmModal?.classList.add("hidden");
   };
 
+  forgotSubmitBtn?.addEventListener("click", async () => {
+    if (!forgotUsernameInput || !forgotIdentifierInput || !forgotPasswordInput || !forgotSubmitBtn) return;
+    const username = forgotUsernameInput.value.trim();
+    const identifier = forgotIdentifierInput.value.trim();
+    const password = forgotPasswordInput.value.trim();
+    if (!username || !identifier || password.length < 6 || password !== forgotPasswordConfirmInput.value.trim()) {
+      forgotError.textContent = "Periksa kembali input kamu.";
+      forgotError.classList.remove("hidden");
+      forgotError.classList.remove("success");
+      return;
+    }
+    try {
+      forgotError?.classList.add("hidden");
+      forgotError?.classList.remove("success");
+      forgotSubmitBtn.disabled = true;
+      forgotSubmitBtn.textContent = "Mereset...";
+      await authPost("/api/reseller?action=forgot-password", {
+        username,
+        identifier,
+        newPassword: password,
+      });
+      showIdentifierStep();
+      if (loginError) {
+        loginError.textContent = "Password berhasil direset. Silakan login.";
+        loginError.classList.remove("hidden");
+        loginError.classList.add("success");
+      }
+    } catch (e) {
+      forgotError.textContent = e.message;
+      forgotError.classList.remove("hidden");
+      forgotError.classList.remove("success");
+    } finally {
+      forgotSubmitBtn.disabled = false;
+      forgotSubmitBtn.textContent = "Reset Password";
+    }
+  });
+
   const openProfileModal = () => {
     if (!currentUser) return;
     profileNameInput && (profileNameInput.value = currentUser.displayName || "");
@@ -573,6 +658,25 @@ document.addEventListener("DOMContentLoaded", () => {
         : "<li><span>Belum ada riwayat.</span></li>";
     } catch (e) {
       historyList.innerHTML = `<li><span>${e.message}</span></li>`;
+    }
+  };
+
+  const showForgotStep = () => {
+    showStep(forgotStep);
+    resetForgotForm();
+    forgotUsernameInput?.focus();
+  };
+
+  const resetForgotForm = () => {
+    forgotUsernameInput && (forgotUsernameInput.value = "");
+    forgotIdentifierInput && (forgotIdentifierInput.value = "");
+    forgotPasswordInput && (forgotPasswordInput.value = "");
+    forgotPasswordConfirmInput && (forgotPasswordConfirmInput.value = "");
+    forgotError?.classList.add("hidden");
+    forgotError?.classList.remove("success");
+    if (forgotSubmitBtn) {
+      forgotSubmitBtn.disabled = true;
+      forgotSubmitBtn.classList.remove("ready");
     }
   };
 

@@ -129,7 +129,7 @@ body {
 .menu-btn span {
   width: 18px;
   height: 2px;
-  background: #f97316;
+  background: #ac2acf;
   display: block;
 }
 
@@ -245,6 +245,12 @@ body {
   color: #111827;
 }
 
+.login-step {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .login-step.hidden {
   display: none;
 }
@@ -315,7 +321,7 @@ body {
 }
 
 .forgot-link a {
-  color: #f97316;
+  color: #ac2acf;
   text-decoration: none;
 }
 
@@ -323,6 +329,9 @@ body {
   margin-top: 8px;
   font-size: 13px;
   color: #dc2626;
+}
+.login-error.success {
+  color: #16a34a;
 }
 
 .modal-card {
@@ -899,6 +908,44 @@ body {
   border-radius: 999px;
   padding: 8px 16px;
   font-size: 14px;
+}
+
+.contact-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.contact-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.contact-card p {
+  margin: 0;
+  font-weight: 600;
+  color: #111827;
+}
+
+.contact-card .primary-btn,
+.contact-card .outline-btn {
+  text-align: center;
+}
+
+.contact-section-split {
+  margin-top: 24px;
+}
+
+.contact-section-split h4 {
+  font-size: 16px;
+  color: #374151;
+  margin-bottom: 8px;
 }
 
 .card {

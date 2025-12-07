@@ -58,7 +58,7 @@
           <span>Belum jadi reseller?</span>
         </div>
         <button class="outline-btn block" id="go-register-from-login">Daftar Reseller</button>
-        <p class="support-text">Butuh bantuan? <a href="#">Hubungi Customer Support</a></p>
+        <p class="support-text">Butuh bantuan? <a href="https://wa.me/6282322633452" target="_blank" rel="noopener">Hubungi Customer Support</a></p>
       </div>
         <div class="login-step login-step-password hidden">
           <p class="login-subtitle" id="password-step-label">Buat Password</p>
@@ -79,6 +79,34 @@
           </label>
           <p class="password-error hidden" id="password-error">Password tidak sama.</p>
           <button class="primary-btn block" id="create-account-btn" disabled>Buat &amp; Masuk</button>
+        </div>
+        <div class="login-step login-step-forgot hidden">
+          <p class="login-subtitle">Reset Password</p>
+          <h2>Buat Password Baru</h2>
+          <label>
+            Username (tanpa @gmail.com)
+            <input type="text" id="forgot-username" placeholder="contoh: senjaabadi365" />
+          </label>
+          <label>
+            Email / Nomor Terdaftar
+            <input type="text" id="forgot-identifier" placeholder="email atau WhatsApp" />
+          </label>
+          <label>
+            Password Baru
+            <div class="input-with-toggle">
+              <input type="password" id="forgot-password" placeholder="Minimal 6 karakter" />
+              <button type="button" class="toggle-pass" data-target="forgot-password">dY`?</button>
+            </div>
+          </label>
+          <label>
+            Konfirmasi Password Baru
+            <div class="input-with-toggle">
+              <input type="password" id="forgot-password-confirm" placeholder="Ulangi password baru" />
+              <button type="button" class="toggle-pass" data-target="forgot-password-confirm">dY`?</button>
+            </div>
+          </label>
+          <p class="login-error hidden" id="forgot-error">Data tidak valid.</p>
+          <button class="primary-btn block" id="forgot-submit" disabled>Reset Password</button>
         </div>
         <div class="login-step login-step-register hidden">
           <p class="login-subtitle">Daftar Reseller</p>
@@ -236,6 +264,55 @@
         sementara daftar order dapat dicek melalui riwayat transaksi Midtrans dan status panel utama.
       </p>
     </section>
+      </div>
+    </div>
+    <div class="page-screen" id="page-contact">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+        <section class="card info-card" id="contact-section">
+          <h3>HUBUNGI PUTRI GMOYY STORE</h3>
+          <p class="modal-desc">
+            Tim kami siap membantu kebutuhan order, kerja sama, maupun keluhan layanan. Pilih kanal di bawah ini untuk penghubung tercepat.
+          </p>
+          <div class="contact-grid">
+            <div class="contact-card">
+              <p>Customer Service WhatsApp</p>
+              <a class="primary-btn" href="https://wa.me/6282322633452" target="_blank" rel="noopener">Chat WhatsApp</a>
+            </div>
+            <div class="contact-card">
+              <p>Email</p>
+              <a class="outline-btn" href="mailto:support@putrigmoyy.com">support@putrigmoyy.com</a>
+            </div>
+          </div>
+          <div class="contact-section-split">
+            <h4>Grup Komunitas</h4>
+            <div class="contact-grid">
+              <div class="contact-card">
+                <p>Grup WhatsApp</p>
+                <a class="primary-btn" href="https://wa.me/6282322633452" target="_blank" rel="noopener">Masuk Grup</a>
+              </div>
+              <div class="contact-card">
+                <p>Grup Telegram</p>
+                <a class="outline-btn" href="https://t.me/putrigmoyy" target="_blank" rel="noopener">Join Telegram</a>
+              </div>
+            </div>
+          </div>
+          <div class="contact-section-split">
+            <h4>Kontak Admin</h4>
+            <div class="contact-grid">
+              <div class="contact-card">
+                <p>Admin 1</p>
+                <a class="primary-btn" href="https://wa.me/6282322633452" target="_blank" rel="noopener">WhatsApp Admin 1</a>
+              </div>
+              <div class="contact-card">
+                <p>Admin 2</p>
+                <a class="outline-btn" href="mailto:admin2@putrigmoyy.com">Email Admin 2</a>
+              </div>
+            </div>
+          </div>
+        </section>
       </div>
     </div>
     <div class="modal-overlay hidden" id="confirm-modal">

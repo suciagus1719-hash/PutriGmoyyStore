@@ -274,6 +274,45 @@ async function handleRewardUpdate(req, res) {
   res.json({ success: true, user: sanitizeUser(users[index]) });
 }
 
+function matchUsername(user, inputUsername = "") {
+  const target = String(inputUsername || "").trim().toLowerCase();
+  if (!target) return false;
+  const candidates = [];
+  if (user.displayName) candidates.push(String(user.displayName).trim().toLowerCase());
+  if (user.identifier) {
+    const identifier = String(user.identifier).trim().toLowerCase();
+    candidates.push(identifier);
+    if (identifier.includes("@")) {
+      candidates.push(identifier.split("@")[0]);
+    } else {
+      candidates.push(identifier.replace(/\D+/g, ""));
+    }
+  }
+  return candidates.some((c) => c && c === target);
+}
+
+async function handlePasswordReset(req, res) {
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  const { username, identifier, newPassword } = req.body || {};
+  if (!username || !identifier || !newPassword) {
+    return res.status(400).json({ error: "Data tidak lengkap" });
+  }
+  if (newPassword.length < 6) {
+    return res.status(400).json({ error: "Password minimal 6 karakter" });
+  }
+  const { users, index, user } = findUser(identifier);
+  if (index < 0 || !user) return res.status(404).json({ error: "Akun tidak ditemukan" });
+  if (!matchUsername(user, username)) {
+    return res.status(400).json({ error: "Nama pengguna tidak sesuai dengan akun ini" });
+  }
+  users[index] = {
+    ...user,
+    password: crypto.createHash("sha256").update(newPassword).digest("hex"),
+  };
+  saveUsers(users);
+  return res.json({ success: true });
+}
+
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
@@ -298,6 +337,8 @@ module.exports = async (req, res) => {
         return handleReward(req, res);
       case "reward-update":
         return handleRewardUpdate(req, res);
+      case "forgot-password":
+        return handlePasswordReset(req, res);
       default:
         return res.status(404).json({ error: "Action tidak dikenal" });
     }
