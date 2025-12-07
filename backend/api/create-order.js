@@ -120,7 +120,6 @@ module.exports = async (req, res) => {
         email: buyer.email || "noemail@example.com",
         phone: buyer.whatsapp || "08123456789",
       },
-      enabled_payments: ["gopay"],
       item_details: [
         {
           id: String(serviceId),

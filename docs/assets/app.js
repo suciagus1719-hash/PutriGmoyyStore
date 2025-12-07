@@ -536,7 +536,7 @@ payButtonEl.addEventListener("click", async () => {
       return;
     }
     if (!res.redirectUrl) throw new Error("redirectUrl tidak ditemukan.");
-    window.location.href = res.redirectUrl;
+    window.open(res.redirectUrl, "_blank");
   } catch (e) {
     errorMessageEl.textContent = e.message;
   } finally {

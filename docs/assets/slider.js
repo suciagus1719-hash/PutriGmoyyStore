@@ -84,8 +84,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const menuBtn = document.getElementById("menu-toggle");
   const navPanel = document.getElementById("topbar-nav");
   const menuList = document.getElementById("menu-list");
-  const modeButtons = document.querySelectorAll(".mode-btn");
-  const modeLabel = document.getElementById("mode-label");
   const platformSection = document.getElementById("platform-list");
   const loaderOverlay = document.getElementById("profile-loader");
   const loaderMessage = loaderOverlay?.querySelector("p");
@@ -135,33 +133,6 @@ document.addEventListener("DOMContentLoaded", () => {
       .join("");
   };
   renderMenu();
-  const modeMap = {
-    sosmed: "Sosmed",
-    games: "Games",
-    pulsa: "Pulsa & Data",
-    apps: "Aplikasi Premium",
-    ewallet: "E-Wallet",
-    panel: "Panel Website",
-    bot: "Bot",
-  };
-  const setMode = (mode) => {
-    if (!modeMap[mode]) mode = "sosmed";
-    localStorage.setItem("PG_ACTIVE_MODE", mode);
-    modeButtons.forEach((btn) => {
-      const active = btn.dataset.mode === mode;
-      btn.classList.toggle("active", active);
-    });
-    modeLabel && (modeLabel.textContent = modeMap[mode]);
-    window.dispatchEvent(new CustomEvent("mode:change", { detail: { mode } }));
-  };
-  if (modeButtons.length) {
-    const saved = localStorage.getItem("PG_ACTIVE_MODE") || "sosmed";
-    setMode(saved);
-    modeButtons.forEach((btn) =>
-      btn.addEventListener("click", () => setMode(btn.dataset.mode || "sosmed"))
-    );
-  }
-
   if (menuBtn && navPanel) {
     menuBtn.addEventListener("click", (e) => {
       e.stopPropagation();
@@ -273,6 +244,22 @@ document.addEventListener("DOMContentLoaded", () => {
   const rewardRedeemAmount = document.getElementById("reward-redeem-amount");
   const rewardRedeemBalance = document.getElementById("reward-redeem-balance");
   const rewardRedeemDana = document.getElementById("reward-redeem-dana");
+  const pageScreens = Array.from(document.querySelectorAll(".page-screen"));
+  const pageBackButtons = document.querySelectorAll(".page-back-btn");
+
+  const switchPage = (page = "default") => {
+    pageScreens.forEach((screen) => {
+      if (!screen?.id) return;
+      const name = screen.id.replace("page-", "");
+      screen.classList.toggle("active", name === page);
+    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  pageBackButtons.forEach((btn) =>
+    btn.addEventListener("click", () => switchPage(btn.dataset.target || "default"))
+  );
+  switchPage("default");
 
   const toggleButtons = Array.from(document.querySelectorAll(".toggle-pass"));
   let avatarData = "";
@@ -375,6 +362,7 @@ document.addEventListener("DOMContentLoaded", () => {
       user.avatarUrl ||
       `https://ui-avatars.com/api/?name=${encodeURIComponent(username || "PG")}&background=ac2acf&color=fff`;
     brandAvatar && (brandAvatar.src = avatarSrc);
+    switchPage("default");
   };
 
   const setLoggedOut = () => {
@@ -390,6 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
     brandTitle && (brandTitle.textContent = "PutriGmoyy");
     brandSubtitle && (brandSubtitle.textContent = "Store");
     brandAvatar && (brandAvatar.src = defaultAvatar);
+    switchPage("default");
   };
 
   const loadAccount = () => {
@@ -565,6 +554,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const openHistoryModal = async () => {
     if (!currentUser) return;
+    switchPage("history");
     try {
       const params = new URLSearchParams({ identifier: currentUser.identifier });
       const data = await apiGet(`/api/reseller?action=history&${params.toString()}`);
@@ -584,17 +574,15 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
       historyList.innerHTML = `<li><span>${e.message}</span></li>`;
     }
-    historySection?.classList.remove("hidden");
-    historySection?.scrollIntoView({ behavior: "smooth" });
   };
 
   const openMonitorModal = () => {
-    monitorSection?.classList.remove("hidden");
-    monitorSection?.scrollIntoView({ behavior: "smooth" });
+    switchPage("monitor");
   };
 
   const openRewardSection = async () => {
     if (!currentUser) return openLogin?.click();
+    switchPage("reward");
     try {
       rewardError?.classList.add("hidden");
       const params = new URLSearchParams({ identifier: currentUser.identifier });
@@ -602,8 +590,6 @@ document.addEventListener("DOMContentLoaded", () => {
       rewardCoins && (rewardCoins.textContent = Number(data.coins || 0).toLocaleString("id-ID"));
       rewardReferrals && (rewardReferrals.textContent = Number(data.referralCount || 0).toLocaleString("id-ID"));
       rewardCode && (rewardCode.textContent = data.referralCode || "-");
-      rewardSection?.classList.remove("hidden");
-      rewardSection?.scrollIntoView({ behavior: "smooth" });
     } catch (e) {
       rewardError.textContent = e.message;
       rewardError.classList.remove("hidden");

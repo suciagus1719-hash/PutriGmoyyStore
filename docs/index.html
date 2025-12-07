@@ -159,7 +159,12 @@
         <button class="primary-btn block" id="deposit-submit">Lanjutkan Pembayaran</button>
       </div>
     </div>
-    <section class="card info-card hidden" id="reward-section">
+    <div class="page-screen" id="page-reward">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+    <section class="card info-card" id="reward-section">
       <h3>Menu Hadiah</h3>
       <p class="modal-desc">Kumpulkan koin dari referral, game, dan tukarkan menjadi saldo akun atau DANA.</p>
       <div class="reward-stats">
@@ -203,20 +208,36 @@
       <p class="profile-error hidden" id="reward-error"></p>
       <p class="reward-note">Catatan: penambahan saldo DANA membutuhkan proses manual admin.</p>
     </section>
-    <section class="card info-card hidden" id="history-section">
+      </div>
+    </div>
+    <div class="page-screen" id="page-history">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+    <section class="card info-card" id="history-section">
       <div class="info-header">
         <h3>Riwayat Deposit</h3>
         <p id="history-balance">Saldo: Rp0</p>
       </div>
       <ul class="history-list" id="history-list"></ul>
     </section>
-    <section class="card info-card hidden" id="monitor-section">
+      </div>
+    </div>
+    <div class="page-screen" id="page-monitor">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+    <section class="card info-card" id="monitor-section">
       <h3>Monitoring Sosmed</h3>
       <p class="monitor-desc">
         Pantau pesanan kamu secara real-time. Fitur pelacakan lanjutan akan kami aktifkan dalam waktu dekat,
         sementara daftar order dapat dicek melalui riwayat transaksi Midtrans dan status panel utama.
       </p>
     </section>
+      </div>
+    </div>
     <div class="modal-overlay hidden" id="confirm-modal">
       <div class="confirm-modal">
         <p class="confirm-title" id="confirm-title">Nomor Ini Belum Terdaftar</p>
@@ -278,23 +299,7 @@
         </div>
       </div>
     </section>
-
-    <section class="mode-switch">
-      <div class="mode-switch-header">
-        <p>Pilih Mode Layanan</p>
-        <span id="mode-label">Sosmed</span>
-      </div>
-      <div class="mode-switch-buttons">
-        <button class="mode-btn active" data-mode="sosmed">📱 Sosmed</button>
-        <button class="mode-btn" data-mode="games">🎮 Games</button>
-        <button class="mode-btn" data-mode="pulsa">📶 Pulsa &amp; Data</button>
-        <button class="mode-btn" data-mode="apps">⭐ Aplikasi Premium</button>
-        <button class="mode-btn" data-mode="ewallet">💳 E-Wallet</button>
-        <button class="mode-btn" data-mode="panel">🖥️ Panel Website</button>
-        <button class="mode-btn" data-mode="bot">🤖 Bot</button>
-      </div>
-    </section>
-
+    <div class="page-screen active" id="page-default">
     <main class="content">
       <!-- Step 1: Platform -->
       <section class="card">
@@ -375,7 +380,9 @@
           </div>
           <p>Menyiapkan pembayaran...</p>
         </div>
-      </div></main>
+      </div>
+    </main>
+    </div>
     <footer class="site-footer">
       <p>© 2025 Putri Gmoyy Store</p>
       <div class="footer-links">
