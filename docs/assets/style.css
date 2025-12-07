@@ -1051,6 +1051,11 @@ body {
   font-size: 14px;
 }
 
+.status-search {
+  display: flex;
+  flex-direction: column;
+}
+
 .status-table-wrapper {
   overflow-x: auto;
 }

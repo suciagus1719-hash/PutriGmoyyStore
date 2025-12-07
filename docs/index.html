@@ -243,13 +243,60 @@
         <div class="page-back">
           <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
         </div>
-    <section class="card info-card" id="history-section">
-      <div class="info-header">
-        <h3>Riwayat Deposit</h3>
-        <p id="history-balance">Saldo: Rp0</p>
-      </div>
-      <ul class="history-list" id="history-list"></ul>
-    </section>
+        <section class="card info-card" id="history-section">
+          <div class="status-header">
+            <h3>Riwayat Deposit</h3>
+            <p id="history-balance">Saldo: Rp0</p>
+          </div>
+          <div class="status-filters">
+            <label>
+              Tampilkan
+              <select id="history-limit">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </label>
+            <label>
+              Status
+              <select id="history-status">
+                <option value="all">Semua</option>
+                <option value="success">Success</option>
+                <option value="processing">Processing</option>
+                <option value="error">Error</option>
+              </select>
+            </label>
+            <label class="status-search">
+              Cari Kode Deposit
+              <input type="text" id="history-search" placeholder="contoh: DEPO-123" />
+            </label>
+            <button class="primary-btn" id="history-filter-btn">Filter</button>
+          </div>
+          <div class="status-table-wrapper">
+            <table class="status-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Kode Deposit</th>
+                  <th>Waktu</th>
+                  <th>Pembayaran</th>
+                  <th>Jumlah Transfer</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body">
+                <tr>
+                  <td colspan="7">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="status-footer">
+            <span id="history-total">Total: 0</span>
+            <div id="history-pagination" class="status-pagination"></div>
+          </div>
+        </section>
       </div>
     </div>
     <div class="page-screen" id="page-status">

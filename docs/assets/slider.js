@@ -231,6 +231,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const historySection = document.getElementById("history-section");
   const historyList = document.getElementById("history-list");
   const historyBalance = document.getElementById("history-balance");
+  const historyTableBody = document.getElementById("history-table-body");
+  const historyLimitSelect = document.getElementById("history-limit");
+  const historyStatusSelect = document.getElementById("history-status");
+  const historySearchInput = document.getElementById("history-search");
+  const historyFilterBtn = document.getElementById("history-filter-btn");
+  const historyTotalText = document.getElementById("history-total");
+  const historyPagination = document.getElementById("history-pagination");
   const monitorSection = document.getElementById("monitor-section");
   const rewardSection = document.getElementById("reward-section");
   const rewardCoins = document.getElementById("reward-coins");
@@ -342,6 +349,85 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
+  const applyHistoryFilters = () => {
+    const limit = Number(historyLimitSelect?.value || 10);
+    historyState = {
+      ...historyState,
+      limit,
+      status: historyStatusSelect?.value || "all",
+      search: historySearchInput?.value.trim() || "",
+      page: 1,
+    };
+    renderHistoryTable();
+  };
+
+  const renderHistoryTable = () => {
+    if (!historyTableBody) return;
+    if (!historyData.length) {
+      historyTableBody.innerHTML = `<tr><td colspan="7">Belum ada data deposit.</td></tr>`;
+      historyTotalText && (historyTotalText.textContent = "Total: 0");
+      historyPagination && (historyPagination.innerHTML = "");
+      return;
+    }
+    let filtered = historyData.slice();
+    if (historyState.status && historyState.status !== "all") {
+      filtered = filtered.filter(
+        (item) =>
+          String(item.status || "success").toLowerCase() === historyState.status.toLowerCase()
+      );
+    }
+    if (historyState.search) {
+      const term = historyState.search.toLowerCase();
+      filtered = filtered.filter((item) =>
+        String(item.orderId || "").toLowerCase().includes(term)
+      );
+    }
+    const total = filtered.length;
+    const start = (historyState.page - 1) * historyState.limit;
+    const end = start + historyState.limit;
+    const rows = filtered.slice(start, end);
+    historyTotalText && (historyTotalText.textContent = `Total: ${total}`);
+
+    if (!rows.length) {
+      historyTableBody.innerHTML = `<tr><td colspan="7">Tidak ada data untuk filter ini.</td></tr>`;
+    } else {
+      historyTableBody.innerHTML = rows
+        .map((row, idx) => {
+          const time = row.time ? new Date(row.time).toLocaleString("id-ID") : "-";
+          const statusClass = row.status || "success";
+          return `<tr>
+            <td>${start + idx + 1}</td>
+            <td>${row.orderId || "-"}</td>
+            <td>${time}</td>
+            <td>${row.method || "-"}</td>
+            <td>${formatStatusCurrency(row.amount || 0)}</td>
+            <td><span class="status-pill ${statusClass}">${String(statusClass).replace("_", " ")}</span></td>
+            <td><button class="status-action-btn" title="Detail">&#9776;</button></td>
+          </tr>`;
+        })
+        .join("");
+    }
+    renderHistoryPagination(total);
+  };
+
+  const renderHistoryPagination = (total) => {
+    if (!historyPagination) return;
+    const totalPages = Math.max(1, Math.ceil(total / historyState.limit));
+    let buttons = "";
+    const btn = (label, page, active = false, disabled = false) =>
+      `<button ${disabled ? "disabled" : ""} data-history-page="${page}" class="${active ? "active" : ""}">${label}</button>`;
+    buttons += btn("&laquo;", Math.max(1, historyState.page - 1), false, historyState.page === 1);
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || Math.abs(i - historyState.page) <= 1) {
+        buttons += btn(i, i, i === historyState.page);
+      } else if (Math.abs(i - historyState.page) === 2) {
+        buttons += "<span>...</span>";
+      }
+    }
+    buttons += btn("&raquo;", Math.min(totalPages, historyState.page + 1), false, historyState.page === totalPages);
+    historyPagination.innerHTML = buttons;
+  };
+
   const forgotStep = loginModal?.querySelector(".login-step-forgot");
   const forgotUsernameInput = document.getElementById("forgot-username");
   const forgotIdentifierInput = document.getElementById("forgot-identifier");
@@ -363,12 +449,19 @@ document.addEventListener("DOMContentLoaded", () => {
   let pendingIdentifier = "";
   let currentUser = null;
 let authMode = "login"; // login, register
-let statusState = {
-  page: 1,
-  limit: Number(statusLimitSelect?.value || 10),
-  status: statusFilterSelect?.value || "all",
-  search: "",
-};
+  let statusState = {
+    page: 1,
+    limit: Number(statusLimitSelect?.value || 10),
+    status: statusFilterSelect?.value || "all",
+    search: "",
+  };
+  let historyData = [];
+  let historyState = {
+    page: 1,
+    limit: Number(historyLimitSelect?.value || 10),
+    status: historyStatusSelect?.value || "all",
+    search: "",
+  };
 
   statusFilterBtn?.addEventListener("click", () => {
     statusState = {
@@ -386,6 +479,21 @@ let statusState = {
     if (!btn || btn.disabled) return;
     statusState.page = Number(btn.dataset.page) || 1;
     loadStatusOrders();
+  });
+
+  historyFilterBtn?.addEventListener("click", () => {
+    historyState.limit = Number(historyLimitSelect?.value || 10);
+    historyState.status = historyStatusSelect?.value || "all";
+    historyState.search = historySearchInput?.value.trim() || "";
+    historyState.page = 1;
+    renderHistoryTable();
+  });
+
+  historyPagination?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-history-page]");
+    if (!btn || btn.disabled) return;
+    historyState.page = Number(btn.dataset.historyPage) || 1;
+    renderHistoryTable();
   });
 
   const showStep = (step) => {
@@ -756,21 +864,15 @@ let statusState = {
     try {
       const params = new URLSearchParams({ identifier: currentUser.identifier });
       const data = await apiGet(`/api/reseller?action=history&${params.toString()}`);
-      const history = data.history || [];
+      historyData = Array.isArray(data.history) ? data.history.slice().reverse() : [];
       historyBalance && (historyBalance.textContent = `Saldo: Rp ${Number(data.balance || 0).toLocaleString("id-ID")}`);
-      historyList.innerHTML = history.length
-        ? history
-            .slice()
-            .reverse()
-            .map(
-              (item) => `<li><span>Rp ${Number(item.amount || 0).toLocaleString("id-ID")}</span><span>${new Date(
-                item.time
-              ).toLocaleString("id-ID")}</span></li>`
-            )
-            .join("")
-        : "<li><span>Belum ada riwayat.</span></li>";
+      historyState.page = 1;
+      renderHistoryTable();
     } catch (e) {
-      historyList.innerHTML = `<li><span>${e.message}</span></li>`;
+      historyData = [];
+      if (historyTableBody) {
+        historyTableBody.innerHTML = `<tr><td colspan="7">${e.message}</td></tr>`;
+      }
     }
   };
 
