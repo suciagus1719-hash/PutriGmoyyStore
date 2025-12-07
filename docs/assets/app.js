@@ -269,11 +269,11 @@ async function loadCatalog() {
   if (cached?.platforms?.length) {
     catalogPlatforms = sortPlatforms(cached.platforms);
     catalogServices = Array.isArray(cached.services) ? cached.services : [];
-    renderPlatformButtons();
   } else {
     catalogPlatforms = sortPlatforms(FALLBACK_PLATFORMS);
-    renderPlatformButtons();
   }
+  renderPlatformButtons();
+  ensurePlatformSelection();
   try {
     const data = await apiGet("/api/catalog");
     const sourcePlatforms = data.platforms?.length ? data.platforms : FALLBACK_PLATFORMS;
@@ -291,6 +291,7 @@ async function loadCatalog() {
     }
   } finally {
     renderPlatformButtons();
+    ensurePlatformSelection();
     hidePlatformLoader();
   }
 }
@@ -302,6 +303,7 @@ function renderPlatformButtons(list = catalogPlatforms) {
     hidePlatformLoader();
     return;
   }
+  const currentId = selectedPlatform?.id;
   list.forEach((p, index) => {
     const btn = document.createElement("button");
     btn.className = "platform-btn";
@@ -315,9 +317,25 @@ function renderPlatformButtons(list = catalogPlatforms) {
       <span>${p.name}</span>
     `;
     btn.onclick = () => selectPlatform(p);
+    if (currentId && currentId === p.id) {
+      btn.classList.add("active");
+    }
     platformList.appendChild(btn);
-    if (index === 0) selectPlatform(p);
   });
+}
+
+function ensurePlatformSelection() {
+  if (!catalogPlatforms.length) return;
+  if (!selectedPlatform) {
+    selectPlatform(catalogPlatforms[0]);
+    return;
+  }
+  const match = catalogPlatforms.find((p) => p.id === selectedPlatform.id);
+  if (match) {
+    selectPlatform(match, { preserveSelection: true });
+  } else {
+    selectPlatform(catalogPlatforms[0]);
+  }
 }
 
 function clearActivePlatforms() {
@@ -343,31 +361,56 @@ function getServicesForCategory(platformId, categoryName) {
     .sort((a, b) => (a.sortPrice || 0) - (b.sortPrice || 0));
 }
 
-function selectPlatform(platform) {
+function selectPlatform(platform, options = {}) {
+  if (!platform) return;
+  const preserve = Boolean(options.preserveSelection);
+  const previousCategory = preserve ? selectedCategory : null;
+  const previousServiceId =
+    preserve && selectedService ? String(selectedService.id) : null;
+
   selectedPlatform = platform;
-  selectedCategory = null;
-  selectedService = null;
-  selectedPricePer100 = 0;
-  updateTotalPrice();
+  if (!preserve) {
+    selectedCategory = null;
+    selectedService = null;
+    selectedPricePer100 = 0;
+    serviceDetail.classList.add("hidden");
+    if (serviceDescriptionRow) serviceDescriptionRow.classList.add("hidden");
+    if (serviceNoteText) serviceNoteText.textContent = "";
+    updateTotalPrice();
+  }
   clearActivePlatforms();
-  const buttons = document.querySelectorAll(".platform-btn");
-  buttons.forEach((btn) => {
+  document.querySelectorAll(".platform-btn").forEach((btn) => {
     if (btn.dataset.platformId === platform.id) btn.classList.add("active");
   });
 
   const categories = getCategoriesForPlatform(platform.id);
-  categorySelect.innerHTML = `<option value="">${categories.length ? "Pilih kategori layanan" : "Kategori tidak tersedia"}</option>`;
-  serviceSelect.innerHTML = `<option value="">Pilih kategori dulu.</option>`;
-  serviceDetail.classList.add("hidden");
-  if (serviceDescriptionRow) serviceDescriptionRow.classList.add("hidden");
-  if (serviceNoteText) serviceNoteText.textContent = "";
+  categorySelect.innerHTML = `<option value="">${
+    categories.length ? "Pilih kategori layanan" : "Kategori tidak tersedia"
+  }</option>`;
 
   categories.forEach((name) => {
     const opt = document.createElement("option");
     opt.value = name;
     opt.textContent = name;
+    if (previousCategory && previousCategory === name) {
+      opt.selected = true;
+    }
     categorySelect.appendChild(opt);
   });
+
+  if (preserve && previousCategory && categories.includes(previousCategory)) {
+    selectedCategory = previousCategory;
+    buildServiceOptions(previousServiceId);
+  } else {
+    selectedCategory = null;
+    selectedService = null;
+    serviceSelect.innerHTML = `<option value="">Pilih kategori dulu.</option>`;
+    serviceDetail.classList.add("hidden");
+    if (serviceDescriptionRow) serviceDescriptionRow.classList.add("hidden");
+    if (serviceNoteText) serviceNoteText.textContent = "";
+    selectedPricePer100 = 0;
+    updateTotalPrice();
+  }
 
   const icon = platformIcon(platform.id);
   platformInfo.classList.remove("hidden");
@@ -393,7 +436,7 @@ categorySelect.addEventListener("change", (e) => {
   buildServiceOptions();
 });
 
-function buildServiceOptions(preserveSelection) {
+function buildServiceOptions(preserveServiceId = null) {
   if (!selectedPlatform || !selectedCategory) {
     serviceSelect.innerHTML = `<option value="">Pilih kategori dulu.</option>`;
     return;
@@ -406,17 +449,26 @@ function buildServiceOptions(preserveSelection) {
   }
 
   serviceSelect.innerHTML = `<option value="">Pilih layanan</option>`;
+  let matchedId = null;
   data.forEach((svc) => {
     const opt = document.createElement("option");
     const priceValue = getEffectivePricePer100(svc);
     const priceLabel = priceValue ? formatCurrency(priceValue) : "Rp0";
     opt.value = svc.id;
     opt.textContent = `${svc.id} - ${svc.name} - ${priceLabel}${isResellerActive() ? " (Reseller)" : ""}`;
-    if (preserveSelection && String(preserveSelection) === String(svc.id)) {
+    if (preserveServiceId && String(preserveServiceId) === String(svc.id)) {
       opt.selected = true;
+      matchedId = svc.id;
     }
     serviceSelect.appendChild(opt);
   });
+  if (matchedId) {
+    serviceSelect.value = matchedId;
+    applyServiceSelection(matchedId, { silent: true });
+  } else {
+    serviceSelect.value = "";
+    applyServiceSelection("");
+  }
 }
 
 function refreshServicePricing() {
@@ -424,12 +476,12 @@ function refreshServicePricing() {
   const current = serviceSelect.value;
   buildServiceOptions(current);
   if (current) {
-    serviceSelect.dispatchEvent(new Event("change"));
+    applyServiceSelection(current, { silent: true });
   }
 }
 
-serviceSelect.addEventListener("change", (e) => {
-  const id = e.target.value;
+function applyServiceSelection(id, options = {}) {
+  const silent = Boolean(options.silent);
   selectedService = null;
   serviceDetail.classList.add("hidden");
   if (serviceDescriptionRow) serviceDescriptionRow.classList.add("hidden");
@@ -440,7 +492,7 @@ serviceSelect.addEventListener("change", (e) => {
 
   const svc = catalogServices.find((s) => String(s.id) === String(id));
   if (!svc) {
-    errorMessageEl.textContent = "Layanan tidak ditemukan.";
+    if (!silent) errorMessageEl.textContent = "Layanan tidak ditemukan.";
     return;
   }
   selectedService = svc;
@@ -465,6 +517,10 @@ serviceSelect.addEventListener("change", (e) => {
   selectedPricePer100 = effectivePrice || 0;
   updateTotalPrice();
   if (svc.min) quantityField.min = svc.min;
+}
+
+serviceSelect.addEventListener("change", (e) => {
+  applyServiceSelection(e.target.value);
 });
 
 function updateTotalPrice() {
@@ -510,17 +566,10 @@ payButtonEl.addEventListener("click", async () => {
   if (!qty || qty <= 0) return (errorMessageEl.textContent = "Jumlah harus lebih dari 0.");
 
   const useResellerBalance = isResellerActive();
-  let snapWindow = null;
   try {
     payButtonEl.disabled = true;
     payButtonEl.textContent = useResellerBalance ? "Memproses saldo..." : "Membuat pesanan...";
 
-    if (!useResellerBalance) {
-      snapWindow = window.open("", "_blank", "noopener");
-      if (!snapWindow) {
-        throw new Error("Izinkan pop-up untuk membuka Midtrans.");
-      }
-    }
     showPaymentLoader();
     const payload = {
       platformId: selectedPlatform.id,
@@ -545,13 +594,8 @@ payButtonEl.addEventListener("click", async () => {
       return;
     }
     if (!res.redirectUrl) throw new Error("redirectUrl tidak ditemukan.");
-    if (snapWindow) {
-      snapWindow.location.replace(res.redirectUrl);
-    } else {
-      window.open(res.redirectUrl, "_blank", "noopener");
-    }
+    window.location.href = res.redirectUrl;
   } catch (e) {
-    if (snapWindow) snapWindow.close();
     errorMessageEl.textContent = e.message;
   } finally {
     payButtonEl.disabled = false;
