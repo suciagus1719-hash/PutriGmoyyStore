@@ -1609,4 +1609,62 @@ label {
   padding: 16px;
   background: #fff;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
+
+.target-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1f2937;
+}
+
+.target-card-header h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.target-card-header.sub {
+  margin-top: 10px;
+}
+
+.target-card ul {
+  margin: 0;
+  padding-left: 18px;
+  font-size: 13px;
+  color: #4b5563;
+  word-break: break-word;
+  line-height: 1.4;
+}
+
+.target-card li + li {
+  margin-top: 4px;
+}
+
+.target-icon {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  background: currentColor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+}
+
+.target-icon.icon-facebook { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/facebook.svg"); }
+.target-icon.icon-instagram { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/instagram.svg"); }
+.target-icon.icon-likee { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/likee.svg"); }
+.target-icon.icon-linkedin { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/linkedin.svg"); }
+.target-icon.icon-pinterest { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/pinterest.svg"); }
+.target-icon.icon-soundcloud { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/soundcloud.svg"); }
+.target-icon.icon-spotify { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/spotify.svg"); }
+.target-icon.icon-telegram { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/telegram.svg"); }
+.target-icon.icon-tokopedia { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/tokopedia.svg"); }
+.target-icon.icon-shopee { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/shopee.svg"); }
+.target-icon.icon-tiktok { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/tiktok.svg"); }
+.target-icon.icon-twitch { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/twitch.svg"); }
+.target-icon.icon-twitter { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/twitter.svg"); }
+.target-icon.icon-website { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/googlechrome.svg"); }
+.target-icon.icon-youtube { mask-image: url("https://cdn.jsdelivr.net/npm/simple-icons@11.0.0/icons/youtube.svg"); }
