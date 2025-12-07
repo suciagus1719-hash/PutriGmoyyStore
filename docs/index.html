@@ -533,13 +533,71 @@
         <div class="page-back">
           <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
         </div>
-    <section class="card info-card" id="monitor-section">
-      <h3>Monitoring Sosmed</h3>
-      <p class="monitor-desc">
-        Pantau pesanan kamu secara real-time. Fitur pelacakan lanjutan akan kami aktifkan dalam waktu dekat,
-        sementara daftar order dapat dicek melalui riwayat transaksi Midtrans dan status panel utama.
-      </p>
-    </section>
+        <section class="card info-card" id="monitor-section">
+          <div class="status-header">
+            <h3>Monitoring Layanan Sosial Media</h3>
+            <p>Pantau kategori, jumlah, serta status layanan secara real-time.</p>
+          </div>
+          <div class="status-filters">
+            <label>
+              Tampilkan
+              <select id="monitor-limit">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+            </label>
+            <label>
+              Status
+              <select id="monitor-status">
+                <option value="all">Semua</option>
+                <option value="pending_payment">Menunggu Pembayaran</option>
+                <option value="processing">Processing</option>
+                <option value="success">Success</option>
+                <option value="error">Error</option>
+              </select>
+            </label>
+            <label>
+              Kategori
+              <select id="monitor-category">
+                <option value="all">Semua Kategori</option>
+                <option value="instagram">Instagram</option>
+                <option value="facebook">Facebook</option>
+                <option value="tiktok">Tiktok</option>
+                <option value="youtube">Youtube</option>
+              </select>
+            </label>
+            <label class="status-search">
+              Cari Layanan/Target
+              <input type="text" id="monitor-search" placeholder="contoh: followers / username" />
+            </label>
+            <button class="primary-btn" id="monitor-filter-btn">Filter</button>
+          </div>
+          <div class="status-table-wrapper">
+            <table class="status-table">
+              <thead>
+                <tr>
+                  <th>Waktu</th>
+                  <th>Kategori</th>
+                  <th>Service ID</th>
+                  <th>Layanan</th>
+                  <th>Jumlah</th>
+                  <th>Harga</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="monitor-table-body">
+                <tr>
+                  <td colspan="7">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="status-footer">
+            <span id="monitor-total">Total: 0</span>
+            <div id="monitor-pagination" class="status-pagination"></div>
+          </div>
+        </section>
       </div>
     </div>
     <div class="page-screen" id="page-contact">

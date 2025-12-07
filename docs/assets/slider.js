@@ -257,6 +257,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const statusFilterBtn = document.getElementById("status-filter-btn");
   const statusTotalText = document.getElementById("status-total");
   const statusPagination = document.getElementById("status-pagination");
+  const monitorTableBody = document.getElementById("monitor-table-body");
+  const monitorLimitSelect = document.getElementById("monitor-limit");
+  const monitorStatusSelect = document.getElementById("monitor-status");
+  const monitorCategorySelect = document.getElementById("monitor-category");
+  const monitorSearchInput = document.getElementById("monitor-search");
+  const monitorFilterBtn = document.getElementById("monitor-filter-btn");
+  const monitorTotalText = document.getElementById("monitor-total");
+  const monitorPagination = document.getElementById("monitor-pagination");
   const pageScreens = Array.from(document.querySelectorAll(".page-screen"));
   const pageBackButtons = document.querySelectorAll(".page-back-btn");
 
@@ -328,6 +336,55 @@ document.addEventListener("DOMContentLoaded", () => {
     buttons += btn("&raquo;", Math.min(totalPages, current + 1), false, current === totalPages);
     statusPagination.innerHTML = buttons;
   };
+  const renderMonitorTable = (rows) => {
+    if (!monitorTableBody) return;
+    let filtered = rows;
+    if (monitorState.category && monitorState.category !== "all") {
+      filtered = filtered.filter(
+        (item) =>
+          String(item.platformId || item.platformName || "")
+            .toLowerCase()
+            .includes(monitorState.category.toLowerCase())
+      );
+    }
+    if (!filtered.length) {
+      monitorTableBody.innerHTML = `<tr><td colspan="7">Belum ada data untuk filter ini.</td></tr>`;
+      return;
+    }
+    monitorTableBody.innerHTML = filtered
+      .map((row) => {
+        const time = row.createdAt ? new Date(row.createdAt).toLocaleString("id-ID") : "-";
+        const statusClass = row.status || "processing";
+        return `<tr>
+          <td>${time}</td>
+          <td>${row.category || row.platformName || "-"}</td>
+          <td>${row.serviceId || "-"}</td>
+          <td>${row.serviceName || "-"}</td>
+          <td>${row.quantity || "-"}</td>
+          <td>${formatStatusCurrency(row.price || 0)}</td>
+          <td><span class="status-pill ${statusClass}">${String(statusClass).replace("_", " ")}</span></td>
+        </tr>`;
+      })
+      .join("");
+  };
+
+  const renderMonitorPagination = (total, current, limit) => {
+    if (!monitorPagination) return;
+    const totalPages = Math.max(1, Math.ceil(total / limit));
+    let buttons = "";
+    const btn = (label, page, active = false, disabled = false) =>
+      `<button ${disabled ? "disabled" : ""} data-monitor-page="${page}" class="${active ? "active" : ""}">${label}</button>`;
+    buttons += btn("&laquo;", Math.max(1, current - 1), false, current === 1);
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || Math.abs(i - current) <= 1) {
+        buttons += btn(i, i, i === current);
+      } else if (Math.abs(i - current) === 2) {
+        buttons += "<span>...</span>";
+      }
+    }
+    buttons += btn("&raquo;", Math.min(totalPages, current + 1), false, current === totalPages);
+    monitorPagination.innerHTML = buttons;
+  };
 
   const loadStatusOrders = async () => {
     if (!statusTableBody) return;
@@ -346,6 +403,25 @@ document.addEventListener("DOMContentLoaded", () => {
       renderStatusPagination(Number(data.total || 0), statusState.page, statusState.limit);
     } catch (e) {
       statusTableBody.innerHTML = `<tr><td colspan="8">${e.message}</td></tr>`;
+    }
+  };
+  const loadMonitorOrders = async () => {
+    if (!monitorTableBody) return;
+    try {
+      monitorTableBody.innerHTML = `<tr><td colspan="7">Memuat data...</td></tr>`;
+      const params = new URLSearchParams({
+        page: monitorState.page,
+        limit: monitorState.limit,
+        status: monitorState.status,
+        q: monitorState.search,
+      });
+      const data = await apiGet(`/api/orders?${params.toString()}`);
+      const rows = data.rows || [];
+      renderMonitorTable(rows);
+      monitorTotalText && (monitorTotalText.textContent = `Total: ${Number(data.total || 0).toLocaleString("id-ID")}`);
+      renderMonitorPagination(Number(data.total || 0), monitorState.page, monitorState.limit);
+    } catch (e) {
+      monitorTableBody.innerHTML = `<tr><td colspan="7">${e.message}</td></tr>`;
     }
   };
 
@@ -449,12 +525,19 @@ document.addEventListener("DOMContentLoaded", () => {
   let pendingIdentifier = "";
   let currentUser = null;
 let authMode = "login"; // login, register
-  let statusState = {
-    page: 1,
-    limit: Number(statusLimitSelect?.value || 10),
-    status: statusFilterSelect?.value || "all",
-    search: "",
-  };
+let statusState = {
+  page: 1,
+  limit: Number(statusLimitSelect?.value || 10),
+  status: statusFilterSelect?.value || "all",
+  search: "",
+};
+let monitorState = {
+  page: 1,
+  limit: Number(monitorLimitSelect?.value || 10),
+  status: monitorStatusSelect?.value || "all",
+  category: monitorCategorySelect?.value || "all",
+  search: "",
+};
   let historyData = [];
   let historyState = {
     page: 1,
@@ -481,6 +564,24 @@ let authMode = "login"; // login, register
     loadStatusOrders();
   });
 
+  monitorFilterBtn?.addEventListener("click", () => {
+    monitorState = {
+      ...monitorState,
+      page: 1,
+      limit: Number(monitorLimitSelect?.value || 10),
+      status: monitorStatusSelect?.value || "all",
+      category: monitorCategorySelect?.value || "all",
+      search: monitorSearchInput?.value.trim() || "",
+    };
+    loadMonitorOrders();
+  });
+
+  monitorPagination?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-monitor-page]");
+    if (!btn || btn.disabled) return;
+    monitorState.page = Number(btn.dataset.monitorPage) || 1;
+    loadMonitorOrders();
+  });
   historyFilterBtn?.addEventListener("click", () => {
     historyState.limit = Number(historyLimitSelect?.value || 10);
     historyState.status = historyStatusSelect?.value || "all";
