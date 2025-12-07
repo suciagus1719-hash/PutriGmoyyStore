@@ -1,4 +1,4 @@
-const API_BASE = window.API_BASE_URL;
+const API_BASE = window.API_BASE_URL || "";
 
 const PLATFORM_ICON_META = {
   instagram: { slug: "instagram", color: "#E1306C" },
@@ -114,9 +114,9 @@ const resellerName = document.getElementById("reseller-name");
 const resellerWhatsapp = document.getElementById("reseller-whatsapp");
 const resellerEmail = document.getElementById("reseller-email");
 const resellerUsername = document.getElementById("reseller-username");
-  const resellerPassword = document.getElementById("reseller-password");
-  const resellerButton = document.getElementById("reseller-button");
-  const resellerMessage = document.getElementById("reseller-message");
+const resellerPassword = document.getElementById("reseller-password");
+const resellerButton = document.getElementById("reseller-button");
+const resellerMessage = document.getElementById("reseller-message");
   const platformLoader = document.getElementById("platform-loader");
   const paymentLoader = document.getElementById("payment-loader");
   const platformInfo = document.getElementById("platform-info");
@@ -129,6 +129,10 @@ let selectedService = null;
 let selectedPricePer100 = 0;
 let catalogPlatforms = [];
 let catalogServices = [];
+let resellerAccount = window.currentAccount || null;
+window.addEventListener("account:change", (e) => {
+  resellerAccount = e.detail || null;
+});
 
 async function apiGet(path) {
   const res = await fetch(`${API_BASE}${path}`);
@@ -378,19 +382,28 @@ payButton.addEventListener("click", async () => {
     payButton.disabled = true;
     payButton.textContent = "Membuat pesanan...";
     showPaymentLoader();
-  const payload = {
-    platformId: selectedPlatform.id,
-    categoryId: selectedCategory,
-    serviceId: selectedService.id,
-    target,
-    quantity: qty,
-    buyer: {
-      name: safeValue(buyerName),
-      whatsapp: safeValue(buyerWhatsapp),
-      email: safeValue(orderEmailInput) || safeValue(buyerEmail) || "noemail@example.com",
-    },
-  };
+    const payload = {
+      platformId: selectedPlatform.id,
+      categoryId: selectedCategory,
+      serviceId: selectedService.id,
+      target,
+      quantity: qty,
+      useBalance: Boolean(resellerAccount),
+      resellerIdentifier: resellerAccount?.identifier || null,
+      buyer: {
+        name: safeValue(buyerName),
+        whatsapp: safeValue(buyerWhatsapp),
+        email: safeValue(orderEmailInput) || safeValue(buyerEmail) || "noemail@example.com",
+      },
+    };
     const res = await apiPost("/api/create-order", payload);
+    if (res.receiptUrl) {
+      if (res.account) {
+        window.dispatchEvent(new CustomEvent("account:change", { detail: res.account }));
+      }
+      window.location.href = res.receiptUrl;
+      return;
+    }
     if (!res.redirectUrl) throw new Error("redirectUrl tidak ditemukan.");
     window.location.href = res.redirectUrl;
   } catch (e) {
@@ -402,48 +415,51 @@ payButton.addEventListener("click", async () => {
   }
 });
 
-resellerButton.addEventListener("click", async () => {
-  resellerMessage.textContent = "";
-  const name = resellerName.value.trim();
-  const wa = resellerWhatsapp.value.trim();
-  const email = resellerEmail.value.trim();
-  const username = resellerUsername.value.trim();
-  const password = resellerPassword.value.trim();
+if (resellerButton) {
+  resellerButton.addEventListener("click", async () => {
+    resellerMessage.textContent = "";
+    const name = resellerName.value.trim();
+    const wa = resellerWhatsapp.value.trim();
+    const email = resellerEmail.value.trim();
+    const username = resellerUsername.value.trim();
+    const password = resellerPassword.value.trim();
 
-  if (!name || !wa || !email || !username || !password) {
-    resellerMessage.textContent = "Lengkapi semua data reseller.";
-    return;
-  }
-
-  try {
-    resellerButton.disabled = true;
-    resellerButton.textContent = "Mengirim pendaftaran...";
-
-    const res = await apiPost("/api/register-reseller", {
-      name,
-      whatsapp: wa,
-      email,
-      username,
-      password,
-    });
-
-    if (res.success) {
-      resellerMessage.textContent = "Pendaftaran reseller berhasil! Admin akan menghubungi kamu via WhatsApp.";
-      resellerName.value = "";
-      resellerWhatsapp.value = "";
-      resellerEmail.value = "";
-      resellerUsername.value = "";
-      resellerPassword.value = "";
-    } else {
-      resellerMessage.textContent = res.error || "Gagal daftar reseller.";
+    if (!name || !wa || !email || !username || !password) {
+      resellerMessage.textContent = "Lengkapi semua data reseller.";
+      return;
     }
-  } catch (e) {
-    resellerMessage.textContent = e.message;
-  } finally {
-    resellerButton.disabled = false;
-    resellerButton.textContent = "Daftar Reseller";
-  }
-});
+
+    try {
+      resellerButton.disabled = true;
+      resellerButton.textContent = "Mengirim pendaftaran...";
+
+      const res = await apiPost("/api/register-reseller", {
+        name,
+        whatsapp: wa,
+        email,
+        username,
+        password,
+      });
+
+      if (res.success) {
+        resellerMessage.textContent =
+          "Pendaftaran reseller berhasil! Admin akan menghubungi kamu via WhatsApp.";
+        resellerName.value = "";
+        resellerWhatsapp.value = "";
+        resellerEmail.value = "";
+        resellerUsername.value = "";
+        resellerPassword.value = "";
+      } else {
+        resellerMessage.textContent = res.error || "Gagal daftar reseller.";
+      }
+    } catch (e) {
+      resellerMessage.textContent = e.message;
+    } finally {
+      resellerButton.disabled = false;
+      resellerButton.textContent = "Daftar Reseller";
+    }
+  });
+}
 
 loadCatalog();
 

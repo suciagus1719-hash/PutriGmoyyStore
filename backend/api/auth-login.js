@@ -23,7 +23,15 @@ module.exports = async (req, res) => {
 
     res.json({
       success: true,
-      user: { id: user.id, identifier: user.identifier, balance: user.balance },
+      user: {
+        id: user.id,
+        identifier: user.identifier,
+        displayName: user.displayName,
+        email: user.email,
+        phone: user.phone,
+        avatarUrl: user.avatarUrl,
+        balance: user.balance,
+      },
     });
   } catch (e) {
     console.error(e);

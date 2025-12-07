@@ -19,6 +19,12 @@ module.exports = async (req, res) => {
       return res.status(400).json({ error: "Akun sudah terdaftar" });
     }
 
+    const email = identifier.includes("@") ? identifier.trim().toLowerCase() : "";
+    const phone = identifier.includes("@") ? "" : identifier.trim();
+    const displayName = identifier.includes("@")
+      ? identifier.split("@")[0]
+      : `User${Date.now().toString().slice(-4)}`;
+
     const hashed = crypto.createHash("sha256").update(password).digest("hex");
     const user = {
       id: `USR-${Date.now()}`,
@@ -27,13 +33,26 @@ module.exports = async (req, res) => {
       password: hashed,
       balance: 0,
       createdAt: new Date().toISOString(),
+      displayName,
+      email,
+      phone,
+      avatarUrl: "",
+      depositHistory: [],
     };
     users.push(user);
     saveUsers(users);
 
     res.json({
       success: true,
-      user: { id: user.id, identifier: user.identifier, balance: user.balance },
+      user: {
+        id: user.id,
+        identifier: user.identifier,
+        displayName: user.displayName,
+        email: user.email,
+        phone: user.phone,
+        avatarUrl: user.avatarUrl,
+        balance: user.balance,
+      },
     });
   } catch (e) {
     console.error(e);

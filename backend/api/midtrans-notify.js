@@ -1,5 +1,6 @@
 const crypto = require("crypto");
 const { callPanel } = require("./_smmClient");
+const { updateUser } = require("./_accountStore");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 
@@ -51,21 +52,46 @@ module.exports = async (req, res) => {
     }
 
     // Ambil data layanan dari custom_field
-    const serviceId = custom_field1;
-    const target = custom_field2;
-    const quantity = custom_field3;
+    const field1 = custom_field1;
+    const field2 = custom_field2;
+    const field3 = custom_field3;
 
-    if (!serviceId || !target || !quantity) {
+    // Jika custom_field2 berisi tanda deposit, tambahkan saldo
+    if (field2 === "DEPOSIT") {
+      const identifier = field1;
+      const amount = Number(field3);
+      if (!identifier || Number.isNaN(amount)) {
+        console.error("Data deposit tidak valid");
+      } else {
+        const updated = updateUser(identifier, (current) => {
+          const history = Array.isArray(current.depositHistory)
+            ? current.depositHistory
+            : [];
+          history.push({
+            orderId,
+            amount,
+            method: data.payment_type || "midtrans",
+            status: "success",
+            time: new Date().toISOString(),
+          });
+          return {
+            balance: Number(current.balance || 0) + amount,
+            depositHistory: history,
+          };
+        });
+        if (!updated) console.error("Gagal memperbarui saldo deposit");
+      }
+    } else if (!field1 || !field2 || !field3) {
       console.error("Data layanan tidak lengkap di custom_field, cek create-order.js");
     } else {
       try {
         const payload = {
           action: "order", // sesuai dokumentasi PusatPanelSMM
-          service: serviceId,
-          data: target,
+          service: field1,
+          data: field2,
         };
-        if (quantity) {
-          payload.quantity = quantity;
+        if (field3) {
+          payload.quantity = field3;
         }
         const panelRes = await callPanel(payload);
         console.log("Order dikirim ke panel:", panelRes);
