@@ -1086,3 +1086,24 @@ label {
   font-size: 13px;
   color: #1d4ed8;
 }
+
+.site-footer {
+  margin-top: 32px;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 13px;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 10px;
+}
+
+.footer-links a {
+  text-decoration: none;
+  color: #1f2937;
+  font-weight: 500;
+}
