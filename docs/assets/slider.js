@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (action === "history") return openHistoryModal();
       if (action === "monitor") return openMonitorModal();
       if (action === "reward") return openRewardSection();
-      if (action === "prices") return showInfoMessage("Daftar harga");
+      if (action === "prices") return openPricesPage();
       if (action === "target") return openTargetPage();
       if (action === "status") return openStatusPage();
       if (action === "contact") return switchPage("contact");
@@ -265,6 +265,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const monitorFilterBtn = document.getElementById("monitor-filter-btn");
   const monitorTotalText = document.getElementById("monitor-total");
   const monitorPagination = document.getElementById("monitor-pagination");
+  const priceTableBody = document.getElementById("price-table-body");
+  const priceLimitSelect = document.getElementById("price-limit");
+  const priceCategorySelect = document.getElementById("price-category");
+  const priceSearchInput = document.getElementById("price-search");
+  const priceFilterBtn = document.getElementById("price-filter-btn");
+  const priceTotalText = document.getElementById("price-total");
+  const pricePagination = document.getElementById("price-pagination");
   const pageScreens = Array.from(document.querySelectorAll(".page-screen"));
   const pageBackButtons = document.querySelectorAll(".page-back-btn");
 
@@ -336,22 +343,39 @@ document.addEventListener("DOMContentLoaded", () => {
     buttons += btn("&raquo;", Math.min(totalPages, current + 1), false, current === totalPages);
     statusPagination.innerHTML = buttons;
   };
-  const renderMonitorTable = (rows) => {
+  const renderMonitorTable = () => {
     if (!monitorTableBody) return;
-    let filtered = rows;
-    if (monitorState.category && monitorState.category !== "all") {
+    let filtered = monitorData.slice();
+    if (monitorState.status && monitorState.status !== "all") {
       filtered = filtered.filter(
-        (item) =>
-          String(item.platformId || item.platformName || "")
-            .toLowerCase()
-            .includes(monitorState.category.toLowerCase())
+        (item) => String(item.status || "").toLowerCase() === monitorState.status.toLowerCase()
       );
     }
-    if (!filtered.length) {
+    if (monitorState.category && monitorState.category !== "all") {
+      filtered = filtered.filter((item) =>
+        String(item.category || item.platformName || "")
+          .toLowerCase()
+          .includes(monitorState.category.toLowerCase())
+      );
+    }
+    if (monitorState.search) {
+      const term = monitorState.search.toLowerCase();
+      filtered = filtered.filter(
+        (item) =>
+          String(item.serviceName || "").toLowerCase().includes(term) ||
+          String(item.target || "").toLowerCase().includes(term)
+      );
+    }
+    const total = filtered.length;
+    const start = (monitorState.page - 1) * monitorState.limit;
+    const rowsPage = filtered.slice(start, start + monitorState.limit);
+    monitorTotalText && (monitorTotalText.textContent = `Total: ${total}`);
+    if (!rowsPage.length) {
       monitorTableBody.innerHTML = `<tr><td colspan="7">Belum ada data untuk filter ini.</td></tr>`;
+      monitorPagination && (monitorPagination.innerHTML = "");
       return;
     }
-    monitorTableBody.innerHTML = filtered
+    monitorTableBody.innerHTML = rowsPage
       .map((row) => {
         const time = row.createdAt ? new Date(row.createdAt).toLocaleString("id-ID") : "-";
         const statusClass = row.status || "processing";
@@ -366,6 +390,85 @@ document.addEventListener("DOMContentLoaded", () => {
         </tr>`;
       })
       .join("");
+    renderMonitorPagination(total, monitorState.page, monitorState.limit);
+  };
+
+  const buildPriceCategories = () => {
+    if (!priceCategorySelect) return;
+    const categories = Array.from(
+      new Set((priceServices || []).map((svc) => svc.category || "Tanpa Kategori"))
+    ).sort((a, b) => a.localeCompare(b));
+    priceCategorySelect.innerHTML = `<option value="all">Semua Kategori</option>`;
+    categories.forEach((cat) => {
+      const opt = document.createElement("option");
+      opt.value = cat;
+      opt.textContent = cat;
+      priceCategorySelect.appendChild(opt);
+    });
+  };
+
+  const renderPriceTable = () => {
+    if (!priceTableBody) return;
+    if (!priceServices.length) {
+      priceTableBody.innerHTML = `<tr><td colspan="8">Belum ada data layanan.</td></tr>`;
+      priceTotalText && (priceTotalText.textContent = "Total: 0");
+      if (pricePagination) pricePagination.innerHTML = "";
+      return;
+    }
+    let filtered = priceServices.slice();
+    if (priceState.category && priceState.category !== "all") {
+      filtered = filtered.filter((svc) => (svc.category || "").toLowerCase() === priceState.category.toLowerCase());
+    }
+    if (priceState.search) {
+      const term = priceState.search.toLowerCase();
+      filtered = filtered.filter(
+        (svc) =>
+          String(svc.id || "").toLowerCase().includes(term) ||
+          String(svc.name || "").toLowerCase().includes(term)
+      );
+    }
+    const total = filtered.length;
+    const start = (priceState.page - 1) * priceState.limit;
+    const rows = filtered.slice(start, start + priceState.limit);
+    priceTotalText && (priceTotalText.textContent = `Total: ${total}`);
+    if (!rows.length) {
+      priceTableBody.innerHTML = `<tr><td colspan="8">Tidak ada data untuk filter ini.</td></tr>`;
+    } else {
+      priceTableBody.innerHTML = rows
+        .map((svc, idx) => {
+          const priceValue = svc.pricePer100 ? svc.pricePer100 : svc.rate ? (svc.rate / 10) : 0;
+          return `<tr>
+            <td>${start + idx + 1}</td>
+            <td>${svc.id}</td>
+            <td>${svc.category || "-"}</td>
+            <td>${svc.name}</td>
+            <td>${formatStatusCurrency(priceValue)}</td>
+            <td>${svc.min || "-"}</td>
+            <td>${svc.max || "-"}</td>
+            <td>${svc.status || "Aktif"}</td>
+          </tr>`;
+        })
+        .join("");
+    }
+    renderPricePagination(total);
+  };
+
+  const renderPricePagination = (total) => {
+    if (!pricePagination) return;
+    const totalPages = Math.max(1, Math.ceil(total / priceState.limit));
+    let buttons = "";
+    const btn = (label, page, active = false, disabled = false) =>
+      `<button ${disabled ? "disabled" : ""} data-price-page="${page}" class="${active ? "active" : ""}">${label}</button>`;
+    buttons += btn("&laquo;", Math.max(1, priceState.page - 1), false, priceState.page === 1);
+    for (let i = 1; i <= totalPages; i++) {
+      if (i === 1 || i === totalPages || Math.abs(i - priceState.page) <= 1) {
+        buttons += btn(i, i, i === priceState.page);
+      } else if (Math.abs(i - priceState.page) === 2) {
+        buttons += "<span>...</span>";
+      }
+    }
+    buttons += btn("&raquo;", Math.min(totalPages, priceState.page + 1), false, priceState.page === totalPages);
+    pricePagination.innerHTML = buttons;
   };
 
   const renderMonitorPagination = (total, current, limit) => {
@@ -410,16 +513,13 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       monitorTableBody.innerHTML = `<tr><td colspan="7">Memuat data...</td></tr>`;
       const params = new URLSearchParams({
-        page: monitorState.page,
-        limit: monitorState.limit,
-        status: monitorState.status,
-        q: monitorState.search,
+        page: 1,
+        limit: 100,
       });
       const data = await apiGet(`/api/orders?${params.toString()}`);
-      const rows = data.rows || [];
-      renderMonitorTable(rows);
-      monitorTotalText && (monitorTotalText.textContent = `Total: ${Number(data.total || 0).toLocaleString("id-ID")}`);
-      renderMonitorPagination(Number(data.total || 0), monitorState.page, monitorState.limit);
+      monitorData = Array.isArray(data.rows) ? data.rows : [];
+      monitorState.page = 1;
+      renderMonitorTable();
     } catch (e) {
       monitorTableBody.innerHTML = `<tr><td colspan="7">${e.message}</td></tr>`;
     }
@@ -538,6 +638,19 @@ let monitorState = {
   category: monitorCategorySelect?.value || "all",
   search: "",
 };
+let priceServices = [];
+let priceState = {
+  page: 1,
+  limit: Number(priceLimitSelect?.value || 10),
+  category: "all",
+  search: "",
+};
+
+  window.addEventListener("catalog:update", (event) => {
+    priceServices = Array.isArray(event.detail?.services) ? event.detail.services : [];
+    buildPriceCategories();
+    renderPriceTable();
+  });
   let historyData = [];
   let historyState = {
     page: 1,
@@ -573,7 +686,7 @@ let monitorState = {
       category: monitorCategorySelect?.value || "all",
       search: monitorSearchInput?.value.trim() || "",
     };
-    loadMonitorOrders();
+    renderMonitorTable();
   });
 
   monitorPagination?.addEventListener("click", (e) => {
@@ -581,6 +694,24 @@ let monitorState = {
     if (!btn || btn.disabled) return;
     monitorState.page = Number(btn.dataset.monitorPage) || 1;
     loadMonitorOrders();
+  });
+
+  priceFilterBtn?.addEventListener("click", () => {
+    priceState = {
+      ...priceState,
+      page: 1,
+      limit: Number(priceLimitSelect?.value || 10),
+      category: priceCategorySelect?.value || "all",
+      search: priceSearchInput?.value.trim() || "",
+    };
+    renderPriceTable();
+  });
+
+  pricePagination?.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-price-page]");
+    if (!btn || btn.disabled) return;
+    priceState.page = Number(btn.dataset.pricePage) || 1;
+    renderPriceTable();
   });
   historyFilterBtn?.addEventListener("click", () => {
     historyState.limit = Number(historyLimitSelect?.value || 10);
@@ -998,14 +1129,21 @@ let monitorState = {
 
   const openMonitorModal = () => {
     switchPage("monitor");
+    loadMonitorOrders();
   };
 
   const openStatusPage = () => {
     switchPage("status");
+    loadStatusOrders();
   };
 
   const openTargetPage = () => {
     switchPage("target");
+  };
+
+  const openPricesPage = () => {
+    switchPage("prices");
+    renderPriceTable();
   };
 
   const openRewardSection = async () => {

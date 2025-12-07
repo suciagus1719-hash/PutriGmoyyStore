@@ -194,6 +194,10 @@ const orderEmailField = orderEmailInput || createInputStub();
 const payButtonEl = payButton || createButtonStub();
 const errorMessageEl = errorMessage || createMessageStub();
 
+function notifyCatalogUpdate() {
+  window.dispatchEvent(new CustomEvent("catalog:update", { detail: { services: catalogServices } }));
+}
+
 let selectedPlatform = null;
 let selectedCategory = null;
 let selectedService = null;
@@ -274,6 +278,7 @@ async function loadCatalog() {
   }
   renderPlatformButtons();
   ensurePlatformSelection();
+  notifyCatalogUpdate();
   try {
     const data = await apiGet("/api/catalog");
     const sourcePlatforms = data.platforms?.length ? data.platforms : FALLBACK_PLATFORMS;
@@ -292,6 +297,7 @@ async function loadCatalog() {
   } finally {
     renderPlatformButtons();
     ensurePlatformSelection();
+    notifyCatalogUpdate();
     hidePlatformLoader();
   }
 }

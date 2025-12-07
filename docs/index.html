@@ -528,6 +528,65 @@
         </section>
       </div>
     </div>
+    <div class="page-screen" id="page-prices">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+        <section class="card info-card" id="prices-section">
+          <div class="status-header">
+            <h3>Daftar Harga Layanan Putri Gmoyy</h3>
+            <p>Gunakan filter kategori atau pencarian untuk menemukan layanan yang dibutuhkan.</p>
+          </div>
+          <div class="status-filters">
+            <label>
+              Tampilkan
+              <select id="price-limit">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+            </label>
+            <label>
+              Kategori
+              <select id="price-category">
+                <option value="all">Semua Kategori</option>
+              </select>
+            </label>
+            <label class="status-search">
+              Cari ID / Layanan
+              <input type="text" id="price-search" placeholder="contoh: IG Followers / 12345" />
+            </label>
+            <button class="primary-btn" id="price-filter-btn">Filter</button>
+          </div>
+          <div class="status-table-wrapper">
+            <table class="status-table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>ID</th>
+                  <th>Kategori</th>
+                  <th>Layanan</th>
+                  <th>Harga / 100</th>
+                  <th>Min</th>
+                  <th>Max</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="price-table-body">
+                <tr>
+                  <td colspan="8">Memuat katalog...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="status-footer">
+            <span id="price-total">Total: 0</span>
+            <div id="price-pagination" class="status-pagination"></div>
+          </div>
+        </section>
+      </div>
+    </div>
     <div class="page-screen" id="page-monitor">
       <div class="content">
         <div class="page-back">
