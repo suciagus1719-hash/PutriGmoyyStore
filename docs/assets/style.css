@@ -948,6 +948,49 @@ body {
   margin-bottom: 8px;
 }
 
+.contact-section {
+  text-align: center;
+}
+
+.contact-header h3 {
+  font-size: 22px;
+  margin-bottom: 8px;
+}
+
+.contact-header p {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+.contact-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 14px;
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+.contact-pill.primary {
+  background: #2033df;
+  color: #fff;
+  box-shadow: 0 12px 30px rgba(32, 51, 223, 0.35);
+}
+
+.contact-pill.outline {
+  border: 1px solid #e5e7eb;
+  color: #111827;
+  background: #fff;
+}
+
+.contact-pill:hover {
+  transform: translateY(-1px);
+}
+
 .card {
   background: #fff;
   border-radius: 12px;
