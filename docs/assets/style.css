@@ -1583,3 +1583,30 @@ label {
   font-weight: 500;
 }
 
+.target-section ul {
+  margin: 0;
+  padding-left: 16px;
+}
+.target-section li {
+  font-size: 13px;
+  color: #4b5563;
+  margin-bottom: 6px;
+}
+.target-section h4 {
+  font-size: 15px;
+  color: #1f2937;
+  margin-bottom: 6px;
+}
+.target-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.target-card {
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 16px;
+  background: #fff;
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+}
