@@ -1,3 +1,7 @@
+if (window.__PG_APP_INITED__) {
+  console.warn("PG app script already loaded, skipping duplicate init.");
+} else {
+  window.__PG_APP_INITED__ = true;
 (() => {
 const API_BASE = window.API_BASE_URL || "";
 
@@ -511,3 +515,4 @@ if (document.readyState === "loading") {
   initOrderApp();
 }
 })();
+}
