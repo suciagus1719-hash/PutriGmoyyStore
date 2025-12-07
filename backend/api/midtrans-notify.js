@@ -1,6 +1,6 @@
 const crypto = require("crypto");
-const { callPanel } = require("./_smmClient");
-const { updateUser } = require("./_accountStore");
+const { callPanel } = require("../lib/smmClient");
+const { updateUser } = require("../lib/accountStore");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 

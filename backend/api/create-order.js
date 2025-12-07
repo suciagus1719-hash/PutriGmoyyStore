@@ -1,8 +1,8 @@
 const fetch = require("node-fetch");
-const { callPanel } = require("./_smmClient");
-const { normalizeServicesResponse } = require("./_platformUtils");
-const { getServiceId, getServicePrice, getServiceName } = require("./_serviceParser");
-const { findUser, updateUser } = require("./_accountStore");
+const { callPanel } = require("../lib/smmClient");
+const { normalizeServicesResponse } = require("../lib/platformUtils");
+const { getServiceId, getServicePrice, getServiceName } = require("../lib/serviceParser");
+const { findUser, updateUser } = require("../lib/accountStore");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 const MIDTRANS_SNAP_BASE_URL =

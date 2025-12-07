@@ -1,7 +1,7 @@
-const { callPanel } = require("./_smmClient");
-const { normalizeServicesResponse, belongsToPlatform } = require("./_platformUtils");
-const { encodeCategoryKey, isBlockedCategory } = require("./_categoryUtils");
-const { getServiceCategory } = require("./_serviceParser");
+const { callPanel } = require("../lib/smmClient");
+const { normalizeServicesResponse, belongsToPlatform } = require("../lib/platformUtils");
+const { encodeCategoryKey, isBlockedCategory } = require("../lib/categoryUtils");
+const { getServiceCategory } = require("../lib/serviceParser");
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

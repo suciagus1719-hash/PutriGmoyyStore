@@ -1,9 +1,9 @@
-const { callPanel } = require("./_smmClient");
+const { callPanel } = require("../lib/smmClient");
 const {
   collectPlatforms,
   normalizeServicesResponse,
   detectPlatformDef,
-} = require("./_platformUtils");
+} = require("../lib/platformUtils");
 const {
   getServiceId,
   getServiceDescription,
@@ -13,7 +13,7 @@ const {
   getServiceMax,
   getServiceName,
   getServiceCategory,
-} = require("./_serviceParser");
+} = require("../lib/serviceParser");
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");

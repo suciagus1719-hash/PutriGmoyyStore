@@ -1,5 +1,5 @@
-const { callPanel } = require("./_smmClient");
-const { collectPlatforms, normalizeServicesResponse } = require("./_platformUtils");
+const { callPanel } = require("../lib/smmClient");
+const { collectPlatforms, normalizeServicesResponse } = require("../lib/platformUtils");
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
