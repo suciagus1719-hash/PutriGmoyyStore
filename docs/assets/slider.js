@@ -69,6 +69,9 @@ document.addEventListener("DOMContentLoaded", () => {
     { action: "deposit", icon: "💳", label: "Deposit Saldo" },
     { action: "history", icon: "🧾", label: "Riwayat Deposit" },
     { action: "monitor", icon: "📊", label: "Monitoring Sosmed" },
+    { action: "prices", icon: "💰", label: "Daftar Harga" },
+    { action: "target", icon: "🎯", label: "Target Pesanan" },
+    { action: "status", icon: "📈", label: "Status Order" },
     { action: "logout", icon: "🚪", label: "Logout" },
   ];
   let menuState = "guest";
@@ -95,6 +98,10 @@ document.addEventListener("DOMContentLoaded", () => {
     navPanel.addEventListener("click", (e) => e.stopPropagation());
     document.addEventListener("click", () => navPanel.classList.remove("open"));
   }
+  const showInfoMessage = (label) => {
+    alert(`${label} segera tersedia. Admin akan mengumumkan jika sudah aktif.`);
+  };
+
   if (menuList) {
     menuList.addEventListener("click", (e) => {
       const action = e.target.closest(".menu-item")?.dataset?.action;
@@ -106,21 +113,25 @@ document.addEventListener("DOMContentLoaded", () => {
       if (action === "deposit") return openDepositModal();
       if (action === "history") return openHistoryModal();
       if (action === "monitor") return openMonitorModal();
+      if (action === "prices") return showInfoMessage("Daftar harga");
+      if (action === "target") return showInfoMessage("Target pesanan");
+      if (action === "status") return showInfoMessage("Status order");
+      if (action === "contact") return showInfoMessage("Kontak");
+      if (action === "guide") return showInfoMessage("Cara order");
       if (action === "logout") return setLoggedOut();
-      alert("Menu akan segera tersedia.");
+      showInfoMessage("Menu");
     });
   }
 
   const openLogin = document.getElementById("open-login");
   const openRegister = document.getElementById("open-register");
   const goRegisterFromLogin = document.getElementById("go-register-from-login");
-  const logoutBtn = document.getElementById("logout-btn");
-  const accountSection = document.getElementById("account-section");
   const balancePill = document.getElementById("balance-pill");
   const brandTitle = document.getElementById("brand-title");
   const brandSubtitle = document.getElementById("brand-subtitle");
   const brandAvatar = document.getElementById("brand-avatar");
   const defaultAvatar =
+    brandAvatar?.src ||
     "https://ui-avatars.com/api/?name=PG&background=ac2acf&color=fff";
 
   const loginModal = document.getElementById("login-modal");
@@ -264,8 +275,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     openLogin?.classList.add("hidden");
     openRegister?.classList.add("hidden");
-    accountSection?.classList.remove("hidden");
-    logoutBtn?.classList.remove("hidden");
     menuState = "reseller";
     renderMenu();
     broadcastAccount();
@@ -284,8 +293,6 @@ document.addEventListener("DOMContentLoaded", () => {
     balancePill?.classList.add("hidden");
     openLogin?.classList.remove("hidden");
     openRegister?.classList.remove("hidden");
-    accountSection?.classList.add("hidden");
-    logoutBtn?.classList.add("hidden");
     menuState = "guest";
     renderMenu();
     broadcastAccount();
@@ -615,12 +622,6 @@ document.addEventListener("DOMContentLoaded", () => {
         registerSubmitBtn.textContent = "Daftar & Masuk";
         validateRegisterForm();
       }
-    });
-  }
-
-  if (logoutBtn) {
-    logoutBtn.addEventListener("click", () => {
-      setLoggedOut();
     });
   }
 
