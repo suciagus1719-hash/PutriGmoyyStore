@@ -1,3 +1,8 @@
+if (window.__PG_SLIDER_INITED__) {
+  console.warn("PG slider script already loaded, skipping duplicate init.");
+} else {
+  window.__PG_SLIDER_INITED__ = true;
+(function () {
 const ACCOUNT_KEY = "pg_account";
 const API_BASE = window.API_BASE_URL || "";
 
@@ -760,5 +765,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadAccount();
 });
-
+})();
+}
 
