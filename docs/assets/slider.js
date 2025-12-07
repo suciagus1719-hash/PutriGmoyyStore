@@ -94,14 +94,13 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   const hideLoader = () => loaderOverlay?.classList.add("hidden");
   const defaultMenu = [
-    { action: "login", icon: "🔐", label: "Masuk Reseller" },
-    { action: "register", icon: "✍️", label: "Daftar Reseller" },
-    { action: "prices", icon: "💰", label: "Daftar Harga" },
-    { action: "contact", icon: "☎️", label: "Kontak" },
-    { action: "guide", icon: "📘", label: "Cara Order" },
-    { action: "target", icon: "🎯", label: "Target Pesanan" },
-    { action: "reward", icon: "🎁", label: "Menu Hadiah" },
-    { action: "status", icon: "📊", label: "Status Order" },
+    { action: "login", icon: "??", label: "Masuk Reseller" },
+    { action: "register", icon: "??", label: "Daftar Reseller" },
+    { action: "prices", icon: "??", label: "Daftar Harga" },
+    { action: "contact", icon: "??", label: "Kontak" },
+    { action: "guide", icon: "??", label: "Cara Order" },
+    { action: "target", icon: "??", label: "Target Pesanan" },
+    { action: "reward", icon: "??", label: "Menu Hadiah" },
   ];
 
   const resellerMenu = [
@@ -1372,4 +1371,5 @@ let priceState = {
 });
 })();
 }
+
 
