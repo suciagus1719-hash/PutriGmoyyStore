@@ -509,9 +509,18 @@ payButtonEl.addEventListener("click", async () => {
   if (!target) return (errorMessageEl.textContent = "Target tidak boleh kosong.");
   if (!qty || qty <= 0) return (errorMessageEl.textContent = "Jumlah harus lebih dari 0.");
 
+  const useResellerBalance = isResellerActive();
+  let snapWindow = null;
   try {
     payButtonEl.disabled = true;
-    payButtonEl.textContent = isResellerActive() ? "Memproses saldo..." : "Membuat pesanan...";
+    payButtonEl.textContent = useResellerBalance ? "Memproses saldo..." : "Membuat pesanan...";
+
+    if (!useResellerBalance) {
+      snapWindow = window.open("", "_blank", "noopener");
+      if (!snapWindow) {
+        throw new Error("Izinkan pop-up untuk membuka Midtrans.");
+      }
+    }
     showPaymentLoader();
     const payload = {
       platformId: selectedPlatform.id,
@@ -536,8 +545,13 @@ payButtonEl.addEventListener("click", async () => {
       return;
     }
     if (!res.redirectUrl) throw new Error("redirectUrl tidak ditemukan.");
-    window.open(res.redirectUrl, "_blank");
+    if (snapWindow) {
+      snapWindow.location.replace(res.redirectUrl);
+    } else {
+      window.open(res.redirectUrl, "_blank", "noopener");
+    }
   } catch (e) {
+    if (snapWindow) snapWindow.close();
     errorMessageEl.textContent = e.message;
   } finally {
     payButtonEl.disabled = false;
