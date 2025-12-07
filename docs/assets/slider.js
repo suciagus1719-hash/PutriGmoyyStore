@@ -65,25 +65,29 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   const hideLoader = () => loaderOverlay?.classList.add("hidden");
   const defaultMenu = [
-    { action: "login", icon: "◇", label: "Masuk Reseller" },
-    { action: "register", icon: "✉", label: "Daftar Reseller" },
-    { action: "prices", icon: "💰", label: "Daftar Harga" },
-    { action: "contact", icon: "☎", label: "Kontak" },
-    { action: "guide", icon: "📘", label: "Cara Order" },
-    { action: "target", icon: "🎯", label: "Target Pesanan" },
-    { action: "reward", icon: "🎁", label: "Menu Hadiah" },
-    { action: "status", icon: "📈", label: "Status Order" },
+    { action: "login", icon: "IN", label: "Masuk Reseller" },
+    { action: "register", icon: "RG", label: "Daftar Reseller" },
+    { action: "prices", icon: "P$", label: "Daftar Harga" },
+    { action: "contact", icon: "CT", label: "Kontak" },
+    { action: "guide", icon: "GD", label: "Cara Order" },
+    { action: "target", icon: "TG", label: "Target Pesanan" },
+    { action: "reward", icon: "RW", label: "Menu Hadiah" },
+    { action: "status", icon: "ST", label: "Status Order" },
   ];
+
   const resellerMenu = [
-    { action: "profile", icon: "👤", label: "Profil Reseller" },
-    { action: "deposit", icon: "💳", label: "Deposit Saldo" },
-    { action: "history", icon: "🧾", label: "Riwayat Deposit" },
-    { action: "monitor", icon: "📊", label: "Monitoring Sosmed" },
-    { action: "prices", icon: "💰", label: "Daftar Harga" },
-    { action: "target", icon: "🎯", label: "Target Pesanan" },
-    { action: "status", icon: "📈", label: "Status Order" },
-    { action: "logout", icon: "🚪", label: "Logout" },
+    { action: "profile", icon: "PR", label: "Profil Reseller" },
+    { action: "deposit", icon: "DP", label: "Deposit Saldo" },
+    { action: "history", icon: "RH", label: "Riwayat Deposit" },
+    { action: "monitor", icon: "MN", label: "Monitoring Sosmed" },
+    { action: "reward", icon: "RW", label: "Menu Hadiah" },
+    { action: "prices", icon: "P$", label: "Daftar Harga" },
+    { action: "target", icon: "TG", label: "Target Pesanan" },
+    { action: "status", icon: "ST", label: "Status Order" },
+    { action: "contact", icon: "CT", label: "Kontak" },
+    { action: "logout", icon: "LO", label: "Logout" },
   ];
+
   let menuState = "guest";
   const renderMenu = () => {
     if (!menuList) return;
@@ -756,3 +760,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadAccount();
 });
+
+

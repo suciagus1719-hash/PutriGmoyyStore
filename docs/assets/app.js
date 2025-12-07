@@ -91,6 +91,36 @@ const PLATFORM_ORDER_LOOKUP = POPULAR_PLATFORM_ORDER.reduce((acc, id, idx) => {
   return acc;
 }, {});
 
+const CATALOG_CACHE_KEY = "pg_catalog_cache_v1";
+
+function readCatalogCache() {
+  if (typeof localStorage === "undefined") return null;
+  try {
+    const raw = localStorage.getItem(CATALOG_CACHE_KEY);
+    if (!raw) return null;
+    return JSON.parse(raw);
+  } catch (e) {
+    console.warn("Gagal membaca cache katalog:", e);
+    return null;
+  }
+}
+
+function writeCatalogCache(platforms = [], services = []) {
+  if (typeof localStorage === "undefined") return;
+  try {
+    localStorage.setItem(
+      CATALOG_CACHE_KEY,
+      JSON.stringify({
+        platforms,
+        services,
+        savedAt: Date.now(),
+      })
+    );
+  } catch (e) {
+    console.warn("Gagal menyimpan cache katalog:", e);
+  }
+}
+
 // DOM
 const platformList = document.getElementById("platform-list");
 const categorySelect = document.getElementById("category-select");
@@ -171,16 +201,30 @@ function sortPlatforms(list = []) {
 
 async function loadCatalog() {
   showPlatformLoader();
+  const cached = readCatalogCache();
+  if (cached?.platforms?.length) {
+    catalogPlatforms = sortPlatforms(cached.platforms);
+    catalogServices = Array.isArray(cached.services) ? cached.services : [];
+    renderPlatformButtons();
+  } else {
+    catalogPlatforms = sortPlatforms(FALLBACK_PLATFORMS);
+    renderPlatformButtons();
+  }
   try {
     const data = await apiGet("/api/catalog");
     const sourcePlatforms = data.platforms?.length ? data.platforms : FALLBACK_PLATFORMS;
     catalogPlatforms = sortPlatforms(sourcePlatforms);
-    catalogServices = data.services || [];
+    if (Array.isArray(data.services) && data.services.length) {
+      catalogServices = data.services;
+      writeCatalogCache(sourcePlatforms, catalogServices);
+    } else if (!catalogServices.length) {
+      catalogServices = [];
+    }
   } catch (e) {
-    errorMessage.textContent = "Gagal memuat katalog, gunakan daftar default.";
-    catalogPlatforms = sortPlatforms(FALLBACK_PLATFORMS);
-    catalogServices = [];
-    showPlatformLoader("Gagal memuat dari server, menampilkan data bawaan...");
+    console.error("Gagal memuat katalog:", e);
+    if (!catalogServices.length) {
+      errorMessage.textContent = "Gagal memuat katalog, gunakan daftar default.";
+    }
   } finally {
     renderPlatformButtons();
     hidePlatformLoader();
