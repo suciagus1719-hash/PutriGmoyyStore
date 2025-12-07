@@ -2,6 +2,7 @@ const fetch = require("node-fetch");
 const { callPanel } = require("./_smmClient");
 const { normalizeServicesResponse } = require("./_platformUtils");
 const { getServiceId, getServicePrice, getServiceName } = require("./_serviceParser");
+const { findUser, updateUser } = require("./_accountStore");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 const MIDTRANS_SNAP_BASE_URL =
@@ -23,13 +24,17 @@ module.exports = async (req, res) => {
       target,
       quantity,
       buyer = {},
+      useBalance,
+      resellerIdentifier,
     } = req.body;
 
     if (!platformId || !categoryId || !serviceId || !target || !quantity) {
       return res.status(400).json({ error: "Data pesanan tidak lengkap" });
     }
 
-    if (!MIDTRANS_SERVER_KEY) {
+    const wantsBalance = Boolean(useBalance && resellerIdentifier);
+
+    if (!wantsBalance && !MIDTRANS_SERVER_KEY) {
       return res.status(500).json({ error: "MIDTRANS_SERVER_KEY belum diset di ENV." });
     }
 
@@ -56,9 +61,52 @@ module.exports = async (req, res) => {
       target,
       quantity: String(quantity),
       gross_amount: String(paymentAmount),
-      payment_type: "QRIS (GoPay)",
+      payment_type: wantsBalance ? "Saldo Reseller" : "QRIS (GoPay)",
       request_time: new Date().toISOString(),
     }).toString();
+
+    if (wantsBalance) {
+      const { user } = findUser(resellerIdentifier);
+      if (!user) return res.status(404).json({ error: "Akun reseller tidak ditemukan" });
+      const balance = Number(user.balance || 0);
+      if (balance < paymentAmount) {
+        return res.status(400).json({ error: "Saldo tidak mencukupi. Silakan deposit dulu." });
+      }
+      try {
+        const payload = {
+          action: "order",
+          service: serviceId,
+          data: target,
+          quantity,
+        };
+        await callPanel(payload);
+      } catch (e) {
+        console.error("Gagal order panel via saldo:", e);
+        return res.status(500).json({ error: "Gagal memproses pesanan ke panel." });
+      }
+
+      const updated = updateUser(resellerIdentifier, {
+        balance: balance - paymentAmount,
+      });
+      const account = updated
+        ? {
+            id: updated.id,
+            identifier: updated.identifier,
+            displayName: updated.displayName,
+            email: updated.email,
+            phone: updated.phone,
+            avatarUrl: updated.avatarUrl,
+            balance: updated.balance,
+          }
+        : null;
+
+      return res.json({
+        success: true,
+        orderId,
+        receiptUrl: `${frontendBase}struk.html?${receiptParams}`,
+        account,
+      });
+    }
 
     const body = {
       transaction_details: {

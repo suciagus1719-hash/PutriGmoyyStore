@@ -312,7 +312,7 @@ document.addEventListener("DOMContentLoaded", () => {
       loginError?.classList.add("hidden");
       nextBtn.disabled = true;
       nextBtn.textContent = "Memeriksa...";
-      const { exists } = await authPost("/api/auth-check", { identifier: value });
+      const { exists } = await authPost("/api/reseller?action=check", { identifier: value });
       pendingIdentifier = value;
       if (exists) {
         showLoginPasswordStep("login");
@@ -467,7 +467,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!currentUser) return;
     try {
       const params = new URLSearchParams({ identifier: currentUser.identifier });
-      const data = await apiGet(`/api/deposit-history?${params.toString()}`);
+      const data = await apiGet(`/api/reseller?action=history&${params.toString()}`);
       const history = data.history || [];
       historyBalance && (historyBalance.textContent = `Saldo: Rp ${Number(data.balance || 0).toLocaleString("id-ID")}`);
       historyList.innerHTML = history.length
@@ -523,7 +523,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (profilePasswordInput.value.trim()) {
         payload.newPassword = profilePasswordInput.value.trim();
       }
-      const res = await authPost("/api/profile", payload);
+      const res = await authPost("/api/reseller?action=profile", payload);
       finishLogin(res.user);
       closeOverlay(profileModal);
     } catch (e) {
@@ -549,7 +549,7 @@ document.addEventListener("DOMContentLoaded", () => {
       depositError.classList.add("hidden");
       depositSubmit.disabled = true;
       depositSubmit.textContent = "Membuka Midtrans...";
-      const res = await apiPost("/api/create-deposit", {
+      const res = await apiPost("/api/reseller?action=create-deposit", {
         identifier: currentUser.identifier,
         amount,
       });
@@ -580,8 +580,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const payload = { identifier: pendingIdentifier, password: passwordInput.value.trim() };
         const res =
           authMode === "login"
-            ? await authPost("/api/auth-login", payload)
-            : await authPost("/api/auth-register", payload);
+            ? await authPost("/api/reseller?action=login", payload)
+            : await authPost("/api/reseller?action=register", payload);
         finishLogin(res.user);
       } catch (e) {
         passwordError.textContent = e.message;
@@ -604,7 +604,7 @@ document.addEventListener("DOMContentLoaded", () => {
         registerError.classList.add("hidden");
         registerSubmitBtn.disabled = true;
         registerSubmitBtn.textContent = "Mendaftarkan...";
-        const res = await authPost("/api/auth-register", payload);
+        const res = await authPost("/api/reseller?action=register", payload);
         finishLogin(res.user);
       } catch (e) {
         registerError.textContent = e.message;
