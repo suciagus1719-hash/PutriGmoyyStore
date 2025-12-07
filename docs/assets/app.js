@@ -1,3 +1,4 @@
+(() => {
 const API_BASE = window.API_BASE_URL || "";
 
 const PLATFORM_ICON_META = {
@@ -509,3 +510,4 @@ if (document.readyState === "loading") {
 } else {
   initOrderApp();
 }
+})();
