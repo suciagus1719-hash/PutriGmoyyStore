@@ -1,12 +1,6 @@
 const crypto = require("crypto");
 const fetch = require("node-fetch");
-const {
-  readUsers,
-  saveUsers,
-  normalizeIdentifier,
-  findUser,
-  updateUser,
-} = require("../lib/accountStore");
+const { readUsers, saveUsers, normalizeIdentifier, findUser, updateUser } = require("../lib/accountStore");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 const MIDTRANS_SNAP_BASE_URL =

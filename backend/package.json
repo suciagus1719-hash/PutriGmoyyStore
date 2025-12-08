@@ -8,7 +8,9 @@
     "start": "node index.js"
   },
   "dependencies": {
-    "node-fetch": "^2.7.0"
+    "deasync": "^0.1.31",
+    "node-fetch": "^2.7.0",
+    "pg": "^8.16.3"
   },
   "engines": {
     "node": "24.x"
