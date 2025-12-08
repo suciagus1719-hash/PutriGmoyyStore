@@ -45,7 +45,7 @@ async function refundResellerBalance(identifier, amount) {
 }
 
 async function refundOrder(orderOrId, options = {}) {
-  const order = typeof orderOrId === "object" ? orderOrId : getOrder(orderOrId);
+  const order = typeof orderOrId === "object" ? orderOrId : await getOrder(orderOrId);
   if (!order) throw new Error("Order tidak ditemukan");
   if (order.refundStatus === "completed") {
     return order;
@@ -61,7 +61,7 @@ async function refundOrder(orderOrId, options = {}) {
   } else {
     throw new Error("Metode refund tidak tersedia untuk order ini.");
   }
-  const patch = updateOrder(order.id, {
+  const patch = await updateOrder(order.id, {
     refundStatus: "completed",
     refundReason: reason,
     refundTime: new Date().toISOString(),

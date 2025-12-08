@@ -1460,6 +1460,21 @@ body {
   color: #1f1f2e;
 }
 
+.danger-btn {
+  border: none;
+  background: rgba(244, 63, 94, 0.15);
+  color: #b91c1c;
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+
+.danger-btn:hover {
+  background: rgba(244, 63, 94, 0.3);
+}
+
 .owner-reseller-modal {
   max-width: 440px;
 }

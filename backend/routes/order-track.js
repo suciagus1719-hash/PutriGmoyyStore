@@ -13,7 +13,7 @@ module.exports = async (req, res) => {
   try {
     const { orderId } = req.body || {};
     if (!orderId) return res.status(400).json({ error: "orderId wajib diisi" });
-    const stored = getOrder(orderId);
+    const stored = await getOrder(orderId);
     if (!stored) return res.status(404).json({ error: "Order tidak ditemukan" });
     const response = {
       order: stored,
@@ -26,7 +26,7 @@ module.exports = async (req, res) => {
     try {
       const panelRes = await callPanel({ action: "status", id: panelId });
       const panelData = (panelRes && panelRes.data) || panelRes || {};
-      updateOrder(orderId, {
+      await updateOrder(orderId, {
         status: panelData.status || stored.status,
         panelStatus: panelData.status || stored.panelStatus || null,
         startCount: panelData.start_count ?? stored.startCount ?? null,
@@ -49,4 +49,3 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: "Gagal memuat status order" });
   }
 };
-

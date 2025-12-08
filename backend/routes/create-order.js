@@ -172,7 +172,7 @@ module.exports = async (req, res) => {
       lastStatusSync: null,
       resellerIdentifier: resellerIdentifier || null,
     };
-    appendOrder(orderRecord);
+    await appendOrder(orderRecord);
 
     if (wantsBalance) {
       const { user } = await findUser(resellerIdentifier);
@@ -216,7 +216,7 @@ module.exports = async (req, res) => {
         : null;
 
       const panelData = (panelResponse && panelResponse.data) || panelResponse || {};
-      updateOrder(orderId, {
+      await updateOrder(orderId, {
         status: panelData.status || "processing",
         panelStatus: panelData.status || null,
         panelOrderId: panelData.id || panelData.order_id || panelData.order || null,

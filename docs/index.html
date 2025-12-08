@@ -464,6 +464,32 @@
             <div id="history-pagination" class="status-pagination"></div>
           </div>
         </section>
+        <section class="card info-card">
+          <div class="status-header">
+            <h3>Status Order Saya</h3>
+            <p>Riwayat pesanan terbaru di akun reseller ini.</p>
+          </div>
+          <div class="status-table-wrapper">
+            <table class="status-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Order ID</th>
+                  <th>Layanan</th>
+                  <th>Target</th>
+                  <th>Status</th>
+                  <th>Harga</th>
+                  <th>Terakhir</th>
+                </tr>
+              </thead>
+              <tbody id="history-orders-body">
+                <tr>
+                  <td colspan="7">Belum ada data order.</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
     </div>
     <div class="page-screen" id="page-status">
@@ -977,6 +1003,7 @@
               <option value="permanent">Blokir Permanen</option>
             </select>
           </label>
+          <button type="button" class="danger-btn" id="owner-reseller-delete">Hapus Akun</button>
           <div class="modal-actions">
             <button type="button" class="outline-btn" id="owner-reseller-cancel">Batal</button>
             <button type="submit" class="primary-btn">Simpan Perubahan</button>

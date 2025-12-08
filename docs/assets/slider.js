@@ -290,6 +290,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const historyList = document.getElementById("history-list");
   const historyBalance = document.getElementById("history-balance");
   const historyTableBody = document.getElementById("history-table-body");
+  const historyOrdersBody = document.getElementById("history-orders-body");
   const historyLimitSelect = document.getElementById("history-limit");
   const historyStatusSelect = document.getElementById("history-status");
   const historySearchInput = document.getElementById("history-search");
@@ -355,6 +356,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const ownerResellerLabel = document.getElementById("owner-reseller-label");
   const ownerResellerIdInput = document.getElementById("owner-reseller-id");
   const ownerResellerIdentifierInput = document.getElementById("owner-reseller-identifier");
+  const ownerResellerDeleteBtn = document.getElementById("owner-reseller-delete");
   const ownerResellerNameInput = document.getElementById("owner-reseller-name");
   const ownerResellerEmailInput = document.getElementById("owner-reseller-email");
   const ownerResellerPhoneInput = document.getElementById("owner-reseller-phone");
@@ -737,6 +739,24 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const requestOwnerRefresh = () => ensureOwnerAccess(() => refreshOwnerPanels());
+
+  const deleteCurrentReseller = async () => {
+    if (!ownerResellerEditing) return;
+    showLoader("Menghapus akun...");
+    try {
+      await apiPost("/api/owner", {
+        action: "resellers-delete",
+        id: ownerResellerEditing.id,
+        identifier: ownerResellerEditing.identifier,
+      });
+      closeOwnerResellerModal();
+      await refreshOwnerPanels();
+    } catch (err) {
+      alert(err.message || "Gagal menghapus akun reseller.");
+    } finally {
+      hideLoader();
+    }
+  };
 
   const openOwnerPage = () => {
     ensureOwnerAccess(() => {
@@ -1159,6 +1179,36 @@ document.addEventListener("DOMContentLoaded", () => {
     historyPagination.innerHTML = buttons;
   };
 
+  const renderHistoryOrdersTable = (rows = []) => {
+    if (!historyOrdersBody) return;
+    if (!rows.length) {
+      historyOrdersBody.innerHTML = `<tr><td colspan="7">Belum ada data order.</td></tr>`;
+      return;
+    }
+    historyOrdersBody.innerHTML = rows
+      .map((row, idx) => {
+        const statusText = formatTrackStatus(row.status);
+        const statusClass = statusToClass(row.status);
+        return `<tr>
+          <td>${idx + 1}</td>
+          <td>${row.id || "-"}</td>
+          <td>${row.serviceName || row.serviceId || "-"}</td>
+          <td>${row.target || "-"}</td>
+          <td><span class="status-pill ${statusClass}">${statusText}</span></td>
+          <td>${formatStatusCurrency(row.price || 0)}</td>
+          <td>${formatRelativeTime(row.lastStatusSync || row.createdAt)}</td>
+        </tr>`;
+      })
+      .join("");
+  };
+
+  const loadResellerOrders = async () => {
+    if (!currentUser?.identifier) return [];
+    const params = new URLSearchParams({ identifier: currentUser.identifier, limit: 50 });
+    const data = await apiGet(`/api/orders?${params.toString()}`);
+    return Array.isArray(data.rows) ? data.rows : [];
+  };
+
   const forgotStep = loginModal?.querySelector(".login-step-forgot");
   const forgotUsernameInput = document.getElementById("forgot-username");
   const forgotIdentifierInput = document.getElementById("forgot-identifier");
@@ -1213,7 +1263,8 @@ let ownerRefreshPromise = null;
     buildPriceCategories();
     renderPriceTable();
   });
-  let historyData = [];
+let historyData = [];
+let historyOrdersData = [];
   let historyState = {
     page: 1,
     limit: Number(historyLimitSelect?.value || 10),
@@ -1619,6 +1670,13 @@ let ownerRefreshPromise = null;
   ownerResellerModal?.addEventListener("click", (e) => {
     if (e.target === ownerResellerModal) closeOwnerResellerModal();
   });
+  ownerResellerDeleteBtn?.addEventListener("click", () => {
+    if (!ownerResellerEditing) return;
+    ensureOwnerAccess(() => {
+      const name = ownerResellerEditing.displayName || ownerResellerEditing.identifier;
+      if (confirm(`Hapus akun ${name}?`)) deleteCurrentReseller();
+    });
+  });
 
   ownerOrderClose?.addEventListener("click", closeOwnerOrderModal);
   ownerOrderCloseBtn?.addEventListener("click", closeOwnerOrderModal);
@@ -1799,6 +1857,8 @@ let ownerRefreshPromise = null;
   const openHistoryModal = async () => {
     if (!currentUser) return;
     switchPage("history");
+    historyOrdersBody &&
+      (historyOrdersBody.innerHTML = `<tr><td colspan="7">Memuat data order...</td></tr>`);
     try {
       const params = new URLSearchParams({ identifier: currentUser.identifier });
       const data = await apiGet(`/api/reseller?action=history&${params.toString()}`);
@@ -1810,6 +1870,15 @@ let ownerRefreshPromise = null;
       historyData = [];
       if (historyTableBody) {
         historyTableBody.innerHTML = `<tr><td colspan="7">${e.message}</td></tr>`;
+      }
+    }
+    try {
+      historyOrdersData = await loadResellerOrders();
+      renderHistoryOrdersTable(historyOrdersData);
+    } catch (err) {
+      historyOrdersData = [];
+      if (historyOrdersBody) {
+        historyOrdersBody.innerHTML = `<tr><td colspan="7">${err.message || "Gagal memuat order."}</td></tr>`;
       }
     }
   };
@@ -1868,15 +1937,58 @@ let ownerRefreshPromise = null;
     }
   };
 
-  profileAvatarInput?.addEventListener("change", (e) => {
+  const compressImage = (file) =>
+    new Promise((resolve, reject) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxSize = 512;
+        let { width, height } = img;
+        if (width > height) {
+          if (width > maxSize) {
+            height = Math.round((height * maxSize) / width);
+            width = maxSize;
+          }
+        } else if (height > maxSize) {
+          width = Math.round((width * maxSize) / height);
+          height = maxSize;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            if (!blob) return reject(new Error("Gagal kompres gambar"));
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          },
+          "image/jpeg",
+          0.75
+        );
+      };
+      img.onerror = reject;
+      img.src = URL.createObjectURL(file);
+    });
+
+  profileAvatarInput?.addEventListener("change", async (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      avatarData = reader.result;
-      if (profileAvatarPreview) profileAvatarPreview.src = reader.result;
-    };
-    reader.readAsDataURL(file);
+    try {
+      const compressed = await compressImage(file);
+      avatarData = compressed;
+      if (profileAvatarPreview) profileAvatarPreview.src = compressed;
+    } catch (err) {
+      console.error("Gagal kompres avatar", err);
+      const reader = new FileReader();
+      reader.onload = () => {
+        avatarData = reader.result;
+        if (profileAvatarPreview) profileAvatarPreview.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
   });
 
   profileSaveBtn?.addEventListener("click", async () => {

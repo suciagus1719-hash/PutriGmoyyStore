@@ -103,7 +103,7 @@ module.exports = async (req, res) => {
       }
 
       try {
-        updateOrder(order_id, {
+        await updateOrder(order_id, {
           status: "processing",
           paymentType: data.payment_type || "midtrans",
           paidAt: new Date().toISOString(),
@@ -127,7 +127,7 @@ module.exports = async (req, res) => {
         const panelRes = await callPanel(payload);
         console.log("Order dikirim ke panel:", panelRes);
         const panelData = (panelRes && panelRes.data) || panelRes || {};
-        updateOrder(order_id, {
+        await updateOrder(order_id, {
           panelResponse: panelRes,
           panelOrderId: panelData.id || panelData.order_id || panelData.order || null,
           status: panelData.status || "processing",
@@ -148,7 +148,7 @@ module.exports = async (req, res) => {
         }
       } catch (e) {
         console.error("Gagal mengirim order ke panel:", e);
-        updateOrder(order_id, {
+        await updateOrder(order_id, {
           status: "error",
           errorMessage: String(e.message || e),
           lastUpdate: new Date().toISOString(),

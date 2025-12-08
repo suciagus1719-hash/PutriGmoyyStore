@@ -1,7 +1,14 @@
 const crypto = require("crypto");
 const { callPanel } = require("../lib/smmClient");
 const { listRecentOrders, updateOrder } = require("../lib/orderStore");
-const { readUsers, updateUser, updateUserById, normalizeIdentifier } = require("../lib/accountStore");
+const {
+  readUsers,
+  updateUser,
+  updateUserById,
+  deleteUser,
+  deleteUserById,
+  normalizeIdentifier,
+} = require("../lib/accountStore");
 
 const OWNER_PASSWORD = process.env.OWNER_PANEL_PASSWORD || "Senjasuci1719";
 
@@ -21,7 +28,7 @@ function sanitizeReseller(user) {
 }
 
 async function handleOrders(res) {
-  const recentOrders = listRecentOrders(15);
+  const recentOrders = await listRecentOrders(15);
   const rows = [];
   for (const order of recentOrders) {
     let latest = order;
@@ -30,13 +37,13 @@ async function handleOrders(res) {
         const panelRes = await callPanel({ action: "status", id: order.panelOrderId });
         const panelData = (panelRes && panelRes.data) || panelRes || {};
         latest =
-          updateOrder(order.id, {
+          (await updateOrder(order.id, {
             status: panelData.status || order.status,
             panelStatus: panelData.status || order.panelStatus || null,
             startCount: panelData.start_count ?? order.startCount ?? null,
             remains: panelData.remains ?? order.remains ?? null,
             lastStatusSync: new Date().toISOString(),
-          }) || order;
+          })) || order;
       } catch (err) {
         console.error("owner orders panel error:", err);
       }
@@ -191,6 +198,16 @@ module.exports = async (req, res) => {
         console.error("owner reseller update error:", e);
         return res.status(400).json({ error: e.message || "Gagal memperbarui reseller" });
       }
+    }
+
+    if (req.method === "POST" && action === "resellers-delete") {
+      const { id, identifier } = req.body || {};
+      if (!id && !identifier) {
+        return res.status(400).json({ error: "Identifier wajib diisi" });
+      }
+      const success = id ? await deleteUserById(id) : await deleteUser(identifier);
+      if (!success) return res.status(404).json({ error: "Akun tidak ditemukan" });
+      return res.json({ success: true });
     }
 
     if (req.method === "POST" && action === "profile") {

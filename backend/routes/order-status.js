@@ -11,7 +11,7 @@ module.exports = async (req, res) => {
   try {
     const { orderId } = req.body || {};
     if (!orderId) return res.status(400).json({ error: "orderId wajib diisi" });
-    const order = getOrder(orderId);
+    const order = await getOrder(orderId);
     if (!order) return res.status(404).json({ error: "Order tidak ditemukan" });
     const panelId = order.panelOrderId || order.panel_id;
     if (!panelId) {
@@ -20,7 +20,7 @@ module.exports = async (req, res) => {
 
     const panelRes = await callPanel({ action: "status", id: panelId });
     const panelData = (panelRes && panelRes.data) || panelRes || {};
-    const updated = updateOrder(orderId, {
+    const updated = await updateOrder(orderId, {
       status: panelData.status || order.status,
       panelStatus: panelData.status || order.panelStatus || null,
       startCount: panelData.start_count ?? order.startCount ?? null,

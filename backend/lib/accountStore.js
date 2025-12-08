@@ -210,6 +210,22 @@ async function updateUserById(id, updater) {
   return upsertUserRecord(patch);
 }
 
+async function deleteUser(identifier) {
+  await ensureTable();
+  if (!identifier) return false;
+  const normalized = normalizeIdentifier(identifier);
+  if (!normalized) return false;
+  const { rowCount } = await pool.query(`DELETE FROM ${TABLE_NAME} WHERE normalized = $1`, [normalized]);
+  return rowCount > 0;
+}
+
+async function deleteUserById(id) {
+  await ensureTable();
+  if (!id) return false;
+  const { rowCount } = await pool.query(`DELETE FROM ${TABLE_NAME} WHERE id = $1`, [id]);
+  return rowCount > 0;
+}
+
 module.exports = {
   readUsers,
   saveUsers,
@@ -218,4 +234,6 @@ module.exports = {
   findUserById,
   updateUser,
   updateUserById,
+  deleteUser,
+  deleteUserById,
 };
