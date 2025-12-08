@@ -1164,6 +1164,10 @@ body {
   }
 }
 
+.owner-password-card {
+  max-width: 420px;
+}
+
 .status-header {
   text-align: center;
   margin-bottom: 16px;

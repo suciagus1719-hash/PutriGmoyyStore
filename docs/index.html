@@ -23,7 +23,6 @@
       <div class="topbar-actions">
         <button class="link-btn" id="open-login">Masuk</button>
         <button class="outline-btn" id="open-register">Daftar Reseller</button>
-        <button class="link-btn" id="open-owner-menu">Owner</button>
         <button class="menu-btn" id="menu-toggle" aria-label="Menu">
           <span></span><span></span><span></span>
         </button>
@@ -821,6 +820,19 @@
           <button class="neutral-btn" id="confirm-edit">Ubah</button>
           <button class="primary-btn" id="confirm-register">Ya, Daftar</button>
         </div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="owner-password-modal">
+      <div class="login-modal owner-password-card">
+        <button class="modal-close" id="owner-password-close" aria-label="Tutup">&times;</button>
+        <p class="login-subtitle">Menu Owner</p>
+        <h2>Masukkan Password</h2>
+        <label>
+          Password Owner
+          <input type="password" id="owner-password-input" placeholder="Masukkan password owner" />
+        </label>
+        <p class="error hidden" id="owner-password-error">Password owner tidak sesuai.</p>
+        <button class="primary-btn block" id="owner-password-submit">Masuk</button>
       </div>
     </div>
     <section class="hero-card">

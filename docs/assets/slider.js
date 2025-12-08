@@ -172,7 +172,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const openLogin = document.getElementById("open-login");
   const openRegister = document.getElementById("open-register");
-  const openOwnerMenuBtn = document.getElementById("open-owner-menu");
   const goRegisterFromLogin = document.getElementById("go-register-from-login");
   const balancePill = document.getElementById("balance-pill");
   const coinPill = document.getElementById("coin-pill");
@@ -285,6 +284,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const ownerBalanceEl = document.getElementById("owner-balance");
   const ownerJsonEl = document.getElementById("owner-json");
   const ownerCopyBtn = document.getElementById("owner-copy-json");
+  const ownerPasswordModal = document.getElementById("owner-password-modal");
+  const ownerPasswordInput = document.getElementById("owner-password-input");
+  const ownerPasswordError = document.getElementById("owner-password-error");
+  const ownerPasswordSubmit = document.getElementById("owner-password-submit");
+  const ownerPasswordClose = document.getElementById("owner-password-close");
   const readOwnerToken = () => {
     try {
       const saved = sessionStorage.getItem(OWNER_TOKEN_KEY);
@@ -301,6 +305,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
   let ownerToken = readOwnerToken();
+  let ownerAccessCallback = null;
   const pageScreens = Array.from(document.querySelectorAll(".page-screen"));
   const pageBackButtons = document.querySelectorAll(".page-back-btn");
 
@@ -323,16 +328,25 @@ document.addEventListener("DOMContentLoaded", () => {
   const formatPanelBalance = (value) =>
     `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
 
-  const ensureOwnerAccess = () => {
-    if (ownerToken === OWNER_PASSWORD) return true;
-    const input = prompt("Masukkan password owner untuk membuka menu khusus.");
-    if (!input) return false;
-    if (input === OWNER_PASSWORD) {
-      ownerToken = input;
-      persistOwnerToken(input);
+  const showOwnerPasswordModal = (callback) => {
+    ownerAccessCallback = callback || null;
+    ownerPasswordInput && (ownerPasswordInput.value = "");
+    ownerPasswordError?.classList.add("hidden");
+    ownerPasswordModal?.classList.remove("hidden");
+    setTimeout(() => ownerPasswordInput?.focus(), 50);
+  };
+
+  const hideOwnerPasswordModal = (clearCallback = false) => {
+    ownerPasswordModal?.classList.add("hidden");
+    if (clearCallback) ownerAccessCallback = null;
+  };
+
+  const ensureOwnerAccess = (onSuccess) => {
+    if (ownerToken === OWNER_PASSWORD) {
+      onSuccess?.();
       return true;
     }
-    alert("Password owner salah.");
+    showOwnerPasswordModal(onSuccess);
     return false;
   };
 
@@ -364,9 +378,10 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   const openOwnerPage = () => {
-    if (!ensureOwnerAccess()) return;
-    switchPage("owner");
-    fetchOwnerProfile();
+    ensureOwnerAccess(() => {
+      switchPage("owner");
+      fetchOwnerProfile();
+    });
   };
 
   const renderStatusTable = (rows) => {
@@ -1085,8 +1100,7 @@ let priceState = {
   }
 
   ownerRefreshBtn?.addEventListener("click", () => {
-    if (!ensureOwnerAccess()) return;
-    fetchOwnerProfile();
+    ensureOwnerAccess(() => fetchOwnerProfile());
   });
 
   ownerCopyBtn?.addEventListener("click", () => {
@@ -1095,9 +1109,38 @@ let priceState = {
     alert("Respons profil berhasil disalin.");
   });
 
-  openOwnerMenuBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
-    openOwnerPage();
+
+  const handleOwnerPasswordSubmit = () => {
+    const value = ownerPasswordInput?.value.trim();
+    if (!value) {
+      ownerPasswordError && (ownerPasswordError.textContent = "Password owner wajib diisi.");
+      ownerPasswordError?.classList.remove("hidden");
+      return;
+    }
+    if (value !== OWNER_PASSWORD) {
+      ownerPasswordError && (ownerPasswordError.textContent = "Password owner salah.");
+      ownerPasswordError?.classList.remove("hidden");
+      return;
+    }
+    ownerToken = OWNER_PASSWORD;
+    persistOwnerToken(OWNER_PASSWORD);
+    ownerPasswordError?.classList.add("hidden");
+    hideOwnerPasswordModal();
+    const callback = ownerAccessCallback;
+    ownerAccessCallback = null;
+    callback?.();
+  };
+
+  ownerPasswordSubmit?.addEventListener("click", handleOwnerPasswordSubmit);
+  ownerPasswordInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleOwnerPasswordSubmit();
+    }
+  });
+  ownerPasswordClose?.addEventListener("click", () => hideOwnerPasswordModal(true));
+  ownerPasswordModal?.addEventListener("click", (e) => {
+    if (e.target === ownerPasswordModal) hideOwnerPasswordModal(true);
   });
 
   const validatePasswords = () => {
