@@ -60,6 +60,18 @@ function apiPost(path, body, attempts = 1) {
   );
 }
 
+function apiDelete(path, body, attempts = 1) {
+  return requestJson(
+    path,
+    {
+      method: "DELETE",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    },
+    attempts
+  );
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const slides = Array.from(document.querySelectorAll(".hero-slide"));
   const dots = Array.from(document.querySelectorAll(".hero-dot"));
@@ -297,6 +309,15 @@ document.addEventListener("DOMContentLoaded", () => {
   const historyFilterBtn = document.getElementById("history-filter-btn");
   const historyTotalText = document.getElementById("history-total");
   const historyPagination = document.getElementById("history-pagination");
+  const historyDepositDeleteBtn = document.getElementById("history-deposit-delete");
+  const historyOrdersDeleteBtn = document.getElementById("history-orders-delete");
+  const historyOrdersSearchInput = document.getElementById("history-orders-search");
+  const historyOrdersRefreshBtn = document.getElementById("history-orders-refresh");
+  const historyOrderModal = document.getElementById("history-order-modal");
+  const historyOrderClose = document.getElementById("history-order-close");
+  const historyOrderCloseBtn = document.getElementById("history-order-close-btn");
+  const historyOrderTitle = document.getElementById("history-order-title");
+  const historyOrderDetail = document.getElementById("history-order-detail");
   const monitorSection = document.getElementById("monitor-section");
   const rewardSection = document.getElementById("reward-section");
   const rewardCoins = document.getElementById("reward-coins");
@@ -639,6 +660,68 @@ document.addEventListener("DOMContentLoaded", () => {
     `;
   };
 
+  const renderHistoryOrderDetail = (row = {}) => {
+    if (!historyOrderDetail) return;
+    const detail = row.detail || {};
+    const buyer = detail.buyer || row.buyer || {};
+    const commentsSource = Array.isArray(detail.customComments)
+      ? detail.customComments
+      : Array.isArray(row.customComments)
+      ? row.customComments
+      : [];
+    const comments = commentsSource.filter((comment) => typeof comment === "string" && comment.trim().length);
+    const commentList = comments.length
+      ? `<ul class="comment-list">${comments.map((c) => `<li>${escapeHtml(c)}</li>`).join("")}</ul>`
+      : "";
+    historyOrderTitle && (historyOrderTitle.textContent = row.id || "Detail Order");
+    historyOrderDetail.innerHTML = `
+      <div class="detail-group">
+        <h5>Informasi Pesanan</h5>
+        ${ownerDetailItem("Order ID", row.id || "-")}
+        ${ownerDetailItem("ID Layanan", detail.serviceId || row.serviceId || "-")}
+        ${ownerDetailItem("Nama Layanan", detail.serviceName || row.serviceName || "-")}
+        ${ownerDetailItem("Target", detail.target || row.target || "-")}
+        ${ownerDetailItem("Jumlah", detail.quantity || row.quantity || "-")}
+        ${
+          comments.length
+            ? `${ownerDetailItem("Total Komentar", `${comments.length} teks`)}${commentList}`
+            : ""
+        }
+      </div>
+      <div class="detail-group">
+        <h5>Status & Pembayaran</h5>
+        ${ownerDetailItem("Status Sistem", formatTrackStatus(detail.status || row.status))}
+        ${ownerDetailItem("Status Panel", detail.panelStatus || row.panelStatus || "-")}
+        ${ownerDetailItem("ID Panel", detail.panelOrderId || row.panelOrderId || "-")}
+        ${ownerDetailItem("Harga", formatStatusCurrency(detail.grossAmount || row.price || 0))}
+        ${ownerDetailItem(
+          "Metode",
+          detail.paymentType || row.paymentType || (row.isReseller ? "Saldo Reseller" : "Midtrans")
+        )}
+        ${ownerDetailItem("Mulai Hitung", detail.startCount ?? row.startCount ?? "-")}
+        ${ownerDetailItem("Sisa", detail.remains ?? row.remains ?? "-")}
+        ${ownerDetailItem("Terakhir Sinkron", formatFullDateTime(row.lastStatusSync || row.createdAt))}
+      </div>
+      <div class="detail-group">
+        <h5>Data Pembeli</h5>
+        ${ownerDetailItem("Nama", buyer.name || buyer.displayName || row.buyerName || "-")}
+        ${ownerDetailItem("Email", buyer.email || row.buyerEmail || "-")}
+        ${ownerDetailItem("Nomor", buyer.phone || row.buyerPhone || "-")}
+        ${ownerDetailItem("Dipesan", formatFullDateTime(row.createdAt))}
+      </div>
+    `;
+  };
+
+  const openHistoryOrderModal = (row) => {
+    if (!row) return;
+    renderHistoryOrderDetail(row);
+    historyOrderModal?.classList.remove("hidden");
+  };
+
+  const closeHistoryOrderModal = () => {
+    historyOrderModal?.classList.add("hidden");
+  };
+
   const openOwnerOrderModal = (orderId) => {
     const row = ownerOrdersMap[orderId];
     if (!row) return;
@@ -900,7 +983,8 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   const renderMonitorTable = () => {
     if (!monitorTableBody) return;
-    let filtered = monitorData.slice();
+    const allRows = Array.isArray(monitorData) ? monitorData.slice() : [];
+    let filtered = allRows;
     if (monitorState.status && monitorState.status !== "all") {
       filtered = filtered.filter(
         (item) => String(item.status || "").toLowerCase() === monitorState.status.toLowerCase()
@@ -918,7 +1002,9 @@ document.addEventListener("DOMContentLoaded", () => {
       filtered = filtered.filter(
         (item) =>
           String(item.serviceName || "").toLowerCase().includes(term) ||
-          String(item.target || "").toLowerCase().includes(term)
+          String(item.target || "").toLowerCase().includes(term) ||
+          String(item.id || "").toLowerCase().includes(term) ||
+          String(item.serviceId || "").toLowerCase().includes(term)
       );
     }
     const total = filtered.length;
@@ -926,22 +1012,26 @@ document.addEventListener("DOMContentLoaded", () => {
     const rowsPage = filtered.slice(start, start + monitorState.limit);
     monitorTotalText && (monitorTotalText.textContent = `Total: ${total}`);
     if (!rowsPage.length) {
-      monitorTableBody.innerHTML = `<tr><td colspan="7">Belum ada data untuk filter ini.</td></tr>`;
+      monitorTableBody.innerHTML = `<tr><td colspan="8">Belum ada data untuk filter ini.</td></tr>`;
       monitorPagination && (monitorPagination.innerHTML = "");
       return;
     }
     monitorTableBody.innerHTML = rowsPage
       .map((row) => {
         const time = row.createdAt ? new Date(row.createdAt).toLocaleString("id-ID") : "-";
-        const statusClass = row.status || "processing";
+        const statusText = formatTrackStatus(row.status);
+        const statusClass = statusToClass(row.status);
+        const modeLabel = String(row.type || "midtrans").toLowerCase() === "reseller" ? "Reseller" : "Publik";
+        const modeClass = modeLabel === "Reseller" ? "reseller" : "public";
         return `<tr>
           <td>${time}</td>
-          <td>${row.category || row.platformName || "-"}</td>
-          <td>${row.serviceId || "-"}</td>
-          <td>${row.serviceName || "-"}</td>
+          <td>${escapeHtml(row.category || row.platformName || "-")}</td>
+          <td><span class="monitor-mode-pill ${modeClass}">${modeLabel}</span></td>
+          <td>${escapeHtml(row.serviceId || "-")}</td>
+          <td>${escapeHtml(row.serviceName || "-")}</td>
           <td>${row.quantity || "-"}</td>
           <td>${formatStatusCurrency(row.price || 0)}</td>
-          <td><span class="status-pill ${statusClass}">${String(statusClass).replace("_", " ")}</span></td>
+          <td><span class="status-pill ${statusClass}">${escapeHtml(statusText)}</span></td>
         </tr>`;
       })
       .join("");
@@ -1086,17 +1176,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const loadMonitorOrders = async () => {
     if (!monitorTableBody) return;
     try {
-      monitorTableBody.innerHTML = `<tr><td colspan="7">Memuat data...</td></tr>`;
+      monitorTableBody.innerHTML = `<tr><td colspan="8">Memuat data...</td></tr>`;
       const params = new URLSearchParams({
         page: 1,
         limit: 100,
+        scope: "all",
       });
       const data = await apiGet(`/api/orders?${params.toString()}`);
       monitorData = Array.isArray(data.rows) ? data.rows : [];
       monitorState.page = 1;
       renderMonitorTable();
     } catch (e) {
-      monitorTableBody.innerHTML = `<tr><td colspan="7">${e.message}</td></tr>`;
+      monitorTableBody.innerHTML = `<tr><td colspan="8">${e.message}</td></tr>`;
     }
   };
 
@@ -1179,24 +1270,60 @@ document.addEventListener("DOMContentLoaded", () => {
     historyPagination.innerHTML = buttons;
   };
 
+  const filterHistoryOrders = (rows = []) => {
+    if (!historyOrdersFilter) return rows.slice();
+    const term = historyOrdersFilter.toLowerCase();
+    return rows.filter((row) => {
+      const id = String(row.id || "").toLowerCase();
+      const serviceId = String(row.serviceId || "").toLowerCase();
+      const serviceName = String(row.serviceName || "").toLowerCase();
+      const target = String(row.target || "").toLowerCase();
+      return id.includes(term) || serviceId.includes(term) || serviceName.includes(term) || target.includes(term);
+    });
+  };
+
   const renderHistoryOrdersTable = (rows = []) => {
     if (!historyOrdersBody) return;
-    if (!rows.length) {
-      historyOrdersBody.innerHTML = `<tr><td colspan="7">Belum ada data order.</td></tr>`;
+    const source = Array.isArray(rows) ? rows : historyOrdersData;
+    const filtered = filterHistoryOrders(source);
+    if (!filtered.length) {
+      const message = source.length ? "Tidak ada order yang cocok." : "Belum ada data order.";
+      historyOrdersBody.innerHTML = `<tr><td colspan="8">${message}</td></tr>`;
+      historyOrdersMap = {};
       return;
     }
-    historyOrdersBody.innerHTML = rows
+    historyOrdersMap = {};
+    historyOrdersBody.innerHTML = filtered
       .map((row, idx) => {
         const statusText = formatTrackStatus(row.status);
         const statusClass = statusToClass(row.status);
+        const rawKey = row.id || row.serviceId || `history-${idx}`;
+        historyOrdersMap[rawKey] = row;
+        const idText = row.id || "-";
+        const serviceBadge = row.serviceId ? `#${row.serviceId}` : "-";
         return `<tr>
           <td>${idx + 1}</td>
-          <td>${row.id || "-"}</td>
-          <td>${row.serviceName || row.serviceId || "-"}</td>
-          <td>${row.target || "-"}</td>
-          <td><span class="status-pill ${statusClass}">${statusText}</span></td>
+          <td>
+            <div class="status-order-id">
+              <strong>${escapeHtml(idText)}</strong>
+              <span class="order-service-chip">${escapeHtml(serviceBadge)}</span>
+            </div>
+          </td>
+          <td>${escapeHtml(row.serviceName || row.serviceId || "-")}</td>
+          <td>${escapeHtml(row.target || "-")}</td>
+          <td><span class="status-pill ${statusClass}">${escapeHtml(statusText)}</span></td>
           <td>${formatStatusCurrency(row.price || 0)}</td>
           <td>${formatRelativeTime(row.lastStatusSync || row.createdAt)}</td>
+          <td>
+            <button type="button" class="status-icon-btn status-detail-btn" data-history-order-detail="${escapeHtml(
+              rawKey
+            )}" title="Detail order">
+              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="6"></circle>
+                <line x1="16" y1="16" x2="21" y2="21"></line>
+              </svg>
+            </button>
+          </td>
         </tr>`;
       })
       .join("");
@@ -1204,9 +1331,63 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const loadResellerOrders = async () => {
     if (!currentUser?.identifier) return [];
-    const params = new URLSearchParams({ identifier: currentUser.identifier, limit: 50 });
+    const params = new URLSearchParams({
+      identifier: currentUser.identifier,
+      page: 1,
+      limit: 30,
+    });
     const data = await apiGet(`/api/orders?${params.toString()}`);
     return Array.isArray(data.rows) ? data.rows : [];
+  };
+
+  const refreshHistoryOrders = async (silent = false) => {
+    if (!currentUser?.identifier) return [];
+    if (!silent) showLoader("Memuat status order...");
+    try {
+      historyOrdersData = await loadResellerOrders();
+      renderHistoryOrdersTable(historyOrdersData);
+      return historyOrdersData;
+    } catch (err) {
+      historyOrdersData = [];
+      if (historyOrdersBody) {
+        historyOrdersBody.innerHTML = `<tr><td colspan="8">${escapeHtml(
+          err.message || "Gagal memuat order."
+        )}</td></tr>`;
+      }
+      throw err;
+    } finally {
+      if (!silent) hideLoader();
+    }
+  };
+
+  const reloadDepositHistory = async () => {
+    if (!currentUser) return;
+    try {
+      const params = new URLSearchParams({ identifier: currentUser.identifier });
+      const data = await apiGet(`/api/reseller?action=history&${params.toString()}`);
+      historyData = Array.isArray(data.history) ? data.history.slice() : [];
+      historyBalance && (historyBalance.textContent = `Saldo: Rp ${Number(data.balance || 0).toLocaleString("id-ID")}`);
+      historyState.page = 1;
+      renderHistoryTable();
+    } catch (e) {
+      historyData = [];
+      if (historyTableBody) {
+        historyTableBody.innerHTML = `<tr><td colspan="7">${e.message}</td></tr>`;
+      }
+    }
+  };
+
+  const clearHistoryOrders = async () => {
+    if (!currentUser?.identifier) return;
+    try {
+      showLoader("Menghapus status order...");
+      await apiDelete("/api/orders", { identifier: currentUser.identifier, days: 30 });
+      await refreshHistoryOrders(true);
+    } catch (err) {
+      alert(err.message || "Gagal menghapus status order.");
+    } finally {
+      hideLoader();
+    }
   };
 
   const forgotStep = loginModal?.querySelector(".login-step-forgot");
@@ -1243,6 +1424,7 @@ let monitorState = {
   category: monitorCategorySelect?.value || "all",
   search: "",
 };
+let monitorData = [];
 let priceServices = [];
 let priceState = {
   page: 1,
@@ -1265,6 +1447,8 @@ let ownerRefreshPromise = null;
   });
 let historyData = [];
 let historyOrdersData = [];
+let historyOrdersMap = {};
+let historyOrdersFilter = "";
   let historyState = {
     page: 1,
     limit: Number(historyLimitSelect?.value || 10),
@@ -1339,6 +1523,45 @@ let historyOrdersData = [];
     if (!btn || btn.disabled) return;
     historyState.page = Number(btn.dataset.historyPage) || 1;
     renderHistoryTable();
+  });
+
+  historyOrdersDeleteBtn?.addEventListener("click", () => {
+    if (!currentUser) {
+      openLogin?.click();
+      return;
+    }
+    const confirmed = confirm("Hapus status order lebih dari 30 hari?");
+    if (confirmed) clearHistoryOrders();
+  });
+
+  historyOrdersRefreshBtn?.addEventListener("click", () => {
+    if (!currentUser) {
+      openLogin?.click();
+      return;
+    }
+    refreshHistoryOrders(false).catch(() => {});
+  });
+
+  historyOrdersSearchInput?.addEventListener("input", (e) => {
+    historyOrdersFilter = e.target.value.trim();
+    renderHistoryOrdersTable();
+  });
+
+  historyOrdersBody?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-history-order-detail]");
+    if (!btn) return;
+    const key = btn.getAttribute("data-history-order-detail");
+    if (!key) return;
+    const row = historyOrdersMap[key];
+    if (row) {
+      openHistoryOrderModal(row);
+    }
+  });
+
+  historyOrderClose?.addEventListener("click", closeHistoryOrderModal);
+  historyOrderCloseBtn?.addEventListener("click", closeHistoryOrderModal);
+  historyOrderModal?.addEventListener("click", (e) => {
+    if (e.target === historyOrderModal) closeHistoryOrderModal();
   });
 
   const showStep = (step) => {
@@ -1857,8 +2080,10 @@ let historyOrdersData = [];
   const openHistoryModal = async () => {
     if (!currentUser) return;
     switchPage("history");
+    historyOrdersFilter = "";
+    if (historyOrdersSearchInput) historyOrdersSearchInput.value = "";
     historyOrdersBody &&
-      (historyOrdersBody.innerHTML = `<tr><td colspan="7">Memuat data order...</td></tr>`);
+      (historyOrdersBody.innerHTML = `<tr><td colspan="8">Memuat data order...</td></tr>`);
     try {
       const params = new URLSearchParams({ identifier: currentUser.identifier });
       const data = await apiGet(`/api/reseller?action=history&${params.toString()}`);
@@ -1873,12 +2098,11 @@ let historyOrdersData = [];
       }
     }
     try {
-      historyOrdersData = await loadResellerOrders();
-      renderHistoryOrdersTable(historyOrdersData);
+      await refreshHistoryOrders(true);
     } catch (err) {
       historyOrdersData = [];
       if (historyOrdersBody) {
-        historyOrdersBody.innerHTML = `<tr><td colspan="7">${err.message || "Gagal memuat order."}</td></tr>`;
+        historyOrdersBody.innerHTML = `<tr><td colspan="8">${err.message || "Gagal memuat order."}</td></tr>`;
       }
     }
   };
@@ -2190,3 +2414,13 @@ let historyOrdersData = [];
 });
 })();
 }
+
+
+
+
+
+
+
+
+
+

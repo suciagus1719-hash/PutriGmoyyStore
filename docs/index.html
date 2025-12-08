@@ -465,26 +465,54 @@
           </div>
         </section>
         <section class="card info-card">
-          <div class="status-header">
-            <h3>Status Order Saya</h3>
-            <p>Riwayat pesanan terbaru di akun reseller ini.</p>
+          <div class="status-header status-header-space">
+            <div>
+              <h3>Status Order Saya</h3>
+              <p>Riwayat pesanan terbaru di akun reseller ini.</p>
+            </div>
+            <div class="status-header-actions">
+              <label class="status-search status-search-inline">
+                Cari Order
+                <input type="text" id="history-orders-search" placeholder="ID order atau ID layanan" />
+              </label>
+              <div class="status-icon-group">
+                <button type="button" class="status-icon-btn" id="history-orders-refresh" title="Muat ulang status order">
+                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 12a9 9 0 019-9 9 9 0 018.49 6" />
+                    <path d="M21 4v5h-5" />
+                    <path d="M21 12a9 9 0 01-9 9 9 9 0 01-8.49-6" />
+                    <path d="M3 20v-5h5" />
+                  </svg>
+                </button>
+                <button type="button" class="status-icon-btn" id="history-orders-delete" title="Hapus status order lebih dari 30 hari">
+                  <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18" />
+                    <path d="M8 6v-2.5a1.5 1.5 0 011.5-1.5h5A1.5 1.5 0 0116 3.5V6" />
+                    <path d="M6 6v13a2 2 0 002 2h8a2 2 0 002-2V6" />
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
+                  </svg>
+                </button>
+              </div>
+            </div>
           </div>
           <div class="status-table-wrapper">
             <table class="status-table">
               <thead>
                 <tr>
                   <th>#</th>
-                  <th>Order ID</th>
+                  <th>ID Order / ID Layanan</th>
                   <th>Layanan</th>
                   <th>Target</th>
                   <th>Status</th>
                   <th>Harga</th>
                   <th>Terakhir</th>
+                  <th>Detail</th>
                 </tr>
               </thead>
               <tbody id="history-orders-body">
                 <tr>
-                  <td colspan="7">Belum ada data order.</td>
+                  <td colspan="8">Belum ada data order.</td>
                 </tr>
               </tbody>
             </table>
@@ -652,7 +680,7 @@
         <section class="card info-card" id="monitor-section">
           <div class="status-header">
             <h3>Monitoring Layanan Sosial Media</h3>
-            <p>Pantau kategori, jumlah, serta status layanan secara real-time.</p>
+            <p>Mencatat seluruh transaksi publik & reseller di website secara real-time.</p>
           </div>
           <div class="status-filters">
             <label>
@@ -695,6 +723,7 @@
                 <tr>
                   <th>Waktu</th>
                   <th>Kategori</th>
+                  <th>Mode</th>
                   <th>Service ID</th>
                   <th>Layanan</th>
                   <th>Jumlah</th>
@@ -704,7 +733,7 @@
               </thead>
               <tbody id="monitor-table-body">
                 <tr>
-                  <td colspan="7">Memuat data...</td>
+                  <td colspan="8">Memuat data...</td>
                 </tr>
               </tbody>
             </table>
@@ -1024,6 +1053,19 @@
         </div>
       </div>
     </div>
+    <div class="modal-overlay hidden" id="history-order-modal">
+      <div class="modal-card owner-order-modal history-order-modal">
+        <button class="modal-close" id="history-order-close" aria-label="Tutup">&times;</button>
+        <p class="login-subtitle">Detail Status Order</p>
+        <h3 id="history-order-title">Order ID</h3>
+        <div id="history-order-detail" class="owner-order-detail">
+          <p>Memuat detail order...</p>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="primary-btn block" id="history-order-close-btn">Tutup</button>
+        </div>
+      </div>
+    </div>
     <section class="hero-card">
       <div class="hero-slider" id="hero-slider">
         <article class="hero-slide hero-slide-one active">
@@ -1183,5 +1225,7 @@
   <script src="assets/app.js" defer></script>
 </body>
 </html>
+
+
 
 

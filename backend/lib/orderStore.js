@@ -218,7 +218,9 @@ async function listOrders({ page = 1, limit = 10, status, search, identifier } =
     idx += 1;
   }
   if (search) {
-    filters.push(`(LOWER(id) LIKE $${idx} OR LOWER(target) LIKE $${idx})`);
+    filters.push(
+      `(LOWER(id) LIKE $${idx} OR LOWER(target) LIKE $${idx} OR LOWER(service_id) LIKE $${idx})`
+    );
     values.push(`%${search.toLowerCase()}%`);
     idx += 1;
   }
@@ -245,10 +247,24 @@ async function listRecentOrders(limit = 15) {
   return rows.map(mapRow);
 }
 
+async function deleteOlderOrders(identifier, days = 30) {
+  await ensureTable();
+  if (!identifier) return 0;
+  const normalized = normalizeIdentifier(identifier);
+  if (!normalized) return 0;
+  const cutoff = new Date(Date.now() - Math.max(1, Number(days) || 30) * 24 * 60 * 60 * 1000);
+  const { rowCount } = await pool.query(
+    `DELETE FROM ${TABLE_NAME} WHERE reseller_identifier = $1 AND created_at < $2`,
+    [normalized, cutoff]
+  );
+  return rowCount;
+}
+
 module.exports = {
   appendOrder,
   getOrder,
   updateOrder,
   listOrders,
   listRecentOrders,
+  deleteOlderOrders,
 };
