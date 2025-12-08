@@ -220,20 +220,46 @@ window.addEventListener("account:change", (e) => {
   refreshServicePricing();
 });
 
+const requestDelay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const normalizeRequestError = (err) => {
+  if (!err || !err.message) return new Error("Permintaan gagal.");
+  if (err.message.toLowerCase().includes("failed to fetch")) {
+    return new Error("Tidak dapat terhubung ke server. Silakan coba lagi.");
+  }
+  return err;
+};
+
+async function requestJson(path, options = {}, attempts = 2) {
+  try {
+    const res = await fetch(`${API_BASE}${path}`, options);
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || data.error) {
+      throw new Error(data.error || "Gagal komunikasi dengan server.");
+    }
+    return data;
+  } catch (error) {
+    const normalized = normalizeRequestError(error);
+    if (attempts <= 1) throw normalized;
+    await requestDelay(400);
+    return requestJson(path, options, attempts - 1);
+  }
+}
+
 async function apiGet(path) {
-  const res = await fetch(`${API_BASE}${path}`);
-  if (!res.ok) throw new Error("Gagal komunikasi dengan server");
-  return res.json();
+  return requestJson(path, {}, 3);
 }
 
 async function apiPost(path, body) {
-  const res = await fetch(`${API_BASE}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  if (!res.ok) throw new Error("Gagal komunikasi dengan server");
-  return res.json();
+  return requestJson(
+    path,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    },
+    3
+  );
 }
 
 function platformIcon(id) {

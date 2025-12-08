@@ -1,4 +1,3 @@
-const fetch = require("node-fetch");
 const { callPanel } = require("../lib/smmClient");
 const { normalizeServicesResponse } = require("../lib/platformUtils");
 const {
@@ -19,8 +18,44 @@ const MIDTRANS_SNAP_BASE_URL =
 const PUBLIC_FRONTEND_URL =
   process.env.PUBLIC_FRONTEND_URL || "https://suciagus1719-hash.github.io/PutriGmoyyStore/";
 
+const fetch = require("node-fetch");
 const COMMENT_TERMS = ["comment", "comments", "komentar", "komen"];
 const COMMENT_MODE_TERMS = ["custom", "costum", "kostum", "costume", "manual", "isi sendiri"];
+
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function fetchPanelServices(attempts = 3) {
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      const res = await callPanel({ action: "services" });
+      return normalizeServicesResponse(res);
+    } catch (err) {
+      lastError = err;
+      console.error(`Gagal mengambil services (percobaan ${attempt})`, err);
+      if (attempt < attempts) {
+        await delay(500 * attempt);
+      }
+    }
+  }
+  throw lastError || new Error("Tidak berhasil mengambil daftar layanan dari panel.");
+}
+
+async function submitPanelOrder(payload, attempts = 2) {
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt++) {
+    try {
+      return await callPanel(payload);
+    } catch (err) {
+      lastError = err;
+      console.error(`Gagal kirim order ke panel (percobaan ${attempt})`, err);
+      if (attempt < attempts) {
+        await delay(700 * attempt);
+      }
+    }
+  }
+  throw lastError || new Error("Panel tidak merespons.");
+}
 
 function requiresCustomComments(service) {
   const base = `${getServiceName(service) || ""} ${getServiceDescription(service) || ""}`.toLowerCase();
@@ -69,8 +104,7 @@ module.exports = async (req, res) => {
     }
 
     // Ambil detail layanan untuk hitung total harga
-    const panelRes = await callPanel({ action: "services" });
-   const services = normalizeServicesResponse(panelRes);
+    const services = await fetchPanelServices();
     const svc = services.find((s) => String(getServiceId(s)) === String(serviceId));
     if (!svc) return res.status(400).json({ error: "Layanan tidak ditemukan" });
 
@@ -159,7 +193,7 @@ module.exports = async (req, res) => {
           const commentText = commentList.join("\n");
           payload.komen = commentText;
         }
-        panelResponse = await callPanel(payload);
+        panelResponse = await submitPanelOrder(payload);
       } catch (e) {
         console.error("Gagal order panel via saldo:", e);
         return res.status(500).json({ error: "Gagal memproses pesanan ke panel." });

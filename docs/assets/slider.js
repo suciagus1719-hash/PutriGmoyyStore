@@ -6,42 +6,58 @@ if (window.__PG_SLIDER_INITED__) {
 const ACCOUNT_KEY = "pg_account";
 const API_BASE = window.API_BASE_URL || "";
 
-function authPost(path, body) {
-  return fetch(`${API_BASE}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  }).then(async (res) => {
+const requestDelay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const normalizeRequestError = (err) => {
+  if (!err || !err.message) return new Error("Permintaan gagal.");
+  if (err.message.toLowerCase().includes("failed to fetch")) {
+    return new Error("Tidak dapat terhubung ke server. Silakan coba lagi.");
+  }
+  return err;
+};
+
+const requestJson = async (path, options = {}, attempts = 2) => {
+  try {
+    const res = await fetch(`${API_BASE}${path}`, options);
     const data = await res.json().catch(() => ({}));
     if (!res.ok || data.error) {
       throw new Error(data.error || "Permintaan gagal");
     }
     return data;
-  });
+  } catch (error) {
+    const normalized = normalizeRequestError(error);
+    if (attempts <= 1) throw normalized;
+    await requestDelay(400);
+    return requestJson(path, options, attempts - 1);
+  }
+};
+
+function authPost(path, body) {
+  return requestJson(
+    path,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    },
+    3
+  );
 }
 
 function apiGet(path) {
-  return fetch(`${API_BASE}${path}`).then(async (res) => {
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || data.error) {
-      throw new Error(data.error || "Permintaan gagal");
-    }
-    return data;
-  });
+  return requestJson(path, {}, 3);
 }
 
 function apiPost(path, body) {
-  return fetch(`${API_BASE}${path}`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  }).then(async (res) => {
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || data.error) {
-      throw new Error(data.error || "Permintaan gagal");
-    }
-    return data;
-  });
+  return requestJson(
+    path,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    },
+    3
+  );
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -427,6 +443,14 @@ document.addEventListener("DOMContentLoaded", () => {
   const formatPanelBalance = (value) =>
     `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
 
+  const escapeHtml = (value = "") =>
+    String(value)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+
   const showOwnerPasswordModal = (callback) => {
     ownerAccessCallback = callback || null;
     ownerPasswordInput && (ownerPasswordInput.value = "");
@@ -494,15 +518,20 @@ document.addEventListener("DOMContentLoaded", () => {
         const statusText = formatTrackStatus(row.status);
         const statusClass = statusToClass(row.status);
         ownerOrdersMap[row.id] = row;
+        const safeId = escapeHtml(row.id || "-");
+        const safeBuyer = escapeHtml(buyerLabel);
+        const safeService = escapeHtml(row.serviceName || "-");
+        const safeStatus = escapeHtml(statusText);
+        const detailId = escapeHtml(row.id || "");
         return `<tr>
-          <td>${row.id || "-"}</td>
-          <td>${buyerLabel}</td>
-          <td>${row.serviceName || "-"}</td>
-          <td><span class="status-pill ${statusClass}">${statusText}</span></td>
+          <td>${safeId}</td>
+          <td>${safeBuyer}</td>
+          <td>${safeService}</td>
+          <td><span class="status-pill ${statusClass}">${safeStatus}</span></td>
           <td>${formatStatusCurrency(row.price || 0)}</td>
           <td>${formatRelativeTime(row.lastUpdate || row.createdAt)}</td>
           <td>
-            <button type="button" class="owner-icon-btn owner-detail-btn" data-owner-order="${row.id}">
+            <button type="button" class="owner-icon-btn owner-detail-btn" data-owner-order="${detailId}">
               <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="11" cy="11" r="6"></circle>
                 <line x1="16" y1="16" x2="21" y2="21"></line>
@@ -536,16 +565,22 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await apiGet("/api/owner?action=orders");
       renderOwnerOrders(data.rows || []);
       updateOwnerOrderSummary(data.stats || {});
+      return data;
     } catch (e) {
-      ownerOrdersBody.innerHTML = `<tr><td colspan="7">${e.message || "Gagal memuat order."}</td></tr>`;
+      ownerOrdersBody.innerHTML = `<tr><td colspan="7">${escapeHtml(
+        e.message || "Gagal memuat order."
+      )}</td></tr>`;
       ownerOrdersMap = {};
+      throw e;
     }
   };
 
   const ownerDetailItem = (label, value) => {
     const display =
       value === undefined || value === null || value === "" ? "-" : value;
-    return `<div class="detail-item"><span>${label}</span><strong>${display}</strong></div>`;
+    return `<div class="detail-item"><span>${escapeHtml(label)}</span><strong>${escapeHtml(
+      String(display)
+    )}</strong></div>`;
   };
 
   const renderOwnerOrderDetail = (row) => {
@@ -554,13 +589,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const buyer = detail.buyer || {};
     const comments = Array.isArray(detail.customComments) ? detail.customComments : [];
     const commentList = comments.length
-      ? `<ul class="comment-list">${comments.map((c) => `<li>${c}</li>`).join("")}</ul>`
+      ? `<ul class="comment-list">${comments.map((c) => `<li>${escapeHtml(c)}</li>`).join("")}</ul>`
       : "";
     ownerOrderTitle && (ownerOrderTitle.textContent = row.id || "Detail Order");
     ownerOrderDetail.innerHTML = `
       <div class="detail-group">
         <h5>Informasi Layanan</h5>
         ${ownerDetailItem("Order ID", row.id)}
+        ${ownerDetailItem("ID Layanan", detail.serviceId || row.serviceId || "-")}
         ${ownerDetailItem("Layanan", detail.serviceName || row.serviceName)}
         ${ownerDetailItem("Kategori", detail.category || row.category || "-")}
         ${ownerDetailItem("Platform", detail.platform || row.platformName || "-")}
@@ -621,17 +657,20 @@ document.addEventListener("DOMContentLoaded", () => {
             : row.blockedStatus === "permanent"
             ? { label: "Diblokir Permanen", cls: "error" }
             : { label: "Aktif", cls: "success" };
+        const safeName = escapeHtml(row.displayName || "-");
+        const safeEmail = escapeHtml(row.email || "-");
+        const safeIdentifier = escapeHtml(row.identifier || "");
         return `<tr>
           <td class="owner-reseller-user">
             <img src="${row.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(
               row.displayName || "R"
             )}&background=f3e8ff&color=7c3aed`}" alt="avatar" />
-            ${row.displayName || "-"}
+            ${safeName}
           </td>
-          <td>${row.email || "-"}</td>
+          <td>${safeEmail}</td>
           <td>${formatStatusCurrency(row.balance || 0)}</td>
           <td><span class="status-pill ${status.cls}">${status.label}</span></td>
-          <td><button class="owner-manage-btn" data-reseller="${row.identifier}">Kelola</button></td>
+          <td><button class="owner-manage-btn" data-reseller="${safeIdentifier}">Kelola</button></td>
         </tr>`;
       })
       .join("");
@@ -645,18 +684,56 @@ document.addEventListener("DOMContentLoaded", () => {
       const data = await apiGet(`/api/owner?action=resellers${query}`);
       renderOwnerResellers(data.rows || []);
       updateOwnerResellerSummary(data.summary || {});
+      return data;
     } catch (e) {
-      ownerResellerBody.innerHTML = `<tr><td colspan="5">${e.message || "Gagal memuat data."}</td></tr>`;
+      ownerResellerBody.innerHTML = `<tr><td colspan="5">${escapeHtml(
+        e.message || "Gagal memuat data."
+      )}</td></tr>`;
       ownerResellerMap = {};
+      throw e;
     }
   };
+
+  const ownerRefreshButtons = [ownerOrdersRefreshBtn, ownerResellerRefreshBtn];
+
+  const setOwnerRefreshLoading = (state) => {
+    ownerRefreshButtons.forEach((btn) => {
+      if (!btn) return;
+      btn.disabled = state;
+      btn.classList.toggle("loading", state);
+    });
+  };
+
+  const refreshOwnerPanels = async () => {
+    if (ownerRefreshPromise) return ownerRefreshPromise;
+    setOwnerRefreshLoading(true);
+    ownerRefreshPromise = (async () => {
+      try {
+        const results = await Promise.allSettled([
+          loadOwnerOrders(),
+          loadOwnerResellers(ownerResellerSearchTerm),
+        ]);
+        results.forEach((result, index) => {
+          if (result.status === "rejected") {
+            const label = index === 0 ? "orders" : "resellers";
+            console.error(`Owner refresh ${label} gagal:`, result.reason);
+          }
+        });
+      } finally {
+        setOwnerRefreshLoading(false);
+        ownerRefreshPromise = null;
+      }
+    })();
+    return ownerRefreshPromise;
+  };
+
+  const requestOwnerRefresh = () => ensureOwnerAccess(() => refreshOwnerPanels());
 
   const openOwnerPage = () => {
     ensureOwnerAccess(() => {
       switchPage("owner");
       fetchOwnerProfile();
-      loadOwnerOrders();
-      loadOwnerResellers(ownerResellerSearchTerm);
+      refreshOwnerPanels();
     });
   };
 
@@ -1119,6 +1196,7 @@ let ownerOrdersMap = {};
 let ownerResellerSearchTerm = "";
 let ownerResellerSearchTimer = null;
 let ownerResellerEditing = null;
+let ownerRefreshPromise = null;
 
   window.addEventListener("catalog:update", (event) => {
     priceServices = Array.isArray(event.detail?.services) ? event.detail.services : [];
@@ -1501,13 +1579,8 @@ let ownerResellerEditing = null;
     ensureOwnerAccess(() => openOwnerOrderModal(btn.dataset.ownerOrder));
   });
 
-  ownerOrdersRefreshBtn?.addEventListener("click", () =>
-    ensureOwnerAccess(() => loadOwnerOrders())
-  );
-
-  ownerResellerRefreshBtn?.addEventListener("click", () =>
-    ensureOwnerAccess(() => loadOwnerResellers(ownerResellerSearchTerm))
-  );
+  ownerOrdersRefreshBtn?.addEventListener("click", requestOwnerRefresh);
+  ownerResellerRefreshBtn?.addEventListener("click", requestOwnerRefresh);
 
   ownerResellerBody?.addEventListener("click", (e) => {
     const btn = e.target.closest(".owner-manage-btn[data-reseller]");
@@ -1546,7 +1619,7 @@ let ownerResellerEditing = null;
     try {
       await apiPost("/api/owner", { action: "resellers", ...payload });
       closeOwnerResellerModal();
-      loadOwnerResellers(ownerResellerSearchTerm);
+      await refreshOwnerPanels();
     } catch (err) {
       alert(err.message || "Gagal menyimpan perubahan reseller.");
     } finally {
