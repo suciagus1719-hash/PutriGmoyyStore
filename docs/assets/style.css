@@ -1251,12 +1251,12 @@ body {
 }
 
 .owner-summary-card {
-  border-radius: 16px;
-  padding: 16px;
+  border-radius: 14px;
+  padding: 12px 14px;
   background: linear-gradient(135deg, rgba(172, 42, 207, 0.12), rgba(32, 51, 223, 0.08));
   border: 1px solid rgba(172, 42, 207, 0.2);
   color: #1f1f2e;
-  min-height: 110px;
+  min-height: 90px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1265,17 +1265,17 @@ body {
 
 .owner-summary-card p {
   margin: 0;
-  font-size: 13px;
+  font-size: 12px;
   color: #4b5563;
 }
 
 .owner-summary-card strong {
-  font-size: 24px;
+  font-size: 18px;
   color: #1f2937;
 }
 
 .owner-summary-card small {
-  font-size: 12px;
+  font-size: 11px;
   color: #6b7280;
 }
 
@@ -1387,6 +1387,81 @@ body {
   padding: 8px 10px;
 }
 
+.owner-reseller-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.owner-reseller-toolbar input {
+  flex: 0 0 240px;
+  margin: 0;
+}
+
+.owner-chip-total {
+  background: rgba(59, 130, 246, 0.15);
+  color: #1d4ed8;
+}
+
+.owner-chip-error {
+  background: rgba(248, 113, 113, 0.15);
+  color: #b91c1c;
+}
+
+.owner-reseller-table-wrapper {
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 10px;
+  background: #fff;
+}
+
+.owner-manage-btn {
+  border: 1px solid #c7d2fe;
+  background: #eef2ff;
+  color: #4338ca;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.owner-manage-btn:hover {
+  background: #c7d2fe;
+  color: #1f1f2e;
+}
+
+.owner-reseller-modal {
+  max-width: 440px;
+}
+
+.owner-reseller-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.owner-reseller-label {
+  margin-top: -6px;
+  margin-bottom: 10px;
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.owner-balance-adjust .balance-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.owner-balance-adjust select {
+  width: auto;
+}
+
+.owner-balance-adjust input {
+  flex: 1;
+}
 .owner-reseller-grid {
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;

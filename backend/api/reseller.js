@@ -64,6 +64,7 @@ async function handleRegister(req, res) {
     phone,
     avatarUrl: "",
     depositHistory: [],
+    blockedStatus: "none",
   };
   users.push(user);
   saveUsers(users);

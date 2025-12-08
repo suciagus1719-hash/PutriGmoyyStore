@@ -34,6 +34,9 @@ function saveOrders(list) {
 function appendOrder(order) {
   const list = readOrders();
   list.unshift(order);
+  if (list.length > 15) {
+    list.length = 15;
+  }
   saveOrders(list);
   return order;
 }
@@ -78,9 +81,15 @@ function listOrders({ page = 1, limit = 10, status, search } = {}) {
   };
 }
 
+function listRecentOrders(limit = 15) {
+  const list = readOrders();
+  return list.slice(0, Math.max(0, Number(limit) || 0));
+}
+
 module.exports = {
   appendOrder,
   getOrder,
   updateOrder,
   listOrders,
+  listRecentOrders,
 };

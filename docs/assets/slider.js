@@ -314,15 +314,37 @@ document.addEventListener("DOMContentLoaded", () => {
   const priceFilterBtn = document.getElementById("price-filter-btn");
   const priceTotalText = document.getElementById("price-total");
   const pricePagination = document.getElementById("price-pagination");
-  const ownerRefreshBtn = document.getElementById("owner-refresh");
   const ownerError = document.getElementById("owner-error");
   const ownerProfileCard = document.getElementById("owner-profile-card");
   const ownerEmailEl = document.getElementById("owner-email");
   const ownerUsernameEl = document.getElementById("owner-username");
   const ownerFullnameEl = document.getElementById("owner-fullname");
   const ownerBalanceEl = document.getElementById("owner-balance");
-  const ownerJsonEl = document.getElementById("owner-json");
-  const ownerCopyBtn = document.getElementById("owner-copy-json");
+  const ownerSummaryOrders = document.getElementById("owner-summary-orders");
+  const ownerSummaryPending = document.getElementById("owner-summary-pending");
+  const ownerSummaryRevenue = document.getElementById("owner-summary-revenue");
+  const ownerSummaryReseller = document.getElementById("owner-summary-reseller");
+  const ownerSummarySuccess = document.getElementById("owner-summary-success");
+  const ownerSummaryFailed = document.getElementById("owner-summary-failed");
+  const ownerOrdersBody = document.getElementById("owner-orders-body");
+  const ownerResellerTotalChip = document.getElementById("owner-reseller-total");
+  const ownerResellerActiveChip = document.getElementById("owner-reseller-active");
+  const ownerResellerBlockedChip = document.getElementById("owner-reseller-blocked");
+  const ownerResellerSearchInput = document.getElementById("owner-reseller-search");
+  const ownerResellerBody = document.getElementById("owner-reseller-body");
+  const ownerResellerModal = document.getElementById("owner-reseller-modal");
+  const ownerResellerClose = document.getElementById("owner-reseller-close");
+  const ownerResellerForm = document.getElementById("owner-reseller-form");
+  const ownerResellerLabel = document.getElementById("owner-reseller-label");
+  const ownerResellerIdentifierInput = document.getElementById("owner-reseller-identifier");
+  const ownerResellerNameInput = document.getElementById("owner-reseller-name");
+  const ownerResellerEmailInput = document.getElementById("owner-reseller-email");
+  const ownerResellerPhoneInput = document.getElementById("owner-reseller-phone");
+  const ownerResellerPasswordInput = document.getElementById("owner-reseller-password");
+  const ownerResellerBalanceType = document.getElementById("owner-reseller-balance-type");
+  const ownerResellerBalanceAmount = document.getElementById("owner-reseller-balance-amount");
+  const ownerResellerBlockSelect = document.getElementById("owner-reseller-block");
+  const ownerResellerCancelBtn = document.getElementById("owner-reseller-cancel");
   const ownerPasswordModal = document.getElementById("owner-password-modal");
   const ownerPasswordInput = document.getElementById("owner-password-input");
   const ownerPasswordError = document.getElementById("owner-password-error");
@@ -370,6 +392,23 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const formatStatusCurrency = (value) =>
     `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
+  const formatRelativeTime = (value) => {
+    if (!value) return "-";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return "-";
+    const diff = Date.now() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    if (minutes < 1) return "baru saja";
+    if (minutes < 60) return `${minutes} menit lalu`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours} jam lalu`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days} hari lalu`;
+    const months = Math.floor(days / 30);
+    if (months < 12) return `${months} bln lalu`;
+    const years = Math.floor(months / 12);
+    return `${years} thn lalu`;
+  };
   const formatPanelBalance = (value) =>
     `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
 
@@ -400,15 +439,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (ownerUsernameEl) ownerUsernameEl.textContent = profile.username || "-";
     if (ownerFullnameEl) ownerFullnameEl.textContent = profile.full_name || profile.fullname || "-";
     if (ownerBalanceEl) ownerBalanceEl.textContent = profile.balance != null ? formatPanelBalance(profile.balance) : "-";
-    if (ownerJsonEl) ownerJsonEl.textContent = JSON.stringify(profile, null, 2);
     ownerProfileCard?.classList.remove("hidden");
   };
 
   const fetchOwnerProfile = async () => {
-    if (!ownerRefreshBtn) return;
     ownerError?.classList.add("hidden");
-    ownerRefreshBtn.disabled = true;
-    ownerRefreshBtn.textContent = "Mengambil data...";
     try {
       const response = await apiPost("/api/panel-profile", { password: ownerToken });
       const profile = response.profile || response.data || {};
@@ -416,9 +451,113 @@ document.addEventListener("DOMContentLoaded", () => {
     } catch (e) {
       ownerError && (ownerError.textContent = e.message || "Gagal mengambil profil panel.");
       ownerError?.classList.remove("hidden");
-    } finally {
-      ownerRefreshBtn.disabled = false;
-      ownerRefreshBtn.textContent = "Cek Profil Panel";
+    }
+  };
+
+  const updateOwnerOrderSummary = (stats = {}) => {
+    ownerSummaryOrders && (ownerSummaryOrders.textContent = Number(stats.total || 0));
+    ownerSummaryPending && (ownerSummaryPending.textContent = Number(stats.pending || 0));
+    ownerSummarySuccess && (ownerSummarySuccess.textContent = Number(stats.success || 0));
+    ownerSummaryFailed && (ownerSummaryFailed.textContent = Number(stats.failed || 0));
+    if (ownerSummaryRevenue) {
+      ownerSummaryRevenue.textContent = formatStatusCurrency(stats.revenue || 0);
+    }
+  };
+
+  const renderOwnerOrders = (rows = []) => {
+    if (!ownerOrdersBody) return;
+    if (!rows.length) {
+      ownerOrdersBody.innerHTML = `<tr><td colspan="6">Belum ada data order.</td></tr>`;
+      return;
+    }
+    ownerOrdersBody.innerHTML = rows
+      .map((row) => {
+        const buyerLabel = row.isReseller
+          ? `Reseller (${row.resellerIdentifier || row.buyerName || "-"})`
+          : "Publik";
+        const statusText = formatTrackStatus(row.status);
+        const statusClass = statusToClass(row.status);
+        return `<tr>
+          <td>${row.id || "-"}</td>
+          <td>${buyerLabel}</td>
+          <td>${row.serviceName || "-"}</td>
+          <td><span class="status-pill ${statusClass}">${statusText}</span></td>
+          <td>${formatStatusCurrency(row.price || 0)}</td>
+          <td>${formatRelativeTime(row.lastUpdate || row.createdAt)}</td>
+        </tr>`;
+      })
+      .join("");
+  };
+
+  const statusToClass = (status) => {
+    const normalized = String(status || "processing").toLowerCase();
+    if (
+      normalized.includes("success") ||
+      normalized.includes("selesai") ||
+      normalized.includes("complete") ||
+      normalized.includes("done")
+    )
+      return "success";
+    if (normalized.includes("pending")) return "pending_payment";
+    if (normalized.includes("error") || normalized.includes("fail") || normalized.includes("partial"))
+      return "error";
+    return "processing";
+  };
+
+  const loadOwnerOrders = async () => {
+    if (!ownerOrdersBody) return;
+    ownerOrdersBody.innerHTML = `<tr><td colspan="6">Memuat data order...</td></tr>`;
+    try {
+      const data = await apiGet("/api/owner-orders");
+      renderOwnerOrders(data.rows || []);
+      updateOwnerOrderSummary(data.stats || {});
+    } catch (e) {
+      ownerOrdersBody.innerHTML = `<tr><td colspan="6">${e.message || "Gagal memuat order."}</td></tr>`;
+    }
+  };
+
+  const renderOwnerResellers = (rows = []) => {
+    if (!ownerResellerBody) return;
+    if (!rows.length) {
+      ownerResellerBody.innerHTML = `<tr><td colspan="5">Belum ada data reseller.</td></tr>`;
+      return;
+    }
+    ownerResellerMap = {};
+    ownerResellerBody.innerHTML = rows
+      .map((row) => {
+        ownerResellerMap[row.identifier] = row;
+        const status =
+          row.blockedStatus === "temporary"
+            ? { label: "Blokir Sementara", cls: "pending_payment" }
+            : row.blockedStatus === "permanent"
+            ? { label: "Diblokir Permanen", cls: "error" }
+            : { label: "Aktif", cls: "success" };
+        return `<tr>
+          <td class="owner-reseller-user">
+            <img src="${row.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(
+              row.displayName || "R"
+            )}&background=f3e8ff&color=7c3aed`}" alt="avatar" />
+            ${row.displayName || "-"}
+          </td>
+          <td>${row.email || "-"}</td>
+          <td>${formatStatusCurrency(row.balance || 0)}</td>
+          <td><span class="status-pill ${status.cls}">${status.label}</span></td>
+          <td><button class="owner-manage-btn" data-reseller="${row.identifier}">Kelola</button></td>
+        </tr>`;
+      })
+      .join("");
+  };
+
+  const loadOwnerResellers = async (term = "") => {
+    if (!ownerResellerBody) return;
+    ownerResellerBody.innerHTML = `<tr><td colspan="5">Memuat data reseller...</td></tr>`;
+    try {
+      const params = term ? `?q=${encodeURIComponent(term)}` : "";
+      const data = await apiGet(`/api/owner-resellers${params}`);
+      renderOwnerResellers(data.rows || []);
+      updateOwnerResellerSummary(data.summary || {});
+    } catch (e) {
+      ownerResellerBody.innerHTML = `<tr><td colspan="5">${e.message || "Gagal memuat data."}</td></tr>`;
     }
   };
 
@@ -426,7 +565,31 @@ document.addEventListener("DOMContentLoaded", () => {
     ensureOwnerAccess(() => {
       switchPage("owner");
       fetchOwnerProfile();
+      loadOwnerOrders();
+      loadOwnerResellers(ownerResellerSearchTerm);
     });
+  };
+
+  const openOwnerResellerModal = (identifier) => {
+    const data = ownerResellerMap[identifier];
+    if (!data) return;
+    ownerResellerEditing = data;
+    ownerResellerLabel && (ownerResellerLabel.textContent = data.displayName || data.identifier);
+    ownerResellerIdentifierInput && (ownerResellerIdentifierInput.value = data.identifier || "");
+    ownerResellerNameInput && (ownerResellerNameInput.value = data.displayName || "");
+    ownerResellerEmailInput && (ownerResellerEmailInput.value = data.email || "");
+    ownerResellerPhoneInput && (ownerResellerPhoneInput.value = data.phone || "");
+    ownerResellerPasswordInput && (ownerResellerPasswordInput.value = "");
+    ownerResellerBalanceAmount && (ownerResellerBalanceAmount.value = "");
+    ownerResellerBalanceType && (ownerResellerBalanceType.value = "add");
+    ownerResellerBlockSelect && (ownerResellerBlockSelect.value = data.blockedStatus || "none");
+    ownerResellerModal?.classList.remove("hidden");
+  };
+
+  const closeOwnerResellerModal = () => {
+    ownerResellerModal?.classList.add("hidden");
+    ownerResellerForm?.reset();
+    ownerResellerEditing = null;
   };
 
   const resetTrackResult = () => {
@@ -442,7 +605,7 @@ document.addEventListener("DOMContentLoaded", () => {
     switchPage("track");
   };
 
-  const formatTrackStatus = (status) => {
+  function formatTrackStatus(status) {
     const map = {
       pending_payment: "Menunggu Pembayaran",
       processing: "Sedang Diproses",
@@ -455,7 +618,7 @@ document.addEventListener("DOMContentLoaded", () => {
     };
     const normalized = String(status || "").toLowerCase();
     return map[normalized] || status || "-";
-  };
+  }
 
   const renderTrackResult = (payload = {}) => {
     if (!trackResult) return;
@@ -860,6 +1023,11 @@ let priceState = {
   category: "all",
   search: "",
 };
+let ownerResellerRows = [];
+let ownerResellerMap = {};
+let ownerResellerSearchTerm = "";
+let ownerResellerSearchTimer = null;
+let ownerResellerEditing = null;
 
   window.addEventListener("catalog:update", (event) => {
     priceServices = Array.isArray(event.detail?.services) ? event.detail.services : [];
@@ -1198,16 +1366,6 @@ let priceState = {
     });
   }
 
-  ownerRefreshBtn?.addEventListener("click", () => {
-    ensureOwnerAccess(() => fetchOwnerProfile());
-  });
-
-  ownerCopyBtn?.addEventListener("click", () => {
-    if (!ownerJsonEl || !navigator.clipboard) return;
-    navigator.clipboard.writeText(ownerJsonEl.textContent || "{}");
-    alert("Respons profil berhasil disalin.");
-  });
-
 
   const handleOwnerPasswordSubmit = () => {
     const value = ownerPasswordInput?.value.trim();
@@ -1240,6 +1398,49 @@ let priceState = {
   ownerPasswordClose?.addEventListener("click", () => hideOwnerPasswordModal(true));
   ownerPasswordModal?.addEventListener("click", (e) => {
     if (e.target === ownerPasswordModal) hideOwnerPasswordModal(true);
+  });
+  ownerResellerSearchInput?.addEventListener("input", (e) => {
+    ownerResellerSearchTerm = e.target.value.trim();
+    if (ownerResellerSearchTimer) clearTimeout(ownerResellerSearchTimer);
+    ownerResellerSearchTimer = setTimeout(() => loadOwnerResellers(ownerResellerSearchTerm), 400);
+  });
+  ownerResellerBody?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".owner-manage-btn[data-reseller]");
+    if (!btn) return;
+    ensureOwnerAccess(() => openOwnerResellerModal(btn.dataset.reseller));
+  });
+  ownerResellerClose?.addEventListener("click", closeOwnerResellerModal);
+  ownerResellerCancelBtn?.addEventListener("click", closeOwnerResellerModal);
+  ownerResellerModal?.addEventListener("click", (e) => {
+    if (e.target === ownerResellerModal) closeOwnerResellerModal();
+  });
+  ownerResellerForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const identifier = ownerResellerIdentifierInput?.value.trim();
+    if (!identifier) return;
+    const payload = {
+      identifier,
+      displayName: ownerResellerNameInput?.value.trim(),
+      email: ownerResellerEmailInput?.value.trim(),
+      phone: ownerResellerPhoneInput?.value.trim(),
+      newPassword: ownerResellerPasswordInput?.value.trim(),
+      blockedStatus: ownerResellerBlockSelect?.value || "none",
+    };
+    if (!payload.newPassword) delete payload.newPassword;
+    const amount = Number(ownerResellerBalanceAmount?.value || 0);
+    if (amount > 0) {
+      payload.balanceDelta = ownerResellerBalanceType?.value === "sub" ? -amount : amount;
+    }
+    showLoader("Menyimpan perubahan reseller...");
+    try {
+      await apiPost("/api/owner-resellers", payload);
+      closeOwnerResellerModal();
+      loadOwnerResellers(ownerResellerSearchTerm);
+    } catch (err) {
+      alert(err.message || "Gagal menyimpan perubahan reseller.");
+    } finally {
+      hideLoader();
+    }
   });
 
   trackForm?.addEventListener("submit", async (e) => {
@@ -1664,3 +1865,9 @@ let priceState = {
 }
 
 
+  const updateOwnerResellerSummary = (summary = {}) => {
+    ownerSummaryReseller && (ownerSummaryReseller.textContent = Number(summary.total || 0));
+    ownerResellerTotalChip && (ownerResellerTotalChip.textContent = Number(summary.total || 0));
+    ownerResellerActiveChip && (ownerResellerActiveChip.textContent = Number(summary.active || 0));
+    ownerResellerBlockedChip && (ownerResellerBlockedChip.textContent = Number(summary.blocked || 0));
+  };

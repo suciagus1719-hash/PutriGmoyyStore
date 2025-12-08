@@ -766,36 +766,38 @@
           <div class="owner-summary-grid">
             <div class="owner-summary-card">
               <p>Order Hari Ini</p>
-              <strong>0</strong>
+              <strong id="owner-summary-orders">0</strong>
               <small>Publik &amp; Reseller</small>
             </div>
             <div class="owner-summary-card">
               <p>Transaksi Pending</p>
-              <strong>0</strong>
+              <strong id="owner-summary-pending">0</strong>
               <small>Menunggu panel</small>
             </div>
             <div class="owner-summary-card">
               <p>Pendapatan Bulan Ini</p>
-              <strong>Rp0</strong>
+              <strong id="owner-summary-revenue">Rp0</strong>
               <small>Total bersih</small>
             </div>
             <div class="owner-summary-card">
               <p>Reseller Aktif</p>
-              <strong>0</strong>
+              <strong id="owner-summary-reseller">0</strong>
               <small>Akun terdaftar</small>
             </div>
-          </div>
-          <div class="owner-actions">
-            <p class="owner-note">
-              Masukkan password owner untuk menarik data profil langsung dari panel. Password hanya diketahui pemilik.
-            </p>
-            <button class="primary-btn" id="owner-refresh">Tarik Profil Panel</button>
-            <p id="owner-error" class="error-text hidden">Password salah.</p>
+            <div class="owner-summary-card">
+              <p>Transaksi Berhasil</p>
+              <strong id="owner-summary-success">0</strong>
+              <small>Order sukses</small>
+            </div>
+            <div class="owner-summary-card">
+              <p>Transaksi Gagal</p>
+              <strong id="owner-summary-failed">0</strong>
+              <small>Error / refund</small>
+            </div>
           </div>
           <div id="owner-profile-card" class="owner-profile-card hidden">
             <div class="owner-profile-header">
               <h4>Data Profil Panel</h4>
-              <button type="button" class="outline-btn" id="owner-copy-json">Salin JSON</button>
             </div>
             <div class="owner-profile-grid">
               <div class="owner-profile-primary">
@@ -817,12 +819,6 @@
                     <strong id="owner-balance">-</strong>
                   </li>
                 </ul>
-              </div>
-              <div class="owner-profile-extra">
-                <div class="owner-profile-note">
-                  <p>Akses Profil</p>
-                  <small>Data ini diambil real-time dari panel utama. Gunakan dengan bijak untuk audit internal.</small>
-                </div>
               </div>
             </div>
           </div>
@@ -846,22 +842,9 @@
                     <th>Terakhir</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody id="owner-orders-body">
                   <tr>
-                    <td>GMYY-12345</td>
-                    <td>Publik</td>
-                    <td>IG Followers</td>
-                    <td><span class="status-pill processing">Processing</span></td>
-                    <td>Rp 50.000</td>
-                    <td>2 menit lalu</td>
-                  </tr>
-                  <tr>
-                    <td>GMYY-12340</td>
-                    <td>Reseller (senja)</td>
-                    <td>Tiktok Views</td>
-                    <td><span class="status-pill success">Selesai</span></td>
-                    <td>Rp 120.000</td>
-                    <td>37 menit lalu</td>
+                    <td colspan="6">Belum ada data order.</td>
                   </tr>
                 </tbody>
               </table>
@@ -869,79 +852,32 @@
             <div class="owner-panel-card" id="owner-reseller-card">
               <div class="owner-panel-header">
                 <h4>Data Akun Reseller</h4>
-                <p>Kelola informasi akun, saldo, serta status blokir.</p>
+                <div class="owner-reseller-toolbar">
+                  <div class="owner-chip-row">
+                    <span class="owner-chip owner-chip-total">Jumlah: <strong id="owner-reseller-total">0</strong></span>
+                    <span class="owner-chip owner-chip-public">Aktif: <strong id="owner-reseller-active">0</strong></span>
+                    <span class="owner-chip owner-chip-error">Diblokir: <strong id="owner-reseller-blocked">0</strong></span>
+                  </div>
+                  <input type="text" id="owner-reseller-search" placeholder="Cari email / username / WhatsApp" />
+                </div>
               </div>
-              <div class="owner-reseller-grid">
-                <div class="owner-reseller-form">
-                  <label>
-                    Pilih Akun
-                    <select>
-                      <option>senja@gmail.com</option>
-                      <option>putrigmoyy@example.com</option>
-                    </select>
-                  </label>
-                  <label>
-                    Email
-                    <input type="email" placeholder="contoh: reseller@domain.com" />
-                  </label>
-                  <label>
-                    Nomor WhatsApp
-                    <input type="text" placeholder="08xxxxxxxxxx" />
-                  </label>
-                  <label>
-                    Username
-                    <input type="text" placeholder="username" />
-                  </label>
-                  <label>
-                    Password Baru
-                    <input type="text" placeholder="****" />
-                  </label>
-                  <div class="owner-reseller-balance">
-                    <label>Atur Saldo</label>
-                    <div class="balance-controls">
-                      <input type="number" placeholder="Nominal" />
-                      <button class="primary-btn">Tambah</button>
-                      <button class="outline-btn">Kurangi</button>
-                    </div>
-                  </div>
-                  <div class="owner-toggle-row">
-                    <label><input type="checkbox" /> Blokir Sementara</label>
-                    <label><input type="checkbox" /> Blokir Permanen</label>
-                  </div>
-                  <button class="primary-btn block">Simpan Perubahan</button>
-                </div>
-                <div class="owner-reseller-table-wrapper">
-                  <table class="owner-admin-table compact">
-                    <thead>
-                      <tr>
-                        <th>Reseller</th>
-                        <th>Email</th>
-                        <th>Saldo</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td class="owner-reseller-user">
-                          <img src="https://ui-avatars.com/api/?name=S&background=f3e8ff&color=7c3aed" alt="avatar" />
-                          senja
-                        </td>
-                        <td>senja@gmail.com</td>
-                        <td>Rp 1.250.000</td>
-                        <td><span class="status-pill success">Aktif</span></td>
-                      </tr>
-                      <tr>
-                        <td class="owner-reseller-user">
-                          <img src="https://ui-avatars.com/api/?name=AG&background=f3e8ff&color=7c3aed" alt="avatar" />
-                          agung
-                        </td>
-                        <td>agung@domain.com</td>
-                        <td>Rp 350.000</td>
-                        <td><span class="status-pill error">Diblokir</span></td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
+              <div class="owner-reseller-table-wrapper">
+                <table class="owner-admin-table compact">
+                  <thead>
+                    <tr>
+                      <th>Reseller</th>
+                      <th>Email</th>
+                      <th>Saldo</th>
+                      <th>Status</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="owner-reseller-body">
+                    <tr>
+                      <td colspan="5">Belum ada data reseller.</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
@@ -970,6 +906,56 @@
         </label>
         <p class="error hidden" id="owner-password-error">Password owner tidak sesuai.</p>
         <button class="primary-btn block" id="owner-password-submit">Masuk</button>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="owner-reseller-modal">
+      <div class="modal-card owner-reseller-modal">
+        <button class="modal-close" id="owner-reseller-close" aria-label="Tutup">&times;</button>
+        <h3>Kelola Reseller</h3>
+        <p id="owner-reseller-label" class="owner-reseller-label">-</p>
+        <form id="owner-reseller-form">
+          <input type="hidden" id="owner-reseller-identifier" />
+          <label>
+            Nama Pengguna
+            <input type="text" id="owner-reseller-name" placeholder="Nama tampilan" />
+          </label>
+          <label>
+            Email
+            <input type="email" id="owner-reseller-email" placeholder="Email pengguna" />
+          </label>
+          <label>
+            Nomor WhatsApp
+            <input type="text" id="owner-reseller-phone" placeholder="08xxxxxxxxxx" />
+          </label>
+          <label>
+            Password Baru
+            <input type="password" id="owner-reseller-password" placeholder="Kosongkan jika tidak diganti" />
+          </label>
+          <div class="owner-balance-adjust">
+            <label>
+              Penyesuaian Saldo
+              <div class="balance-controls">
+                <select id="owner-reseller-balance-type">
+                  <option value="add">Tambah (+)</option>
+                  <option value="sub">Kurangi (-)</option>
+                </select>
+                <input type="number" id="owner-reseller-balance-amount" min="0" placeholder="Nominal" />
+              </div>
+            </label>
+          </div>
+          <label>
+            Status Akun
+            <select id="owner-reseller-block">
+              <option value="none">Aktif</option>
+              <option value="temporary">Blokir Sementara</option>
+              <option value="permanent">Blokir Permanen</option>
+            </select>
+          </label>
+          <div class="modal-actions">
+            <button type="button" class="outline-btn" id="owner-reseller-cancel">Batal</button>
+            <button type="submit" class="primary-btn">Simpan Perubahan</button>
+          </div>
+        </form>
       </div>
     </div>
     <section class="hero-card">
