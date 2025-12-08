@@ -172,6 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const openLogin = document.getElementById("open-login");
   const openRegister = document.getElementById("open-register");
+  const openOwnerMenuBtn = document.getElementById("open-owner-menu");
   const goRegisterFromLogin = document.getElementById("go-register-from-login");
   const balancePill = document.getElementById("balance-pill");
   const coinPill = document.getElementById("coin-pill");
@@ -1092,6 +1093,11 @@ let priceState = {
     if (!ownerJsonEl || !navigator.clipboard) return;
     navigator.clipboard.writeText(ownerJsonEl.textContent || "{}");
     alert("Respons profil berhasil disalin.");
+  });
+
+  openOwnerMenuBtn?.addEventListener("click", (e) => {
+    e.preventDefault();
+    openOwnerPage();
   });
 
   const validatePasswords = () => {
