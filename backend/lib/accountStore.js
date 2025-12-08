@@ -5,6 +5,7 @@ const DATA_DIR =
   process.env.ACCOUNT_DATA_DIR ||
   (process.env.VERCEL ? path.join("/tmp", "pg-users") : path.join(__dirname, "../data"));
 const USERS_FILE = path.join(DATA_DIR, "users.json");
+const CACHE_KEY = "__PG_ACCOUNT_CACHE__";
 
 function ensureFile() {
   if (!fs.existsSync(DATA_DIR)) {
@@ -15,20 +16,44 @@ function ensureFile() {
   }
 }
 
+function setCachedUsers(list) {
+  globalThis[CACHE_KEY] = Array.isArray(list) ? list : [];
+}
+
+function getCachedUsers() {
+  const cached = globalThis[CACHE_KEY];
+  if (Array.isArray(cached)) {
+    return cached;
+  }
+  return null;
+}
+
 function readUsers() {
+  const cached = getCachedUsers();
+  if (cached) return cached;
   try {
     ensureFile();
     const raw = fs.readFileSync(USERS_FILE, "utf8");
-    return JSON.parse(raw);
+    const parsed = JSON.parse(raw);
+    const list = Array.isArray(parsed) ? parsed : [];
+    setCachedUsers(list);
+    return list;
   } catch (e) {
     console.error("Gagal baca users.json:", e);
+    setCachedUsers([]);
     return [];
   }
 }
 
 function saveUsers(users) {
   ensureFile();
-  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2), "utf8");
+  const normalized = Array.isArray(users) ? users : [];
+  try {
+    fs.writeFileSync(USERS_FILE, JSON.stringify(normalized, null, 2), "utf8");
+  } catch (err) {
+    console.error("Gagal menulis users.json:", err);
+  }
+  setCachedUsers(normalized);
 }
 
 function normalizeIdentifier(value = "") {
