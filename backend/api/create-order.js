@@ -145,6 +145,7 @@ module.exports = async (req, res) => {
       startCount: null,
       remains: null,
       lastStatusSync: null,
+      resellerIdentifier: resellerIdentifier || null,
     };
     appendOrder(orderRecord);
 

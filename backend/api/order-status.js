@@ -1,5 +1,6 @@
 const { callPanel } = require("../lib/smmClient");
 const { getOrder, updateOrder } = require("../lib/orderStore");
+const { refundOrder } = require("../lib/refundManager");
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -27,10 +28,21 @@ module.exports = async (req, res) => {
       lastStatusSync: new Date().toISOString(),
       panelOrderId: panelId,
     });
+    let latestOrder = updated || order;
+    const normalizedStatus = String(panelData.status || "").toLowerCase();
+    if (["partial", "error", "cancel", "cancelled", "canceled"].includes(normalizedStatus)) {
+      try {
+        latestOrder = await refundOrder(latestOrder, {
+          reason: `Panel status ${panelData.status || normalizedStatus}`,
+        });
+      } catch (refundErr) {
+        console.error("Auto refund gagal:", refundErr);
+      }
+    }
 
     res.json({
       panel: panelData,
-      order: updated || order,
+      order: latestOrder,
     });
   } catch (e) {
     console.error("order-status error:", e);

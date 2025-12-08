@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const { callPanel } = require("../lib/smmClient");
 const { updateUser } = require("../lib/accountStore");
 const { updateOrder, getOrder } = require("../lib/orderStore");
+const { refundOrder } = require("../lib/refundManager");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 
@@ -140,6 +141,16 @@ module.exports = async (req, res) => {
           remains: panelData.remains ?? null,
           lastStatusSync: new Date().toISOString(),
         });
+        const normalizedStatus = String(panelData.status || "").toLowerCase();
+        if (["partial", "error", "cancel", "cancelled", "canceled"].includes(normalizedStatus)) {
+          try {
+            await refundOrder(order_id, {
+              reason: `Panel status ${panelData.status || normalizedStatus}`,
+            });
+          } catch (refundErr) {
+            console.error("Auto refund gagal:", refundErr);
+          }
+        }
       } catch (e) {
         console.error("Gagal mengirim order ke panel:", e);
         updateOrder(order_id, {
@@ -147,6 +158,11 @@ module.exports = async (req, res) => {
           errorMessage: String(e.message || e),
           lastUpdate: new Date().toISOString(),
         });
+        try {
+          await refundOrder(order_id, { reason: `Gagal order panel: ${e.message || e}` });
+        } catch (refundErr) {
+          console.error("Auto refund gagal:", refundErr);
+        }
       }
     }
 
