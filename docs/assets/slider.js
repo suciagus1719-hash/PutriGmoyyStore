@@ -95,30 +95,67 @@ document.addEventListener("DOMContentLoaded", () => {
   const hideLoader = () => loaderOverlay?.classList.add("hidden");
   const OWNER_PASSWORD = "Senjasuci1719";
   const OWNER_TOKEN_KEY = "pg_owner_token";
+  const MENU_ICON_SVGS = {
+    login:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5.25v13.5A2.25 2.25 0 007.25 21H12"/><path d="M12 8.25H5"/><path d="M13.5 8.25L18 12l-4.5 3.75"/><path d="M18 12H9"/></svg>',
+    register:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="9" r="3.5"/><path d="M3.75 20.25a7.5 7.5 0 0110.5 0"/><path d="M19.5 8.25v6"/><path d="M16.5 11.25h6"/></svg>',
+    search:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="10" cy="10" r="5.75"/><path d="M14.5 14.5L21 21"/></svg>',
+    price:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5.25h7.5L21 14.25l-6.75 6.75H4.5z"/><circle cx="8.25" cy="8.25" r="1.25"/></svg>',
+    phone:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5.25 4.5l3-1.5L11.25 9 9 11.25a12 12 0 005.25 5.25L16.5 14.25l4.5 2.25-1.5 3.75a2.25 2.25 0 01-2.05 1.35A16.5 16.5 0 014.5 6.55 2.25 2.25 0 015.25 4.5z"/></svg>',
+    guide:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.75c-2.121-1.273-4.379-2.25-6.75-2.25v12c2.371 0 4.629.977 6.75 2.25m0-12c2.121-1.273 4.379-2.25 6.75-2.25v12c-2.371 0-4.629.977-6.75 2.25m0-12v12"/></svg>',
+    target:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.75"/><circle cx="12" cy="12" r="4.25"/><circle cx="12" cy="12" r="1.5"/></svg>',
+    gift:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.75" y="9" width="16.5" height="9.75" rx="1.5"/><path d="M12 4.5v14.25"/><path d="M3.75 9h16.5"/><path d="M9.75 4.5a2.25 2.25 0 10-2.25 2.25H12"/><path d="M14.25 4.5a2.25 2.25 0 112.25 2.25H12"/></svg>',
+    crown:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 14.25l2.25-7.5L9 12l3-6 3 6 3.75-4.5 3.25 7.5v4.5H3z"/></svg>',
+    profile:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8.25" r="3.5"/><path d="M6 20.25a6 6 0 0112 0"/><circle cx="12" cy="12" r="9"/></svg>',
+    wallet:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3.75" y="7.5" width="13.5" height="11.25" rx="2.25"/><path d="M17.25 11.25H21v7.5h-3.75"/><circle cx="17.25" cy="15" r="0.75"/></svg>',
+    history:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.25"/><path d="M12 7.5v4.5l3 1.5"/><path d="M6 12H3"/></svg>',
+    monitor:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18.75l4.5-6 3 3 5.25-7.5L21 13.5"/><path d="M3 5.25v15.5H21"/></svg>',
+    status:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.25 4.5h8.25L20.25 8v11.25H8.25z"/><path d="M8.25 9.75H18"/><path d="M8.25 14.25h6.75"/><path d="M8.25 18.75h4.5"/></svg>',
+    logout:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5.25v13.5A1.5 1.5 0 006 20.25h5.25"/><path d="M13.5 12h8.25"/><path d="M18.75 8.25L21.75 12l-3 3.75"/></svg>',
+  };
   const defaultMenu = [
-  { action: "login", icon: "??", label: "Masuk Reseller" },
-  { action: "register", icon: "??", label: "Daftar Reseller" },
-  { action: "track", icon: "??", label: "Cek Status Order" },
-  { action: "prices", icon: "??", label: "Daftar Harga" },
-  { action: "contact", icon: "??", label: "Kontak" },
-  { action: "guide", icon: "??", label: "Cara Order" },
-  { action: "target", icon: "??", label: "Target Pesanan" },
-  { action: "reward", icon: "??", label: "Menu Hadiah" },
-  { action: "owner", icon: "??", label: "Owner" },
-];
+    { action: "login", icon: "login", label: "Masuk Reseller" },
+    { action: "register", icon: "register", label: "Daftar Reseller" },
+    { action: "track", icon: "search", label: "Cek Status Order" },
+    { action: "prices", icon: "price", label: "Daftar Harga" },
+    { action: "contact", icon: "phone", label: "Kontak" },
+    { action: "guide", icon: "guide", label: "Cara Order" },
+    { action: "target", icon: "target", label: "Target Pesanan" },
+    { action: "reward", icon: "gift", label: "Menu Hadiah" },
+    { action: "owner", icon: "crown", label: "Owner" },
+  ];
 
   const resellerMenu = [
-    { action: "profile", icon: "👤", label: "Profil Reseller" },
-    { action: "deposit", icon: "➕", label: "Deposit Saldo" },
-    { action: "history", icon: "🧾", label: "Riwayat Deposit" },
-    { action: "monitor", icon: "📡", label: "Monitoring Sosmed" },
-    { action: "reward", icon: "🎁", label: "Menu Hadiah" },
-    { action: "prices", icon: "💰", label: "Daftar Harga" },
-    { action: "target", icon: "🎯", label: "Target Pesanan" },
-    { action: "status", icon: "📊", label: "Status Order" },
-    { action: "contact", icon: "☎️", label: "Kontak" },
-    { action: "logout", icon: "🚪", label: "Logout" },
+    { action: "profile", icon: "profile", label: "Profil Reseller" },
+    { action: "deposit", icon: "wallet", label: "Deposit Saldo" },
+    { action: "history", icon: "history", label: "Riwayat Deposit" },
+    { action: "monitor", icon: "monitor", label: "Monitoring Sosmed" },
+    { action: "reward", icon: "gift", label: "Menu Hadiah" },
+    { action: "prices", icon: "price", label: "Daftar Harga" },
+    { action: "target", icon: "target", label: "Target Pesanan" },
+    { action: "status", icon: "status", label: "Status Order" },
+    { action: "contact", icon: "phone", label: "Kontak" },
+    { action: "logout", icon: "logout", label: "Logout" },
   ];
+
+  function renderMenuIcon(key) {
+    const svg = MENU_ICON_SVGS[key];
+    return `<span class="menu-icon">${svg || ""}</span>`;
+  }
 
   let menuState = "guest";
   const renderMenu = () => {
@@ -129,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
         (item) => `
         <li>
           <button type="button" class="menu-item" data-action="${item.action}">
-            <span class="icon">${item.icon}</span> ${item.label}
+            ${renderMenuIcon(item.icon)} ${item.label}
           </button>
         </li>`
       )

@@ -131,6 +131,7 @@
           </label>
           <p class="login-error hidden" id="register-error">Data tidak valid.</p>
           <button class="primary-btn block" id="register-submit-btn" disabled>Daftar &amp; Masuk</button>
+        <p class="support-text">Butuh bantuan? <a href="https://wa.me/6282322633452" target="_blank" rel="noopener">Hubungi Customer Support</a></p>
         </div>
       </div>
     </div>
@@ -759,83 +760,189 @@
         </div>
         <section class="card info-card owner-card" id="owner-section">
           <div class="status-header">
-            <h3>Owner Panel &amp; API Profil</h3>
-            <p>Akses khusus untuk pemilik guna mengecek profil akun panel (API key, saldo, dan data penting lainnya).</p>
+            <h3>Owner Menu</h3>
+            <p>Panel kontrol untuk memantau profil, transaksi, dan akun reseller Putri Gmoyy Store.</p>
           </div>
-          <div class="owner-docs">
-            <div class="owner-doc-card">
-              <h4>Dokumentasi Endpoint</h4>
-              <table class="owner-table">
-                <thead>
-                  <tr>
-                    <th>Parameter</th>
-                    <th>Deskripsi</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>api_key</td>
-                    <td>API KEY panel Anda</td>
-                  </tr>
-                  <tr>
-                    <td>secret_key</td>
-                    <td>SECRET KEY panel Anda</td>
-                  </tr>
-                  <tr>
-                    <td>action</td>
-                    <td><code>profile</code></td>
-                  </tr>
-                </tbody>
-              </table>
+          <div class="owner-summary-grid">
+            <div class="owner-summary-card">
+              <p>Order Hari Ini</p>
+              <strong>0</strong>
+              <small>Publik &amp; Reseller</small>
             </div>
-            <div class="owner-doc-card">
-              <h4>Contoh Respons</h4>
-              <pre class="owner-sample" id="owner-sample">
-{
-  "status": true,
-  "data": {
-    "email": "pusatpanelsmm@gmail.com",
-    "username": "pusatpanelsmm",
-    "full_name": "Pusat Panel SMM",
-    "balance": "777777"
-  }
-}
-              </pre>
+            <div class="owner-summary-card">
+              <p>Transaksi Pending</p>
+              <strong>0</strong>
+              <small>Menunggu panel</small>
+            </div>
+            <div class="owner-summary-card">
+              <p>Pendapatan Bulan Ini</p>
+              <strong>Rp0</strong>
+              <small>Total bersih</small>
+            </div>
+            <div class="owner-summary-card">
+              <p>Reseller Aktif</p>
+              <strong>0</strong>
+              <small>Akun terdaftar</small>
             </div>
           </div>
           <div class="owner-actions">
             <p class="owner-note">
               Masukkan password owner untuk menarik data profil langsung dari panel. Password hanya diketahui pemilik.
             </p>
-            <button class="primary-btn" id="owner-refresh">Cek Profil Panel</button>
+            <button class="primary-btn" id="owner-refresh">Tarik Profil Panel</button>
             <p id="owner-error" class="error-text hidden">Password salah.</p>
           </div>
           <div id="owner-profile-card" class="owner-profile-card hidden">
-            <h4>Data Profil Panel</h4>
-            <ul class="owner-profile-list">
-              <li>
-                <span>Email</span>
-                <strong id="owner-email">-</strong>
-              </li>
-              <li>
-                <span>Username</span>
-                <strong id="owner-username">-</strong>
-              </li>
-              <li>
-                <span>Nama Lengkap</span>
-                <strong id="owner-fullname">-</strong>
-              </li>
-              <li>
-                <span>Saldo</span>
-                <strong id="owner-balance">-</strong>
-              </li>
-            </ul>
-            <div class="owner-json-wrapper">
-              <div class="owner-json-header">
-                <span>JSON Response</span>
-                <button type="button" class="outline-btn" id="owner-copy-json">Salin</button>
+            <div class="owner-profile-header">
+              <h4>Data Profil Panel</h4>
+              <button type="button" class="outline-btn" id="owner-copy-json">Salin JSON</button>
+            </div>
+            <div class="owner-profile-grid">
+              <div class="owner-profile-primary">
+                <ul class="owner-profile-list">
+                  <li>
+                    <span>Email</span>
+                    <strong id="owner-email">-</strong>
+                  </li>
+                  <li>
+                    <span>Username</span>
+                    <strong id="owner-username">-</strong>
+                  </li>
+                  <li>
+                    <span>Nama Lengkap</span>
+                    <strong id="owner-fullname">-</strong>
+                  </li>
+                  <li>
+                    <span>Saldo</span>
+                    <strong id="owner-balance">-</strong>
+                  </li>
+                </ul>
               </div>
-              <pre id="owner-json" class="owner-json">{}</pre>
+              <div class="owner-profile-extra">
+                <div class="owner-profile-note">
+                  <p>Akses Profil</p>
+                  <small>Data ini diambil real-time dari panel utama. Gunakan dengan bijak untuk audit internal.</small>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="owner-admin-panels">
+            <div class="owner-panel-card" id="owner-orders-card">
+              <div class="owner-panel-header">
+                <h4>Riwayat Order Panel</h4>
+                <div class="owner-chip-row">
+                  <span class="owner-chip owner-chip-public">Publik</span>
+                  <span class="owner-chip owner-chip-reseller">Reseller</span>
+                </div>
+              </div>
+              <table class="owner-admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Pemesan</th>
+                    <th>Layanan</th>
+                    <th>Status</th>
+                    <th>Nominal</th>
+                    <th>Terakhir</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>GMYY-12345</td>
+                    <td>Publik</td>
+                    <td>IG Followers</td>
+                    <td><span class="status-pill processing">Processing</span></td>
+                    <td>Rp 50.000</td>
+                    <td>2 menit lalu</td>
+                  </tr>
+                  <tr>
+                    <td>GMYY-12340</td>
+                    <td>Reseller (senja)</td>
+                    <td>Tiktok Views</td>
+                    <td><span class="status-pill success">Selesai</span></td>
+                    <td>Rp 120.000</td>
+                    <td>37 menit lalu</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="owner-panel-card" id="owner-reseller-card">
+              <div class="owner-panel-header">
+                <h4>Data Akun Reseller</h4>
+                <p>Kelola informasi akun, saldo, serta status blokir.</p>
+              </div>
+              <div class="owner-reseller-grid">
+                <div class="owner-reseller-form">
+                  <label>
+                    Pilih Akun
+                    <select>
+                      <option>senja@gmail.com</option>
+                      <option>putrigmoyy@example.com</option>
+                    </select>
+                  </label>
+                  <label>
+                    Email
+                    <input type="email" placeholder="contoh: reseller@domain.com" />
+                  </label>
+                  <label>
+                    Nomor WhatsApp
+                    <input type="text" placeholder="08xxxxxxxxxx" />
+                  </label>
+                  <label>
+                    Username
+                    <input type="text" placeholder="username" />
+                  </label>
+                  <label>
+                    Password Baru
+                    <input type="text" placeholder="****" />
+                  </label>
+                  <div class="owner-reseller-balance">
+                    <label>Atur Saldo</label>
+                    <div class="balance-controls">
+                      <input type="number" placeholder="Nominal" />
+                      <button class="primary-btn">Tambah</button>
+                      <button class="outline-btn">Kurangi</button>
+                    </div>
+                  </div>
+                  <div class="owner-toggle-row">
+                    <label><input type="checkbox" /> Blokir Sementara</label>
+                    <label><input type="checkbox" /> Blokir Permanen</label>
+                  </div>
+                  <button class="primary-btn block">Simpan Perubahan</button>
+                </div>
+                <div class="owner-reseller-table-wrapper">
+                  <table class="owner-admin-table compact">
+                    <thead>
+                      <tr>
+                        <th>Reseller</th>
+                        <th>Email</th>
+                        <th>Saldo</th>
+                        <th>Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="owner-reseller-user">
+                          <img src="https://ui-avatars.com/api/?name=S&background=f3e8ff&color=7c3aed" alt="avatar" />
+                          senja
+                        </td>
+                        <td>senja@gmail.com</td>
+                        <td>Rp 1.250.000</td>
+                        <td><span class="status-pill success">Aktif</span></td>
+                      </tr>
+                      <tr>
+                        <td class="owner-reseller-user">
+                          <img src="https://ui-avatars.com/api/?name=AG&background=f3e8ff&color=7c3aed" alt="avatar" />
+                          agung
+                        </td>
+                        <td>agung@domain.com</td>
+                        <td>Rp 350.000</td>
+                        <td><span class="status-pill error">Diblokir</span></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </div>
         </section>
