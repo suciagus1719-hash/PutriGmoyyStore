@@ -2,7 +2,6 @@ const crypto = require("crypto");
 const { callPanel } = require("../lib/smmClient");
 const { updateUser } = require("../lib/accountStore");
 const { updateOrder, getOrder } = require("../lib/orderStore");
-const { notifyStatusChange } = require("../lib/notificationManager");
 const { refundOrder } = require("../lib/refundManager");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
@@ -142,9 +141,6 @@ module.exports = async (req, res) => {
           remains: panelData.remains ?? null,
           lastStatusSync: new Date().toISOString(),
         });
-        notifyStatusChange(order_id, panelData.status || "processing").catch((err) =>
-          console.error("Notif status midtrans gagal:", err)
-        );
         const normalizedStatus = String(panelData.status || "").toLowerCase();
         if (["partial", "error", "cancel", "cancelled", "canceled"].includes(normalizedStatus)) {
           try {
@@ -162,10 +158,6 @@ module.exports = async (req, res) => {
           errorMessage: String(e.message || e),
           lastUpdate: new Date().toISOString(),
         });
-        notifyStatusChange(order_id, "error", {
-          force: true,
-          message: "Terjadi kendala saat meneruskan pesanan ke panel. Dana akan dikembalikan otomatis.",
-        }).catch((err) => console.error("Notif error panel gagal:", err));
         try {
           await refundOrder(order_id, { reason: `Gagal order panel: ${e.message || e}` });
         } catch (refundErr) {

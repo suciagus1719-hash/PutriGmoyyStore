@@ -96,15 +96,16 @@ document.addEventListener("DOMContentLoaded", () => {
   const OWNER_PASSWORD = "Senjasuci1719";
   const OWNER_TOKEN_KEY = "pg_owner_token";
   const defaultMenu = [
-    { action: "login", icon: "🔑", label: "Masuk Reseller" },
-    { action: "register", icon: "📝", label: "Daftar Reseller" },
-    { action: "prices", icon: "💰", label: "Daftar Harga" },
-    { action: "contact", icon: "📞", label: "Kontak" },
-    { action: "guide", icon: "📘", label: "Cara Order" },
-    { action: "target", icon: "🎯", label: "Target Pesanan" },
-    { action: "reward", icon: "🎁", label: "Menu Hadiah" },
-    { action: "owner", icon: "👑", label: "Owner" },
-  ];
+  { action: "login", icon: "??", label: "Masuk Reseller" },
+  { action: "register", icon: "??", label: "Daftar Reseller" },
+  { action: "track", icon: "??", label: "Cek Status Order" },
+  { action: "prices", icon: "??", label: "Daftar Harga" },
+  { action: "contact", icon: "??", label: "Kontak" },
+  { action: "guide", icon: "??", label: "Cara Order" },
+  { action: "target", icon: "??", label: "Target Pesanan" },
+  { action: "reward", icon: "??", label: "Menu Hadiah" },
+  { action: "owner", icon: "??", label: "Owner" },
+];
 
   const resellerMenu = [
     { action: "profile", icon: "👤", label: "Profil Reseller" },
@@ -158,6 +159,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (action === "deposit") return openDepositModal();
       if (action === "history") return openHistoryModal();
       if (action === "monitor") return openMonitorModal();
+      if (action === "track") return openTrackPage();
       if (action === "reward") return openRewardSection();
       if (action === "prices") return openPricesPage();
       if (action === "target") return openTargetPage();
@@ -289,6 +291,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const ownerPasswordError = document.getElementById("owner-password-error");
   const ownerPasswordSubmit = document.getElementById("owner-password-submit");
   const ownerPasswordClose = document.getElementById("owner-password-close");
+  const trackForm = document.getElementById("track-form");
+  const trackOrderInput = document.getElementById("track-order-id");
+  const trackError = document.getElementById("track-error");
+  const trackResult = document.getElementById("track-result");
+  const trackLoader = document.getElementById("track-loader");
+  const trackSummary = document.getElementById("track-summary");
   const readOwnerToken = () => {
     try {
       const saved = sessionStorage.getItem(OWNER_TOKEN_KEY);
@@ -382,6 +390,60 @@ document.addEventListener("DOMContentLoaded", () => {
       switchPage("owner");
       fetchOwnerProfile();
     });
+  };
+
+  const resetTrackResult = () => {
+    trackResult?.classList.add("hidden");
+    trackSummary && (trackSummary.innerHTML = "");
+    trackError?.classList.add("hidden");
+    trackLoader?.classList.add("hidden");
+  };
+
+  const openTrackPage = () => {
+    resetTrackResult();
+    trackOrderInput && (trackOrderInput.value = "");
+    switchPage("track");
+  };
+
+  const formatTrackStatus = (status) => {
+    const map = {
+      pending_payment: "Menunggu Pembayaran",
+      processing: "Sedang Diproses",
+      success: "Berhasil",
+      complete: "Selesai",
+      done: "Selesai",
+      partial: "Partial",
+      error: "Gagal",
+      refund: "Dikembalikan",
+    };
+    const normalized = String(status || "").toLowerCase();
+    return map[normalized] || status || "-";
+  };
+
+  const renderTrackResult = (payload = {}) => {
+    if (!trackResult) return;
+    const order = payload.order || {};
+    const panel = payload.panel || null;
+    const rows = [
+      { label: "Order ID", value: order.id || "-" },
+      { label: "Waktu", value: order.createdAt ? new Date(order.createdAt).toLocaleString("id-ID") : "-" },
+      { label: "Layanan", value: order.serviceName || "-" },
+      { label: "Target", value: order.target || "-" },
+      { label: "Jumlah", value: order.quantity || "-" },
+      { label: "Status", value: formatTrackStatus(panel?.status || order.status) },
+    ];
+    if (panel?.start_count != null) rows.push({ label: "Start Count", value: panel.start_count });
+    if (panel?.remains != null) rows.push({ label: "Sisa (Remains)", value: panel.remains });
+    trackSummary.innerHTML = rows
+      .map(
+        (row) => `
+        <li>
+          <span>${row.label}</span>
+          <strong>${row.value}</strong>
+        </li>`
+      )
+      .join("");
+    trackResult.classList.remove("hidden");
   };
 
   const renderStatusTable = (rows) => {
@@ -1141,6 +1203,31 @@ let priceState = {
   ownerPasswordClose?.addEventListener("click", () => hideOwnerPasswordModal(true));
   ownerPasswordModal?.addEventListener("click", (e) => {
     if (e.target === ownerPasswordModal) hideOwnerPasswordModal(true);
+  });
+
+  trackForm?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!trackOrderInput) return;
+    const id = trackOrderInput.value.trim();
+    if (!id) {
+      trackError && (trackError.textContent = "Masukkan ID pesanan terlebih dahulu.");
+      trackError?.classList.remove("hidden");
+      resetTrackResult();
+      return;
+    }
+    trackError?.classList.add("hidden");
+    trackLoader?.classList.remove("hidden");
+    trackResult?.classList.add("hidden");
+    try {
+      const data = await apiPost("/api/order-track", { orderId: id });
+      renderTrackResult(data);
+    } catch (err) {
+      trackError && (trackError.textContent = err.message || "Order tidak ditemukan.");
+      trackError?.classList.remove("hidden");
+      trackResult?.classList.add("hidden");
+    } finally {
+      trackLoader?.classList.add("hidden");
+    }
   });
 
   const validatePasswords = () => {

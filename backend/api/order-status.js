@@ -1,6 +1,5 @@
 const { callPanel } = require("../lib/smmClient");
 const { getOrder, updateOrder } = require("../lib/orderStore");
-const { notifyStatusChange } = require("../lib/notificationManager");
 const { refundOrder } = require("../lib/refundManager");
 
 module.exports = async (req, res) => {
@@ -31,12 +30,6 @@ module.exports = async (req, res) => {
     });
     let latestOrder = updated || order;
     const normalizedStatus = String(panelData.status || "").toLowerCase();
-    if (latestOrder && panelData.status) {
-      notifyStatusChange(latestOrder, panelData.status).catch((err) =>
-        console.error("Notif status manual gagal:", err)
-      );
-    }
-
     if (["partial", "error", "cancel", "cancelled", "canceled"].includes(normalizedStatus)) {
       try {
         latestOrder = await refundOrder(latestOrder, {

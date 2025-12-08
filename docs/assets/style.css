@@ -1168,6 +1168,66 @@ body {
   max-width: 420px;
 }
 
+.track-card .track-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.track-card input {
+  margin-top: 6px;
+}
+
+.track-loader {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 12px;
+  border: 1px dashed #c7d2fe;
+  border-radius: 12px;
+  margin-top: 12px;
+}
+
+.track-result {
+  margin-top: 14px;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 12px;
+}
+
+.track-summary {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 10px;
+}
+
+.track-summary li {
+  background: #f9fafb;
+  border-radius: 12px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border: 1px solid #e5e7eb;
+}
+
+.track-summary span {
+  font-size: 12px;
+  color: #6b7280;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.track-summary strong {
+  color: #111827;
+  font-size: 15px;
+}
+
 .status-header {
   text-align: center;
   margin-bottom: 16px;

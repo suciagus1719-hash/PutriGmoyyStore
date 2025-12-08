@@ -528,6 +528,36 @@
         </section>
       </div>
     </div>
+    <div class="page-screen" id="page-track">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+        <section class="card info-card track-card" id="track-card">
+          <div class="status-header">
+            <h3>Cek Status Pesanan</h3>
+            <p>Masukkan ID pesanan (contoh: GMYY-123456789) untuk melihat status terbaru langsung dari panel.</p>
+          </div>
+          <form id="track-form" class="track-form">
+            <label>
+              ID Pesanan
+              <input type="text" id="track-order-id" placeholder="GMYY-xxxxxxxxxxxx" />
+            </label>
+            <button type="submit" class="primary-btn">Cek Status</button>
+            <p id="track-error" class="error hidden"></p>
+          </form>
+          <div id="track-loader" class="track-loader hidden">
+            <div class="loader-dots">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <p>Memuat data dari panel...</p>
+          </div>
+          <div id="track-result" class="track-result hidden">
+            <ul id="track-summary" class="track-summary"></ul>
+          </div>
+        </section>
+      </div>
+    </div>
     <div class="page-screen" id="page-prices">
       <div class="content">
         <div class="page-back">
