@@ -121,7 +121,8 @@ module.exports = async (req, res) => {
           ? parsedComments
           : existing?.customComments || [];
         if (commentsList.length) {
-          payload.comments = commentsList.join("\n");
+          const commentText = commentsList.join("\n");
+          payload.komen = commentText;
         }
         const panelRes = await callPanel(payload);
         console.log("Order dikirim ke panel:", panelRes);

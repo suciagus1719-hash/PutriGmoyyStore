@@ -156,7 +156,8 @@ module.exports = async (req, res) => {
           quantity: qty,
         };
         if (commentRequired && commentList.length) {
-          payload.comments = commentList.join("\n");
+          const commentText = commentList.join("\n");
+          payload.komen = commentText;
         }
         panelResponse = await callPanel(payload);
       } catch (e) {
