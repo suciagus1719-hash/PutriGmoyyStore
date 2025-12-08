@@ -258,7 +258,7 @@ function formatCurrency(value) {
   return `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
 }
 
-function getEffectivePricePer100(service) {
+function getBasePricePer100(service) {
   if (service.pricePer100) return Number(service.pricePer100);
   if (service.rate) return Number(service.rate) / 10;
   return 0;
@@ -455,8 +455,10 @@ function buildServiceOptions(preserveServiceId = null) {
   let matchedId = null;
   data.forEach((svc) => {
     const opt = document.createElement("option");
-    const priceValue = getEffectivePricePer100(svc);
-    const priceLabel = priceValue ? formatCurrency(priceValue) : "Rp0";
+    const basePrice = getBasePricePer100(svc);
+    const margin = isResellerActive() ? RESELLER_MARGIN : PUBLIC_PROFIT_MARGIN;
+    const displayPrice = basePrice * (1 + margin);
+    const priceLabel = displayPrice ? formatCurrency(displayPrice) : "Rp0";
     opt.value = svc.id;
     opt.textContent = `${svc.id} - ${svc.name} - ${priceLabel}${isResellerActive() ? " (Reseller)" : ""}`;
     if (preserveServiceId && String(preserveServiceId) === String(svc.id)) {
@@ -499,12 +501,10 @@ function applyServiceSelection(id, options = {}) {
     return;
   }
   selectedService = svc;
-  const effectivePrice = getEffectivePricePer100(svc);
-  const priceLabel = effectivePrice
-    ? formatCurrency(effectivePrice)
-    : svc.rate
-    ? `${formatCurrency(svc.rate)} / 1000`
-    : "-";
+  const basePrice = getBasePricePer100(svc);
+  const margin = isResellerActive() ? RESELLER_MARGIN : PUBLIC_PROFIT_MARGIN;
+  const displayPrice = basePrice ? basePrice * (1 + margin) : 0;
+  const priceLabel = displayPrice ? formatCurrency(displayPrice) : "-";
   servicePrice.textContent = priceLabel;
   serviceMin.textContent = svc.min || "-";
   serviceMax.textContent = svc.max || "-";
@@ -517,7 +517,7 @@ function applyServiceSelection(id, options = {}) {
     serviceDescriptionRow.classList.add("hidden");
   }
 
-  selectedPricePer100 = effectivePrice || 0;
+  selectedPricePer100 = basePrice || 0;
   updateTotalPrice();
   if (svc.min) quantityField.min = svc.min;
 }

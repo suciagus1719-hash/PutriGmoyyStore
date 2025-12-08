@@ -5,6 +5,9 @@ const { getServiceId, getServicePrice, getServiceName } = require("../lib/servic
 const { findUser, updateUser } = require("../lib/accountStore");
 const { appendOrder, updateOrder } = require("../lib/orderStore");
 
+const PUBLIC_MARGIN = 0.4;
+const RESELLER_MARGIN = 0.2;
+
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 const MIDTRANS_SNAP_BASE_URL =
   process.env.MIDTRANS_SNAP_BASE_URL || "https://app.sandbox.midtrans.com";
@@ -48,7 +51,8 @@ module.exports = async (req, res) => {
     const rate = getServicePrice(svc); // harga per 1000
     const qty = Number(quantity);
     const baseAmount = Math.round((rate / 1000) * qty);
-    const paymentAmount = wantsBalance ? Math.round(baseAmount * 0.9) : baseAmount;
+    const margin = wantsBalance ? RESELLER_MARGIN : PUBLIC_MARGIN;
+    const paymentAmount = Math.round(baseAmount * (1 + margin));
 
     const orderId = `GMYY-${Date.now()}`;
 
