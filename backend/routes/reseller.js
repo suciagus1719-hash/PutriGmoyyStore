@@ -25,10 +25,8 @@ function sanitizeUser(user) {
 async function handleCheck(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   const { identifier } = req.body || {};
-  const normalized = normalizeIdentifier(identifier);
-  if (!normalized) return res.status(400).json({ error: "Identifier tidak valid" });
-  const users = readAllUsers();
-  const exists = users.some((u) => u.normalized === normalized);
+  if (!identifier) return res.status(400).json({ error: "Identifier tidak valid" });
+  const exists = Boolean(findFlexibleUser(identifier));
   return res.json({ exists });
 }
 
@@ -39,6 +37,23 @@ function readAllUsers() {
     console.error("Gagal membaca users:", err);
     return [];
   }
+}
+
+function matchesIdentifier(user, input) {
+  if (!user || !input) return false;
+  const normalized = normalizeIdentifier(input);
+  if (normalized && user.normalized === normalized) return true;
+  return matchUsername(user, input);
+}
+
+function findFlexibleUser(identifier, predicate) {
+  const users = readAllUsers();
+  for (const user of users) {
+    if (!matchesIdentifier(user, identifier)) continue;
+    if (typeof predicate === "function" && !predicate(user)) continue;
+    return user;
+  }
+  return null;
 }
 
 async function handleRegister(req, res) {
@@ -100,13 +115,11 @@ async function handleSync(req, res) {
 async function handleLogin(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   const { identifier, password } = req.body || {};
-  const normalized = normalizeIdentifier(identifier);
-  if (!normalized || !password) {
+  if (!identifier || !password) {
     return res.status(400).json({ error: "Data login tidak lengkap" });
   }
-  const users = readAllUsers();
   const hashed = crypto.createHash("sha256").update(password).digest("hex");
-  const user = users.find((u) => u.normalized === normalized && u.password === hashed);
+  const user = findFlexibleUser(identifier, (candidate) => candidate.password === hashed);
   if (!user) return res.status(401).json({ error: "Email/nomor atau password salah" });
   res.json({ success: true, user: sanitizeUser(user) });
 }
