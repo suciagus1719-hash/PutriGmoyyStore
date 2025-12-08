@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const fetch = require("node-fetch");
 const { readUsers, saveUsers, normalizeIdentifier, findUser, updateUser } = require("../lib/accountStore");
-const { listDeposits } = require("../lib/depositStore");
+const { listDeposits, deleteOldDeposits } = require("../lib/depositStore");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 const MIDTRANS_SNAP_BASE_URL =
@@ -373,6 +373,8 @@ module.exports = async (req, res) => {
         return handleCreateDeposit(req, res);
       case "history":
         return handleHistory(req, res);
+      case "history-delete":
+        return handleHistoryDelete(req, res);
       case "reward":
         return handleReward(req, res);
       case "reward-update":
@@ -387,3 +389,18 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: "Terjadi kesalahan pada server reseller" });
   }
 };
+
+
+async function handleHistoryDelete(req, res) {
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  const { identifier, days = 30 } = req.body || {};
+  if (!identifier) return res.status(400).json({ error: "Identifier diperlukan" });
+  try {
+    const deleted = await deleteOldDeposits(identifier, days);
+    return res.json({ success: true, deleted });
+  } catch (err) {
+    console.error("delete deposit history error:", err);
+    return res.status(500).json({ error: "Gagal menghapus riwayat" });
+  }
+}
+

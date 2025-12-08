@@ -93,7 +93,20 @@ async function listDeposits(identifier, { limit = 50, status } = {}) {
   return rows.map(mapRow);
 }
 
+async function deleteOldDeposits(identifier, days = 30) {
+  await ensureTable();
+  if (!pool || !identifier) return 0;
+  const normalized = normalizeIdentifier(identifier);
+  const cutoff = new Date(Date.now() - Math.max(1, Number(days) || 30) * 24 * 60 * 60 * 1000);
+  const { rowCount } = await pool.query(
+    `DELETE FROM ${TABLE_NAME} WHERE identifier = $1 AND created_at < $2`,
+    [normalized, cutoff]
+  );
+  return rowCount;
+}
+
 module.exports = {
   recordDeposit,
   listDeposits,
+  deleteOldDeposits,
 };
