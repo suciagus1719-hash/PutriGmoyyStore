@@ -1462,50 +1462,6 @@ body {
 .owner-balance-adjust input {
   flex: 1;
 }
-.owner-reseller-grid {
-  display: grid;
-  grid-template-columns: 0.9fr 1.1fr;
-  gap: 16px;
-}
-
-.owner-reseller-form {
-  background: #fdf2ff;
-  border: 1px solid #f5d0fe;
-  border-radius: 16px;
-  padding: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.owner-reseller-form input,
-.owner-reseller-form select {
-  margin-top: 4px;
-}
-
-.owner-reseller-balance .balance-controls {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-}
-
-.owner-reseller-balance input {
-  flex: 1;
-}
-
-.owner-toggle-row {
-  display: flex;
-  gap: 12px;
-  font-size: 13px;
-  color: #4b5563;
-}
-
-.owner-reseller-table-wrapper {
-  border: 1px solid #e5e7eb;
-  border-radius: 14px;
-  padding: 10px;
-}
-
 .owner-reseller-user {
   display: flex;
   align-items: center;

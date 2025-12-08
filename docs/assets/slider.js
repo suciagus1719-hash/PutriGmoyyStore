@@ -445,7 +445,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const fetchOwnerProfile = async () => {
     ownerError?.classList.add("hidden");
     try {
-      const response = await apiPost("/api/panel-profile", { password: ownerToken });
+      const response = await apiPost("/api/owner", { action: "profile", password: ownerToken });
       const profile = response.profile || response.data || {};
       renderOwnerProfile(profile);
     } catch (e) {
@@ -508,7 +508,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ownerOrdersBody) return;
     ownerOrdersBody.innerHTML = `<tr><td colspan="6">Memuat data order...</td></tr>`;
     try {
-      const data = await apiGet("/api/owner-orders");
+      const data = await apiGet("/api/owner?action=orders");
       renderOwnerOrders(data.rows || []);
       updateOwnerOrderSummary(data.stats || {});
     } catch (e) {
@@ -552,8 +552,8 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!ownerResellerBody) return;
     ownerResellerBody.innerHTML = `<tr><td colspan="5">Memuat data reseller...</td></tr>`;
     try {
-      const params = term ? `?q=${encodeURIComponent(term)}` : "";
-      const data = await apiGet(`/api/owner-resellers${params}`);
+      const query = term ? `&q=${encodeURIComponent(term)}` : "";
+      const data = await apiGet(`/api/owner?action=resellers${query}`);
       renderOwnerResellers(data.rows || []);
       updateOwnerResellerSummary(data.summary || {});
     } catch (e) {
@@ -1433,7 +1433,7 @@ let ownerResellerEditing = null;
     }
     showLoader("Menyimpan perubahan reseller...");
     try {
-      await apiPost("/api/owner-resellers", payload);
+      await apiPost("/api/owner", { action: "resellers", ...payload });
       closeOwnerResellerModal();
       loadOwnerResellers(ownerResellerSearchTerm);
     } catch (err) {
