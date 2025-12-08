@@ -323,7 +323,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const ownerSummaryOrders = document.getElementById("owner-summary-orders");
   const ownerSummaryPending = document.getElementById("owner-summary-pending");
   const ownerSummaryRevenue = document.getElementById("owner-summary-revenue");
-  const ownerSummaryReseller = document.getElementById("owner-summary-reseller");
   const ownerSummarySuccess = document.getElementById("owner-summary-success");
   const ownerSummaryFailed = document.getElementById("owner-summary-failed");
   const ownerOrdersBody = document.getElementById("owner-orders-body");
@@ -1866,7 +1865,6 @@ let ownerResellerEditing = null;
 
 
   const updateOwnerResellerSummary = (summary = {}) => {
-    ownerSummaryReseller && (ownerSummaryReseller.textContent = Number(summary.total || 0));
     ownerResellerTotalChip && (ownerResellerTotalChip.textContent = Number(summary.total || 0));
     ownerResellerActiveChip && (ownerResellerActiveChip.textContent = Number(summary.active || 0));
     ownerResellerBlockedChip && (ownerResellerBlockedChip.textContent = Number(summary.blocked || 0));
