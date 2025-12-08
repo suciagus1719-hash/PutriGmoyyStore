@@ -18,7 +18,9 @@ const pool = CONNECTION_STRING
   ? new Pool({
       connectionString: CONNECTION_STRING,
       ssl:
-        CONNECTION_STRING.includes("sslmode=require") || CONNECTION_STRING.includes("supabase.com")
+        CONNECTION_STRING.includes("sslmode=require") ||
+        CONNECTION_STRING.includes("supabase.com") ||
+        CONNECTION_STRING.includes("supabase.co")
           ? { rejectUnauthorized: false }
           : undefined,
     })
