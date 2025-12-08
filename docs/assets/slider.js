@@ -93,14 +93,17 @@ document.addEventListener("DOMContentLoaded", () => {
     loaderOverlay.classList.remove("hidden");
   };
   const hideLoader = () => loaderOverlay?.classList.add("hidden");
+  const OWNER_PASSWORD = "Senjasuci1719";
+  const OWNER_TOKEN_KEY = "pg_owner_token";
   const defaultMenu = [
-    { action: "login", icon: "??", label: "Masuk Reseller" },
-    { action: "register", icon: "??", label: "Daftar Reseller" },
-    { action: "prices", icon: "??", label: "Daftar Harga" },
-    { action: "contact", icon: "??", label: "Kontak" },
-    { action: "guide", icon: "??", label: "Cara Order" },
-    { action: "target", icon: "??", label: "Target Pesanan" },
-    { action: "reward", icon: "??", label: "Menu Hadiah" },
+    { action: "login", icon: "🔑", label: "Masuk Reseller" },
+    { action: "register", icon: "📝", label: "Daftar Reseller" },
+    { action: "prices", icon: "💰", label: "Daftar Harga" },
+    { action: "contact", icon: "📞", label: "Kontak" },
+    { action: "guide", icon: "📘", label: "Cara Order" },
+    { action: "target", icon: "🎯", label: "Target Pesanan" },
+    { action: "reward", icon: "🎁", label: "Menu Hadiah" },
+    { action: "owner", icon: "👑", label: "Owner" },
   ];
 
   const resellerMenu = [
@@ -159,6 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (action === "prices") return openPricesPage();
       if (action === "target") return openTargetPage();
       if (action === "status") return openStatusPage();
+      if (action === "owner") return openOwnerPage();
       if (action === "contact") return switchPage("contact");
       if (action === "guide") return showInfoMessage("Cara order");
       if (action === "logout") return setLoggedOut();
@@ -271,6 +275,31 @@ document.addEventListener("DOMContentLoaded", () => {
   const priceFilterBtn = document.getElementById("price-filter-btn");
   const priceTotalText = document.getElementById("price-total");
   const pricePagination = document.getElementById("price-pagination");
+  const ownerRefreshBtn = document.getElementById("owner-refresh");
+  const ownerError = document.getElementById("owner-error");
+  const ownerProfileCard = document.getElementById("owner-profile-card");
+  const ownerEmailEl = document.getElementById("owner-email");
+  const ownerUsernameEl = document.getElementById("owner-username");
+  const ownerFullnameEl = document.getElementById("owner-fullname");
+  const ownerBalanceEl = document.getElementById("owner-balance");
+  const ownerJsonEl = document.getElementById("owner-json");
+  const ownerCopyBtn = document.getElementById("owner-copy-json");
+  const readOwnerToken = () => {
+    try {
+      const saved = sessionStorage.getItem(OWNER_TOKEN_KEY);
+      return saved ? atob(saved) : "";
+    } catch (e) {
+      return "";
+    }
+  };
+  const persistOwnerToken = (token) => {
+    try {
+      sessionStorage.setItem(OWNER_TOKEN_KEY, btoa(token));
+    } catch (e) {
+      // ignore storage issues
+    }
+  };
+  let ownerToken = readOwnerToken();
   const pageScreens = Array.from(document.querySelectorAll(".page-screen"));
   const pageBackButtons = document.querySelectorAll(".page-back-btn");
 
@@ -290,6 +319,54 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const formatStatusCurrency = (value) =>
     `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
+  const formatPanelBalance = (value) =>
+    `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
+
+  const ensureOwnerAccess = () => {
+    if (ownerToken === OWNER_PASSWORD) return true;
+    const input = prompt("Masukkan password owner untuk membuka menu khusus.");
+    if (!input) return false;
+    if (input === OWNER_PASSWORD) {
+      ownerToken = input;
+      persistOwnerToken(input);
+      return true;
+    }
+    alert("Password owner salah.");
+    return false;
+  };
+
+  const renderOwnerProfile = (profile = {}) => {
+    if (ownerEmailEl) ownerEmailEl.textContent = profile.email || "-";
+    if (ownerUsernameEl) ownerUsernameEl.textContent = profile.username || "-";
+    if (ownerFullnameEl) ownerFullnameEl.textContent = profile.full_name || profile.fullname || "-";
+    if (ownerBalanceEl) ownerBalanceEl.textContent = profile.balance != null ? formatPanelBalance(profile.balance) : "-";
+    if (ownerJsonEl) ownerJsonEl.textContent = JSON.stringify(profile, null, 2);
+    ownerProfileCard?.classList.remove("hidden");
+  };
+
+  const fetchOwnerProfile = async () => {
+    if (!ownerRefreshBtn) return;
+    ownerError?.classList.add("hidden");
+    ownerRefreshBtn.disabled = true;
+    ownerRefreshBtn.textContent = "Mengambil data...";
+    try {
+      const response = await apiPost("/api/panel-profile", { password: ownerToken });
+      const profile = response.profile || response.data || {};
+      renderOwnerProfile(profile);
+    } catch (e) {
+      ownerError && (ownerError.textContent = e.message || "Gagal mengambil profil panel.");
+      ownerError?.classList.remove("hidden");
+    } finally {
+      ownerRefreshBtn.disabled = false;
+      ownerRefreshBtn.textContent = "Cek Profil Panel";
+    }
+  };
+
+  const openOwnerPage = () => {
+    if (!ensureOwnerAccess()) return;
+    switchPage("owner");
+    fetchOwnerProfile();
+  };
 
   const renderStatusTable = (rows) => {
     if (!statusTableBody) return;
@@ -1005,6 +1082,17 @@ let priceState = {
       showForgotStep();
     });
   }
+
+  ownerRefreshBtn?.addEventListener("click", () => {
+    if (!ensureOwnerAccess()) return;
+    fetchOwnerProfile();
+  });
+
+  ownerCopyBtn?.addEventListener("click", () => {
+    if (!ownerJsonEl || !navigator.clipboard) return;
+    navigator.clipboard.writeText(ownerJsonEl.textContent || "{}");
+    alert("Respons profil berhasil disalin.");
+  });
 
   const validatePasswords = () => {
     if (!passwordInput || !confirmPasswordInput || !createAccountBtn || !passwordError) return;

@@ -722,6 +722,95 @@
         </section>
       </div>
     </div>
+    <div class="page-screen" id="page-owner">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+        <section class="card info-card owner-card" id="owner-section">
+          <div class="status-header">
+            <h3>Owner Panel &amp; API Profil</h3>
+            <p>Akses khusus untuk pemilik guna mengecek profil akun panel (API key, saldo, dan data penting lainnya).</p>
+          </div>
+          <div class="owner-docs">
+            <div class="owner-doc-card">
+              <h4>Dokumentasi Endpoint</h4>
+              <table class="owner-table">
+                <thead>
+                  <tr>
+                    <th>Parameter</th>
+                    <th>Deskripsi</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>api_key</td>
+                    <td>API KEY panel Anda</td>
+                  </tr>
+                  <tr>
+                    <td>secret_key</td>
+                    <td>SECRET KEY panel Anda</td>
+                  </tr>
+                  <tr>
+                    <td>action</td>
+                    <td><code>profile</code></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="owner-doc-card">
+              <h4>Contoh Respons</h4>
+              <pre class="owner-sample" id="owner-sample">
+{
+  "status": true,
+  "data": {
+    "email": "pusatpanelsmm@gmail.com",
+    "username": "pusatpanelsmm",
+    "full_name": "Pusat Panel SMM",
+    "balance": "777777"
+  }
+}
+              </pre>
+            </div>
+          </div>
+          <div class="owner-actions">
+            <p class="owner-note">
+              Masukkan password owner untuk menarik data profil langsung dari panel. Password hanya diketahui pemilik.
+            </p>
+            <button class="primary-btn" id="owner-refresh">Cek Profil Panel</button>
+            <p id="owner-error" class="error-text hidden">Password salah.</p>
+          </div>
+          <div id="owner-profile-card" class="owner-profile-card hidden">
+            <h4>Data Profil Panel</h4>
+            <ul class="owner-profile-list">
+              <li>
+                <span>Email</span>
+                <strong id="owner-email">-</strong>
+              </li>
+              <li>
+                <span>Username</span>
+                <strong id="owner-username">-</strong>
+              </li>
+              <li>
+                <span>Nama Lengkap</span>
+                <strong id="owner-fullname">-</strong>
+              </li>
+              <li>
+                <span>Saldo</span>
+                <strong id="owner-balance">-</strong>
+              </li>
+            </ul>
+            <div class="owner-json-wrapper">
+              <div class="owner-json-header">
+                <span>JSON Response</span>
+                <button type="button" class="outline-btn" id="owner-copy-json">Salin</button>
+              </div>
+              <pre id="owner-json" class="owner-json">{}</pre>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
     <div class="modal-overlay hidden" id="confirm-modal">
       <div class="confirm-modal">
         <p class="confirm-title" id="confirm-title">Nomor Ini Belum Terdaftar</p>
