@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const { callPanel } = require("../lib/smmClient");
 const { listRecentOrders, updateOrder } = require("../lib/orderStore");
-const { readUsers, updateUser, normalizeIdentifier } = require("../lib/accountStore");
+const { readUsers, updateUser, updateUserById, normalizeIdentifier } = require("../lib/accountStore");
 
 const OWNER_PASSWORD = process.env.OWNER_PANEL_PASSWORD || "Senjasuci1719";
 
@@ -127,6 +127,7 @@ function filterResellers(q) {
 
 function updateReseller(payload = {}) {
   const {
+    id,
     identifier,
     displayName,
     email,
@@ -135,8 +136,9 @@ function updateReseller(payload = {}) {
     balanceDelta,
     blockedStatus,
   } = payload;
-  if (!identifier) throw new Error("Identifier wajib diisi");
-  const patched = updateUser(identifier, (current) => {
+  if (!id && !identifier) throw new Error("Identifier wajib diisi");
+
+  const applyChanges = (current) => {
     if (!current) throw new Error("Akun tidak ditemukan");
     const next = { ...current };
     if (displayName !== undefined) next.displayName = displayName ? displayName.trim() : next.displayName;
@@ -155,7 +157,10 @@ function updateReseller(payload = {}) {
     }
     if (blockedStatus) next.blockedStatus = blockedStatus;
     return next;
-  });
+  };
+
+  const patched =
+    (id ? updateUserById(id, applyChanges) : null) || updateUser(identifier, applyChanges);
   if (!patched) throw new Error("Akun tidak ditemukan");
   return sanitizeReseller(patched);
 }

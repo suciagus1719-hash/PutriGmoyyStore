@@ -30,13 +30,13 @@ function getCachedUsers() {
 
 function readUsers() {
   const cached = getCachedUsers();
-  if (cached) return cached;
+  if (cached) return cached.map((item) => ({ ...item }));
   try {
     ensureFile();
     const raw = fs.readFileSync(USERS_FILE, "utf8");
     const parsed = JSON.parse(raw);
     const list = Array.isArray(parsed) ? parsed : [];
-    setCachedUsers(list);
+    setCachedUsers(list.map((item) => ({ ...item })));
     return list;
   } catch (e) {
     console.error("Gagal baca users.json:", e);
@@ -53,7 +53,7 @@ function saveUsers(users) {
   } catch (err) {
     console.error("Gagal menulis users.json:", err);
   }
-  setCachedUsers(normalized);
+  setCachedUsers(normalized.map((item) => ({ ...item })));
 }
 
 function normalizeIdentifier(value = "") {
@@ -70,8 +70,24 @@ function findUser(identifier) {
   return { users, index, user: index >= 0 ? users[index] : null };
 }
 
+function findUserById(id) {
+  const users = readUsers();
+  const index = users.findIndex((u) => String(u.id) === String(id));
+  return { users, index, user: index >= 0 ? users[index] : null };
+}
+
 function updateUser(identifier, updater) {
   const { users, index, user } = findUser(identifier);
+  if (index < 0) return null;
+  const patch = typeof updater === "function" ? updater({ ...user }) : updater;
+  const updated = { ...user, ...patch };
+  users[index] = updated;
+  saveUsers(users);
+  return updated;
+}
+
+function updateUserById(id, updater) {
+  const { users, index, user } = findUserById(id);
   if (index < 0) return null;
   const patch = typeof updater === "function" ? updater({ ...user }) : updater;
   const updated = { ...user, ...patch };
@@ -86,4 +102,6 @@ module.exports = {
   normalizeIdentifier,
   findUser,
   updateUser,
+  findUserById,
+  updateUserById,
 };

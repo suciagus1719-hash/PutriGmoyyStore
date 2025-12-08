@@ -353,6 +353,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const ownerResellerClose = document.getElementById("owner-reseller-close");
   const ownerResellerForm = document.getElementById("owner-reseller-form");
   const ownerResellerLabel = document.getElementById("owner-reseller-label");
+  const ownerResellerIdInput = document.getElementById("owner-reseller-id");
   const ownerResellerIdentifierInput = document.getElementById("owner-reseller-identifier");
   const ownerResellerNameInput = document.getElementById("owner-reseller-name");
   const ownerResellerEmailInput = document.getElementById("owner-reseller-email");
@@ -656,7 +657,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     ownerResellerBody.innerHTML = rows
       .map((row) => {
-        ownerResellerMap[row.identifier] = row;
+        const mapKey = row.id || row.identifier;
+        ownerResellerMap[mapKey] = row;
         const status =
           row.blockedStatus === "temporary"
             ? { label: "Blokir Sementara", cls: "pending_payment" }
@@ -666,6 +668,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const safeName = escapeHtml(row.displayName || "-");
         const safeEmail = escapeHtml(row.email || "-");
         const safeIdentifier = escapeHtml(row.identifier || "");
+        const safeKey = escapeHtml(mapKey || safeIdentifier);
         return `<tr>
           <td class="owner-reseller-user">
             <img src="${row.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(
@@ -676,7 +679,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <td>${safeEmail}</td>
           <td>${formatStatusCurrency(row.balance || 0)}</td>
           <td><span class="status-pill ${status.cls}">${status.label}</span></td>
-          <td><button class="owner-manage-btn" data-reseller="${safeIdentifier}">Kelola</button></td>
+          <td><button class="owner-manage-btn" data-reseller="${safeKey}">Kelola</button></td>
         </tr>`;
       })
       .join("");
@@ -748,6 +751,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!data) return;
     ownerResellerEditing = data;
     ownerResellerLabel && (ownerResellerLabel.textContent = data.displayName || data.identifier);
+    ownerResellerIdInput && (ownerResellerIdInput.value = data.id || "");
     ownerResellerIdentifierInput && (ownerResellerIdentifierInput.value = data.identifier || "");
     ownerResellerNameInput && (ownerResellerNameInput.value = data.displayName || "");
     ownerResellerEmailInput && (ownerResellerEmailInput.value = data.email || "");
@@ -1623,9 +1627,11 @@ let ownerRefreshPromise = null;
   });
   ownerResellerForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
+    const id = ownerResellerIdInput?.value.trim();
     const identifier = ownerResellerIdentifierInput?.value.trim();
-    if (!identifier) return;
+    if (!id && !identifier) return;
     const payload = {
+      id: id || "",
       identifier,
       displayName: ownerResellerNameInput?.value.trim(),
       email: ownerResellerEmailInput?.value.trim(),
@@ -1633,6 +1639,8 @@ let ownerRefreshPromise = null;
       newPassword: ownerResellerPasswordInput?.value.trim(),
       blockedStatus: ownerResellerBlockSelect?.value || "none",
     };
+    if (!payload.id) delete payload.id;
+    if (!payload.identifier) delete payload.identifier;
     if (!payload.newPassword) delete payload.newPassword;
     const amount = Number(ownerResellerBalanceAmount?.value || 0);
     if (amount > 0) {
