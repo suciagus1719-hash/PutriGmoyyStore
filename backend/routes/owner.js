@@ -112,14 +112,11 @@ function filterResellers(q) {
       return ident.includes(term) || email.includes(term) || phone.includes(term);
     });
   }
-  const sorted = filtered
-    .slice()
-    .sort((a, b) => {
-      const balanceDiff = Number(b.balance || 0) - Number(a.balance || 0);
-      if (balanceDiff !== 0) return balanceDiff;
-      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
-    })
-    .slice(0, 25);
+  const sorted = filtered.slice().sort((a, b) => {
+    const balanceDiff = Number(b.balance || 0) - Number(a.balance || 0);
+    if (balanceDiff !== 0) return balanceDiff;
+    return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+  });
   const summary = {
     total: users.length,
     blocked: users.filter((u) => u.blockedStatus && u.blockedStatus !== "none").length,

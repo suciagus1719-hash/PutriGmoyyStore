@@ -1423,12 +1423,29 @@ let ownerRefreshPromise = null;
     switchPage("default");
   };
 
+  const syncCurrentAccount = async () => {
+    if (!currentUser?.identifier) return;
+    try {
+      const params = new URLSearchParams({
+        action: "profile",
+        identifier: currentUser.identifier,
+      });
+      const data = await apiGet(`/api/reseller?${params.toString()}`, 2);
+      if (data?.user) {
+        setLoggedIn(data.user, true);
+      }
+    } catch (err) {
+      console.warn("Gagal sinkron data reseller:", err);
+    }
+  };
+
   const loadAccount = () => {
     const saved = localStorage.getItem(ACCOUNT_KEY);
     if (!saved) return;
     try {
       const user = JSON.parse(saved);
       setLoggedIn(user, false);
+      syncCurrentAccount();
     } catch (e) {
       console.warn("Gagal parse akun:", e);
       localStorage.removeItem(ACCOUNT_KEY);
