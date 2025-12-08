@@ -840,6 +840,12 @@
         <label>
           Jumlah
           <input type="number" id="quantity-input" min="0" placeholder="Jumlah" />
+          <small id="quantity-hint" class="field-hint hidden">Jumlah otomatis mengikuti banyaknya komentar yang kamu tulis.</small>
+        </label>
+        <label id="comment-block" class="hidden">
+          Komentar Kustom
+          <textarea id="comments-input" rows="6" placeholder="Masukkan daftar komentar, pisahkan setiap baris." spellcheck="false"></textarea>
+          <small class="field-hint">Gunakan enter untuk memisahkan komentar. Jumlah komentar menentukan total order.</small>
         </label>
         <label>
           Email Notifikasi

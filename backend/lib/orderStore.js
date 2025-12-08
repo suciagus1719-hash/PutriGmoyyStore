@@ -38,6 +38,11 @@ function appendOrder(order) {
   return order;
 }
 
+function getOrder(id) {
+  const list = readOrders();
+  return list.find((item) => item.id === id) || null;
+}
+
 function updateOrder(id, patch = {}) {
   const list = readOrders();
   const index = list.findIndex((item) => item.id === id);
@@ -75,7 +80,7 @@ function listOrders({ page = 1, limit = 10, status, search } = {}) {
 
 module.exports = {
   appendOrder,
+  getOrder,
   updateOrder,
   listOrders,
 };
-

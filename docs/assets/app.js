@@ -145,6 +145,9 @@ const targetInput = document.getElementById("target-input");
 const quantityInput = document.getElementById("quantity-input");
 const totalPriceInput = document.getElementById("total-price");
 const orderEmailInput = document.getElementById("order-email");
+const commentsInput = document.getElementById("comments-input");
+const commentBlock = document.getElementById("comment-block");
+const quantityHint = document.getElementById("quantity-hint");
 const buyerName = document.getElementById("buyer-name") || { value: "" };
 const buyerWhatsapp = document.getElementById("buyer-whatsapp") || { value: "" };
 const buyerEmail = document.getElementById("buyer-email") || { value: "" };
@@ -174,8 +177,10 @@ if (!platformList || !categorySelect || !serviceSelect) {
 const createInputStub = () => ({
   value: "",
   min: 0,
+  readOnly: false,
   addEventListener() {},
   setAttribute() {},
+  removeAttribute() {},
   focus() {},
 });
 const createButtonStub = () => ({
@@ -192,6 +197,9 @@ const targetField = targetInput || createInputStub();
 const quantityField = quantityInput || createInputStub();
 const totalPriceField = totalPriceInput || createInputStub();
 const orderEmailField = orderEmailInput || createInputStub();
+const commentField = commentsInput || createInputStub();
+const commentBlockEl = commentBlock || null;
+const quantityHintEl = quantityHint || null;
 const payButtonEl = payButton || createButtonStub();
 const errorMessageEl = errorMessage || createMessageStub();
 
@@ -203,6 +211,7 @@ let selectedPlatform = null;
 let selectedCategory = null;
 let selectedService = null;
 let selectedPricePer100 = 0;
+let commentModeActive = false;
 let catalogPlatforms = [];
 let catalogServices = [];
 let resellerAccount = window.currentAccount || null;
@@ -262,6 +271,49 @@ function getBasePricePer100(service) {
   if (service.pricePer100) return Number(service.pricePer100);
   if (service.rate) return Number(service.rate) / 10;
   return 0;
+}
+
+const COMMENT_TERMS = ["comment", "comments", "komentar", "komen"];
+const COMMENT_MODE_TERMS = ["custom", "costum", "kostum", "costume", "manual", "isi sendiri"];
+
+function serviceRequiresCustomComments(service) {
+  if (!service) return false;
+  const text = `${service.name || ""} ${service.description || ""}`.toLowerCase();
+  if (!COMMENT_TERMS.some((term) => text.includes(term))) return false;
+  return COMMENT_MODE_TERMS.some((term) => text.includes(term));
+}
+
+function parseCustomComments(value = "") {
+  return String(value || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
+
+function syncCommentQuantity() {
+  if (!commentModeActive) return;
+  const comments = parseCustomComments(commentField.value);
+  quantityField.value = comments.length ? String(comments.length) : "";
+  updateTotalPrice();
+}
+
+function toggleCommentMode(enabled) {
+  commentModeActive = Boolean(enabled);
+  if (commentModeActive) {
+    if (commentBlockEl) commentBlockEl.classList.remove("hidden");
+    if (quantityHintEl) quantityHintEl.classList.remove("hidden");
+    if (quantityField?.setAttribute) quantityField.setAttribute("readonly", "readonly");
+    quantityField.readOnly = true;
+    quantityField.placeholder = "Otomatis dari jumlah komentar";
+    syncCommentQuantity();
+  } else {
+    if (commentBlockEl) commentBlockEl.classList.add("hidden");
+    if (quantityHintEl) quantityHintEl.classList.add("hidden");
+    commentField.value = "";
+    if (quantityField?.removeAttribute) quantityField.removeAttribute("readonly");
+    quantityField.readOnly = false;
+    quantityField.placeholder = "Jumlah";
+  }
 }
 
 async function loadCatalog() {
@@ -493,7 +545,12 @@ function applyServiceSelection(id, options = {}) {
   if (serviceNoteText) serviceNoteText.textContent = "";
   selectedPricePer100 = 0;
   updateTotalPrice();
-  if (!id) return;
+  toggleCommentMode(false);
+  if (!id) {
+    quantityField.min = 0;
+    if (quantityField?.removeAttribute) quantityField.removeAttribute("max");
+    return;
+  }
 
   const svc = catalogServices.find((s) => String(s.id) === String(id));
   if (!svc) {
@@ -518,8 +575,16 @@ function applyServiceSelection(id, options = {}) {
   }
 
   selectedPricePer100 = basePrice || 0;
+  const requiresComments = serviceRequiresCustomComments(svc);
+  toggleCommentMode(requiresComments);
   updateTotalPrice();
-  if (svc.min) quantityField.min = svc.min;
+  quantityField.min = svc.min || 0;
+  quantityField.max = svc.max || "";
+  if (svc.max && quantityField?.setAttribute) {
+    quantityField.setAttribute("max", svc.max);
+  } else if (quantityField?.removeAttribute) {
+    quantityField.removeAttribute("max");
+  }
 }
 
 serviceSelect.addEventListener("change", (e) => {
@@ -540,6 +605,9 @@ function updateTotalPrice() {
 
 quantityField.addEventListener("input", updateTotalPrice);
 quantityField.addEventListener("change", updateTotalPrice);
+commentField.addEventListener("input", () => {
+  if (commentModeActive) syncCommentQuantity();
+});
 function showPaymentLoader(message = "Menyiapkan pembayaran...") {
   if (!paymentLoader) return;
   paymentLoader.classList.remove("hidden");
@@ -565,10 +633,22 @@ payButtonEl.addEventListener("click", async () => {
   if (!selectedService) return (errorMessageEl.textContent = "Pilih layanan.");
 
   const target = targetField.value.trim();
-  const qty = Number(quantityField.value || 0);
+  const commentLines = commentModeActive ? parseCustomComments(commentField.value) : [];
+  const qty = commentModeActive ? commentLines.length : Number(quantityField.value || 0);
 
   if (!target) return (errorMessageEl.textContent = "Target tidak boleh kosong.");
+  if (commentModeActive && !commentLines.length) {
+    return (errorMessageEl.textContent = "Masukkan daftar komentar terlebih dahulu.");
+  }
   if (!qty || qty <= 0) return (errorMessageEl.textContent = "Jumlah harus lebih dari 0.");
+  const minQty = Number(selectedService?.min || 0);
+  if (minQty && qty < minQty) {
+    return (errorMessageEl.textContent = `Jumlah minimal untuk layanan ini adalah ${minQty}.`);
+  }
+  const maxQty = Number(selectedService?.max || 0);
+  if (maxQty && qty > maxQty) {
+    return (errorMessageEl.textContent = `Jumlah maksimal untuk layanan ini adalah ${maxQty}.`);
+  }
 
   const useResellerBalance = isResellerActive();
   try {
@@ -582,6 +662,7 @@ payButtonEl.addEventListener("click", async () => {
       serviceId: selectedService.id,
       target,
       quantity: qty,
+      customComments: commentModeActive ? commentLines : undefined,
       useBalance: Boolean(resellerAccount),
       resellerIdentifier: resellerAccount?.identifier || null,
       buyer: {

@@ -1409,7 +1409,8 @@ body {
 }
 
 select,
-input {
+input,
+textarea {
   width: 100%;
   margin-top: 6px;
   padding: 10px 12px;
@@ -1421,11 +1422,23 @@ input {
   color: #111827;
 }
 
+textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
 label {
   display: block;
   font-size: 14px;
   color: #374151;
   margin-bottom: 12px;
+}
+
+.field-hint {
+  display: block;
+  margin-top: 6px;
+  font-size: 12px;
+  color: #6b7280;
 }
 
 .service-detail {

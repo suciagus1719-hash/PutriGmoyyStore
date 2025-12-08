@@ -1,7 +1,7 @@
 const crypto = require("crypto");
 const { callPanel } = require("../lib/smmClient");
 const { updateUser } = require("../lib/accountStore");
-const { updateOrder } = require("../lib/orderStore");
+const { updateOrder, getOrder } = require("../lib/orderStore");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 
@@ -98,6 +98,10 @@ module.exports = async (req, res) => {
         };
         if (field3) {
           payload.quantity = field3;
+        }
+        const existing = getOrder(order_id);
+        if (existing?.customComments?.length) {
+          payload.comments = existing.customComments.join("\n");
         }
         const panelRes = await callPanel(payload);
         console.log("Order dikirim ke panel:", panelRes);

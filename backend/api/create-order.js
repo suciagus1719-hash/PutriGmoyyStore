@@ -1,7 +1,12 @@
 const fetch = require("node-fetch");
 const { callPanel } = require("../lib/smmClient");
 const { normalizeServicesResponse } = require("../lib/platformUtils");
-const { getServiceId, getServicePrice, getServiceName } = require("../lib/serviceParser");
+const {
+  getServiceId,
+  getServicePrice,
+  getServiceName,
+  getServiceDescription,
+} = require("../lib/serviceParser");
 const { findUser, updateUser } = require("../lib/accountStore");
 const { appendOrder, updateOrder } = require("../lib/orderStore");
 
@@ -13,6 +18,26 @@ const MIDTRANS_SNAP_BASE_URL =
   process.env.MIDTRANS_SNAP_BASE_URL || "https://app.sandbox.midtrans.com";
 const PUBLIC_FRONTEND_URL =
   process.env.PUBLIC_FRONTEND_URL || "https://suciagus1719-hash.github.io/PutriGmoyyStore/";
+
+const COMMENT_TERMS = ["comment", "comments", "komentar", "komen"];
+const COMMENT_MODE_TERMS = ["custom", "costum", "kostum", "costume", "manual", "isi sendiri"];
+
+function requiresCustomComments(service) {
+  const base = `${getServiceName(service) || ""} ${getServiceDescription(service) || ""}`.toLowerCase();
+  if (!COMMENT_TERMS.some((term) => base.includes(term))) return false;
+  return COMMENT_MODE_TERMS.some((term) => base.includes(term));
+}
+
+function normalizeComments(input) {
+  if (!input) return [];
+  if (Array.isArray(input)) {
+    return input.map((item) => String(item || "").trim()).filter(Boolean);
+  }
+  return String(input || "")
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+}
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -30,9 +55,10 @@ module.exports = async (req, res) => {
       buyer = {},
       useBalance,
       resellerIdentifier,
+      customComments,
     } = req.body;
 
-    if (!platformId || !categoryId || !serviceId || !target || !quantity) {
+    if (!platformId || !categoryId || !serviceId || !target) {
       return res.status(400).json({ error: "Data pesanan tidak lengkap" });
     }
 
@@ -44,12 +70,22 @@ module.exports = async (req, res) => {
 
     // Ambil detail layanan untuk hitung total harga
     const panelRes = await callPanel({ action: "services" });
-    const services = normalizeServicesResponse(panelRes);
+   const services = normalizeServicesResponse(panelRes);
     const svc = services.find((s) => String(getServiceId(s)) === String(serviceId));
     if (!svc) return res.status(400).json({ error: "Layanan tidak ditemukan" });
 
+    const commentRequired = requiresCustomComments(svc);
+    const commentList = commentRequired ? normalizeComments(customComments) : [];
+    if (commentRequired && !commentList.length) {
+      return res.status(400).json({ error: "Komentar wajib diisi untuk layanan ini." });
+    }
+
+    const qty = commentRequired ? commentList.length : Number(quantity);
+    if (!qty || qty <= 0) {
+      return res.status(400).json({ error: "Jumlah pesanan tidak valid." });
+    }
+
     const rate = getServicePrice(svc); // harga per 1000
-    const qty = Number(quantity);
     const baseAmount = Math.round((rate / 1000) * qty);
     const margin = wantsBalance ? RESELLER_MARGIN : PUBLIC_MARGIN;
     const paymentAmount = Math.round(baseAmount * (1 + margin));
@@ -65,7 +101,7 @@ module.exports = async (req, res) => {
       service_name: getServiceName(svc),
       category: svc.category || categoryId || "",
       target,
-      quantity: String(quantity),
+      quantity: String(qty),
       gross_amount: String(paymentAmount),
       payment_type: wantsBalance ? "Saldo Reseller" : "QRIS (GoPay)",
       request_time: new Date().toISOString(),
@@ -80,6 +116,7 @@ module.exports = async (req, res) => {
       platformName: svc.platformName || "",
       target,
       quantity: qty,
+      customComments: commentList,
       price: paymentAmount,
       buyer,
       status: wantsBalance ? "processing" : "pending_payment",
@@ -100,8 +137,11 @@ module.exports = async (req, res) => {
           action: "order",
           service: serviceId,
           data: target,
-          quantity,
+          quantity: qty,
         };
+        if (commentRequired && commentList.length) {
+          payload.comments = commentList.join("\n");
+        }
         await callPanel(payload);
       } catch (e) {
         console.error("Gagal order panel via saldo:", e);
@@ -157,7 +197,7 @@ module.exports = async (req, res) => {
       ],
       custom_field1: String(serviceId),
       custom_field2: target,
-      custom_field3: String(quantity),
+      custom_field3: String(qty),
       callbacks: {
         finish: `${frontendBase}struk.html?${receiptParams}`,
         error: frontendBase,
