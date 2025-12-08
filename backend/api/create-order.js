@@ -9,6 +9,7 @@ const {
 } = require("../lib/serviceParser");
 const { findUser, updateUser } = require("../lib/accountStore");
 const { appendOrder, updateOrder } = require("../lib/orderStore");
+const { notifyStatusChange } = require("../lib/notificationManager");
 
 const PUBLIC_MARGIN = 0.4;
 const RESELLER_MARGIN = 0.2;
@@ -137,6 +138,9 @@ module.exports = async (req, res) => {
       commentUsername: commentOwner || null,
       price: paymentAmount,
       buyer,
+      buyerName: buyer.name || "Guest",
+      buyerEmail: buyer.email || "noemail@example.com",
+      buyerWhatsapp: buyer.whatsapp || buyer.phone || "-",
       status: wantsBalance ? "processing" : "pending_payment",
       type: wantsBalance ? "reseller" : "midtrans",
       createdAt: new Date().toISOString(),
@@ -146,8 +150,12 @@ module.exports = async (req, res) => {
       remains: null,
       lastStatusSync: null,
       resellerIdentifier: resellerIdentifier || null,
+      lastNotifiedStatus: null,
     };
     appendOrder(orderRecord);
+    notifyStatusChange(orderRecord, orderRecord.status).catch((err) =>
+      console.error("Notif status awal gagal:", err)
+    );
 
     if (wantsBalance) {
       const { user } = findUser(resellerIdentifier);
@@ -202,6 +210,9 @@ module.exports = async (req, res) => {
         lastStatusSync: new Date().toISOString(),
         panelResponse: panelResponse || null,
       });
+      notifyStatusChange(orderId, panelData.status || "processing").catch((err) =>
+        console.error("Notif status reseller gagal:", err)
+      );
 
       return res.json({
         success: true,

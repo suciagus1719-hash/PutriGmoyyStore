@@ -1,6 +1,7 @@
 const fetch = require("node-fetch");
 const { updateUser } = require("./accountStore");
 const { getOrder, updateOrder } = require("./orderStore");
+const { notifyStatusChange } = require("./notificationManager");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 const SNAP_BASE = process.env.MIDTRANS_SNAP_BASE_URL || "https://app.sandbox.midtrans.com";
@@ -70,6 +71,16 @@ async function refundOrder(orderOrId, options = {}) {
     status: options.status || "refunded",
     lastUpdate: new Date().toISOString(),
   });
+  try {
+    await notifyStatusChange(order.id, options.status || "refunded", {
+      force: true,
+      message: `Dana sebesar Rp ${Number(amount).toLocaleString(
+        "id-ID"
+      )} telah dikembalikan karena ${reason}.`,
+    });
+  } catch (e) {
+    console.error("Gagal mengirim notifikasi refund:", e);
+  }
   return patch || order;
 }
 
