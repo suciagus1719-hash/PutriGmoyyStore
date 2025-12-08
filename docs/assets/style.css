@@ -1279,6 +1279,77 @@ body {
   color: #6b7280;
 }
 
+.owner-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.owner-settings-toggle {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(99, 102, 241, 0.12);
+  color: #4f46e5;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.3s ease, background 0.3s ease;
+}
+
+.owner-settings-toggle svg {
+  width: 20px;
+  height: 20px;
+}
+
+.owner-settings-toggle.active {
+  background: rgba(99, 102, 241, 0.2);
+  transform: rotate(90deg);
+}
+
+.owner-settings-menu {
+  margin-top: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  padding: 0;
+  overflow: hidden;
+  max-height: 0;
+  opacity: 0;
+  transition: max-height 0.4s ease, opacity 0.3s ease;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.owner-settings-menu.open {
+  max-height: 520px;
+  opacity: 1;
+}
+
+.owner-settings-item {
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 14px 20px;
+  font-size: 15px;
+  color: #1e1b4b;
+  cursor: pointer;
+  transition: background 0.2s ease, padding-left 0.2s ease;
+}
+
+.owner-settings-item + .owner-settings-item {
+  border-top: 1px solid #eef2ff;
+}
+
+.owner-settings-item:hover {
+  background: rgba(99, 102, 241, 0.08);
+  padding-left: 28px;
+}
+
 .owner-profile-header {
   display: flex;
   align-items: center;

@@ -764,9 +764,28 @@
           <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
         </div>
         <section class="card info-card owner-card" id="owner-section">
-          <div class="status-header">
-            <h3>Owner Menu</h3>
-            <p>Panel kontrol untuk memantau profil, transaksi, dan akun reseller Putri Gmoyy Store.</p>
+          <div class="status-header owner-header">
+            <div>
+              <h3>Owner Menu</h3>
+              <p>Panel kontrol untuk memantau profil, transaksi, dan akun reseller Putri Gmoyy Store.</p>
+            </div>
+            <button type="button" class="owner-settings-toggle" id="owner-settings-toggle" aria-expanded="false" aria-controls="owner-settings-menu">
+              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 18.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09A1.65 1.65 0 0015 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.9 0 1.64.73 1.64 1.64v.72c0 .9-.73 1.64-1.64 1.64z" />
+              </svg>
+            </button>
+          </div>
+          <div class="owner-settings-menu" id="owner-settings-menu">
+            <button type="button" class="owner-settings-item" data-setting="min_deposit">Minimal Deposit</button>
+            <button type="button" class="owner-settings-item" data-setting="reset_deposit_history">Reset Histori Deposit</button>
+            <button type="button" class="owner-settings-item" data-setting="reset_order_history">Reset Histori Status Order</button>
+            <button type="button" class="owner-settings-item" data-setting="reset_monitoring">Reset Histori Monitoring</button>
+            <button type="button" class="owner-settings-item" data-setting="hide_services">Hide Layanan</button>
+            <button type="button" class="owner-settings-item" data-setting="public_margin">Ubah Margin Publik</button>
+            <button type="button" class="owner-settings-item" data-setting="reseller_margin">Ubah Margin Reseller</button>
+            <button type="button" class="owner-settings-item" data-setting="bonus_deposit">Bonus Deposit</button>
+            <button type="button" class="owner-settings-item" data-setting="announcement">Pengumuman</button>
           </div>
           <div class="owner-summary-grid">
             <div class="owner-summary-card">

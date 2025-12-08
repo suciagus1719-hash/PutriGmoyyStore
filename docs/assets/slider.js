@@ -388,6 +388,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const ownerOrderCloseBtn = document.getElementById("owner-order-close-btn");
   const ownerOrderDetail = document.getElementById("owner-order-detail");
   const ownerOrderTitle = document.getElementById("owner-order-title");
+  const ownerSettingsToggle = document.getElementById("owner-settings-toggle");
+  const ownerSettingsMenu = document.getElementById("owner-settings-menu");
   const ownerPasswordModal = document.getElementById("owner-password-modal");
   const ownerPasswordInput = document.getElementById("owner-password-input");
   const ownerPasswordError = document.getElementById("owner-password-error");
@@ -664,6 +666,77 @@ document.addEventListener("DOMContentLoaded", () => {
         ${ownerDetailItem("WhatsApp", buyer.phone || buyer.whatsapp || "-")}
       </div>
     `;
+  };
+
+  const renderStatusOrderDetail = (row = {}) => {
+    if (!statusOrderDetail) return;
+    const detail = row.detail || {};
+    const buyer = detail.buyer || row.buyer || {};
+    const commentsSource = Array.isArray(detail.customComments)
+      ? detail.customComments
+      : Array.isArray(row.customComments)
+      ? row.customComments
+      : [];
+    const comments = commentsSource.filter((comment) => typeof comment === "string" && comment.trim().length);
+    const commentList = comments.length
+      ? `<ul class="comment-list">${comments.map((c) => `<li>${escapeHtml(c)}</li>`).join("")}</ul>`
+      : "";
+    statusOrderTitle && (statusOrderTitle.textContent = row.id || "Detail Order");
+    statusOrderDetail.innerHTML = `
+      <div class="detail-group">
+        <h5>Informasi Pesanan</h5>
+        ${ownerDetailItem("Order ID", row.id || "-")}
+        ${ownerDetailItem("ID Layanan", detail.serviceId || row.serviceId || "-")}
+        ${ownerDetailItem("Nama Layanan", detail.serviceName || row.serviceName || "-")}
+        ${ownerDetailItem("Target", detail.target || row.target || "-")}
+        ${ownerDetailItem("Jumlah", detail.quantity || row.quantity || "-")}
+        ${
+          comments.length
+            ? `${ownerDetailItem("Total Komentar", `${comments.length} teks`)}${commentList}`
+            : ""
+        }
+      </div>
+      <div class="detail-group">
+        <h5>Status & Pembayaran</h5>
+        ${ownerDetailItem("Status Sistem", formatTrackStatus(detail.status || row.status))}
+        ${ownerDetailItem("Status Panel", detail.panelStatus || row.panelStatus || "-")}
+        ${ownerDetailItem("ID Panel", detail.panelOrderId || row.panelOrderId || "-")}
+        ${ownerDetailItem("Harga", formatStatusCurrency(detail.grossAmount || row.price || 0))}
+        ${ownerDetailItem(
+          "Metode",
+          detail.paymentType || row.paymentType || (row.isReseller ? "Saldo Reseller" : "Midtrans")
+        )}
+        ${ownerDetailItem("Mulai Hitung", detail.startCount ?? row.startCount ?? "-")}
+        ${ownerDetailItem("Sisa", detail.remains ?? row.remains ?? "-")}
+        ${ownerDetailItem("Terakhir Sinkron", formatFullDateTime(row.lastStatusSync || row.createdAt))}
+      </div>
+      <div class="detail-group">
+        <h5>Data Pemesan</h5>
+        ${ownerDetailItem("Nama", buyer.name || buyer.displayName || row.buyerName || "-")}
+        ${ownerDetailItem("Email", buyer.email || row.buyerEmail || "-")}
+        ${ownerDetailItem("Nomor", buyer.phone || row.buyerPhone || "-")}
+        ${ownerDetailItem("Dipesan", formatFullDateTime(row.createdAt))}
+      </div>
+    `;
+  };
+
+  const openStatusOrderModal = (row) => {
+    if (!row) return;
+    renderStatusOrderDetail(row);
+    statusOrderModal?.classList.remove("hidden");
+  };
+
+  const closeStatusOrderModal = () => {
+    statusOrderModal?.classList.add("hidden");
+  };
+
+  const toggleOwnerSettingsMenu = (force) => {
+    if (!ownerSettingsMenu || !ownerSettingsToggle) return;
+    const shouldOpen =
+      typeof force === "boolean" ? force : !ownerSettingsMenu.classList.contains("open");
+    ownerSettingsMenu.classList.toggle("open", shouldOpen);
+    ownerSettingsToggle.classList.toggle("active", shouldOpen);
+    ownerSettingsToggle.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
   };
 
   const renderStatusOrderDetail = (row = {}) => {
@@ -1883,6 +1956,20 @@ let historyData = [];
   statusOrderModal?.addEventListener("click", (e) => {
     if (e.target === statusOrderModal) closeStatusOrderModal();
   });
+  ownerSettingsToggle?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    toggleOwnerSettingsMenu();
+  });
+  ownerSettingsMenu?.addEventListener("click", (e) => e.stopPropagation());
+  document.addEventListener("click", (e) => {
+    if (
+      ownerSettingsMenu?.classList.contains("open") &&
+      !ownerSettingsMenu.contains(e.target) &&
+      !ownerSettingsToggle?.contains(e.target)
+    ) {
+      toggleOwnerSettingsMenu(false);
+    }
+  });
   ownerResellerForm?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const id = ownerResellerIdInput?.value.trim();
@@ -2227,7 +2314,8 @@ let historyData = [];
     try {
       depositError.classList.add("hidden");
       depositSubmit.disabled = true;
-      depositSubmit.textContent = "Membuka Midtrans...";
+      depositSubmit.textContent = "Memuat pembayaran...";
+      showLoader("Memuat pembayaran...");
       const res = await apiPost("/api/reseller?action=create-deposit", {
         identifier: currentUser.identifier,
         amount,
@@ -2238,6 +2326,7 @@ let historyData = [];
       depositError.textContent = e.message;
       depositError.classList.remove("hidden");
     } finally {
+      hideLoader();
       depositSubmit.disabled = false;
       depositSubmit.textContent = "Lanjutkan Pembayaran";
     }
