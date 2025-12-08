@@ -33,6 +33,10 @@ function saveOrders(list) {
 
 function appendOrder(order) {
   const list = readOrders();
+  const existingIndex = list.findIndex((item) => item.id === order.id);
+  if (existingIndex >= 0) {
+    list.splice(existingIndex, 1);
+  }
   list.unshift(order);
   if (list.length > 15) {
     list.length = 15;

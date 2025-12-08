@@ -250,7 +250,7 @@ async function apiGet(path) {
   return requestJson(path, {}, 3);
 }
 
-async function apiPost(path, body) {
+async function apiPost(path, body, attempts = 1) {
   return requestJson(
     path,
     {
@@ -258,7 +258,7 @@ async function apiPost(path, body) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     },
-    3
+    attempts
   );
 }
 
@@ -697,7 +697,7 @@ payButtonEl.addEventListener("click", async () => {
         email: safeValue(orderEmailField) || safeValue(buyerEmail) || "noemail@example.com",
       },
     };
-    const res = await apiPost("/api/create-order", payload);
+    const res = await apiPost("/api/create-order", payload, 1);
     if (res.receiptUrl) {
       if (res.account) {
         window.dispatchEvent(new CustomEvent("account:change", { detail: res.account }));

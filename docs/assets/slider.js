@@ -32,7 +32,7 @@ const requestJson = async (path, options = {}, attempts = 2) => {
   }
 };
 
-function authPost(path, body) {
+function authPost(path, body, attempts = 1) {
   return requestJson(
     path,
     {
@@ -40,15 +40,15 @@ function authPost(path, body) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     },
-    3
+    attempts
   );
 }
 
-function apiGet(path) {
-  return requestJson(path, {}, 3);
+function apiGet(path, attempts = 3) {
+  return requestJson(path, {}, attempts);
 }
 
-function apiPost(path, body) {
+function apiPost(path, body, attempts = 1) {
   return requestJson(
     path,
     {
@@ -56,7 +56,7 @@ function apiPost(path, body) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
     },
-    3
+    attempts
   );
 }
 
@@ -501,6 +501,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (ownerSummaryRevenue) {
       ownerSummaryRevenue.textContent = formatStatusCurrency(stats.revenue || 0);
     }
+  };
+
+  const updateOwnerResellerSummary = (summary = {}) => {
+    ownerResellerTotalChip && (ownerResellerTotalChip.textContent = Number(summary.total || 0));
+    ownerResellerActiveChip && (ownerResellerActiveChip.textContent = Number(summary.active || 0));
+    ownerResellerBlockedChip && (ownerResellerBlockedChip.textContent = Number(summary.blocked || 0));
   };
 
   const renderOwnerOrders = (rows = []) => {
@@ -2047,10 +2053,3 @@ let ownerRefreshPromise = null;
 });
 })();
 }
-
-
-  const updateOwnerResellerSummary = (summary = {}) => {
-    ownerResellerTotalChip && (ownerResellerTotalChip.textContent = Number(summary.total || 0));
-    ownerResellerActiveChip && (ownerResellerActiveChip.textContent = Number(summary.active || 0));
-    ownerResellerBlockedChip && (ownerResellerBlockedChip.textContent = Number(summary.blocked || 0));
-  };
