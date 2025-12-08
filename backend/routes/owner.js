@@ -160,7 +160,8 @@ function updateReseller(payload = {}) {
   };
 
   const patched =
-    (id ? updateUserById(id, applyChanges) : null) || updateUser(identifier, applyChanges);
+    (id ? updateUserById(id, applyChanges) : null) ||
+    (identifier ? updateUser(identifier, applyChanges) : null);
   if (!patched) throw new Error("Akun tidak ditemukan");
   return sanitizeReseller(patched);
 }
