@@ -142,7 +142,7 @@ function updateReseller(payload = {}) {
   const patched = updateUser(identifier, (current) => {
     if (!current) throw new Error("Akun tidak ditemukan");
     const next = { ...current };
-    if (displayName) next.displayName = displayName.trim();
+    if (displayName !== undefined) next.displayName = displayName ? displayName.trim() : next.displayName;
     if (email) {
       next.email = email.trim().toLowerCase();
       next.identifier = email.trim().toLowerCase();
