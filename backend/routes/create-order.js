@@ -175,7 +175,7 @@ module.exports = async (req, res) => {
     appendOrder(orderRecord);
 
     if (wantsBalance) {
-      const { user } = findUser(resellerIdentifier);
+      const { user } = await findUser(resellerIdentifier);
       if (!user) return res.status(404).json({ error: "Akun reseller tidak ditemukan" });
       const balance = Number(user.balance || 0);
       if (balance < paymentAmount) {
@@ -199,7 +199,7 @@ module.exports = async (req, res) => {
         return res.status(500).json({ error: "Gagal memproses pesanan ke panel." });
       }
 
-      const updated = updateUser(resellerIdentifier, {
+      const updated = await updateUser(resellerIdentifier, {
         balance: balance - paymentAmount,
       });
       const account = updated

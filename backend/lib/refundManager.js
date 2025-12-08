@@ -34,7 +34,7 @@ async function refundMidtrans(orderId, amount, reason) {
 }
 
 async function refundResellerBalance(identifier, amount) {
-  const updated = updateUser(identifier, (current) => ({
+  const updated = await updateUser(identifier, (current) => ({
     balance: Number(current.balance || 0) + Number(amount || 0),
   }));
   if (!updated) throw new Error("Gagal mengembalikan saldo reseller.");

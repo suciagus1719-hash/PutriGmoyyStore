@@ -100,9 +100,9 @@ async function handleOrders(res) {
   return res.json({ rows, stats });
 }
 
-function filterResellers(q) {
+async function filterResellers(q) {
   const term = String(q || "").trim().toLowerCase();
-  const users = readUsers();
+  const users = await readUsers();
   let filtered = users;
   if (term) {
     filtered = users.filter((u) => {
@@ -160,8 +160,8 @@ function updateReseller(payload = {}) {
   };
 
   const patched =
-    (id ? updateUserById(id, applyChanges) : null) ||
-    (identifier ? updateUser(identifier, applyChanges) : null);
+    (id ? await updateUserById(id, applyChanges) : null) ||
+    (identifier ? await updateUser(identifier, applyChanges) : null);
   if (!patched) throw new Error("Akun tidak ditemukan");
   return sanitizeReseller(patched);
 }
@@ -179,7 +179,7 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === "GET" && action === "resellers") {
-      const { rows, summary } = filterResellers(req.query.q || "");
+      const { rows, summary } = await filterResellers(req.query.q || "");
       return res.json({ rows, summary });
     }
 

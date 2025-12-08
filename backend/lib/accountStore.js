@@ -1,6 +1,5 @@
 const { randomUUID } = require("crypto");
 const { Pool } = require("pg");
-const deasync = require("deasync");
 
 const TABLE_NAME = process.env.ACCOUNT_TABLE_NAME || "resellers";
 const CONNECTION_STRING =
@@ -11,14 +10,13 @@ const CONNECTION_STRING =
 
 if (!CONNECTION_STRING) {
   console.warn(
-    "[accountStore] POSTGRES_URL_NON_POOLING / POSTGRES_URL belum diset. Data reseller akan hilang ketika instance restart."
+    "[accountStore] POSTGRES_URL / POSTGRES_URL_NON_POOLING belum diset. Data reseller tidak akan tersimpan."
   );
 }
 
 const pool = CONNECTION_STRING
   ? new Pool({
       connectionString: CONNECTION_STRING,
-      max: 3,
       ssl:
         CONNECTION_STRING.includes("sslmode=require") || CONNECTION_STRING.includes("supabase.com")
           ? { rejectUnauthorized: false }
@@ -26,58 +24,38 @@ const pool = CONNECTION_STRING
     })
   : null;
 
-let tableReady = false;
+let tablePromise = null;
 
-function syncAwait(promise) {
-  if (!promise || typeof promise.then !== "function") return promise;
-  let done = false;
-  let result;
-  let error;
-  promise
-    .then((res) => {
-      result = res;
-      done = true;
-    })
-    .catch((err) => {
-      error = err;
-      done = true;
-    });
-  deasync.loopWhile(() => !done);
-  if (error) throw error;
-  return result;
-}
-
-async function ensureTableAsync() {
-  if (!pool || tableReady) return;
-  const query = `
-    CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
-      id TEXT PRIMARY KEY,
-      identifier TEXT NOT NULL,
-      normalized TEXT NOT NULL UNIQUE,
-      password TEXT NOT NULL,
-      balance NUMERIC DEFAULT 0,
-      coins NUMERIC DEFAULT 0,
-      referral_count INTEGER DEFAULT 0,
-      created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-      display_name TEXT,
-      email TEXT,
-      phone TEXT,
-      avatar_url TEXT,
-      deposit_history JSONB DEFAULT '[]'::jsonb,
-      referral_code TEXT,
-      blocked_status TEXT DEFAULT 'none'
-    );
-    CREATE INDEX IF NOT EXISTS idx_${TABLE_NAME}_identifier ON ${TABLE_NAME} (identifier);
-    CREATE INDEX IF NOT EXISTS idx_${TABLE_NAME}_normalized ON ${TABLE_NAME} (normalized);
-  `;
-  await pool.query(query);
-  tableReady = true;
-}
-
-function ensureTable() {
-  if (!pool) return;
-  if (tableReady) return;
-  syncAwait(ensureTableAsync());
+async function ensureTable() {
+  if (!pool) {
+    throw new Error("Database belum dikonfigurasi. Pastikan POSTGRES_URL tersedia.");
+  }
+  if (tablePromise) return tablePromise;
+  tablePromise = (async () => {
+    const query = `
+      CREATE TABLE IF NOT EXISTS ${TABLE_NAME} (
+        id TEXT PRIMARY KEY,
+        identifier TEXT NOT NULL,
+        normalized TEXT NOT NULL UNIQUE,
+        password TEXT NOT NULL,
+        balance NUMERIC DEFAULT 0,
+        coins NUMERIC DEFAULT 0,
+        referral_count INTEGER DEFAULT 0,
+        created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+        display_name TEXT,
+        email TEXT,
+        phone TEXT,
+        avatar_url TEXT,
+        deposit_history JSONB DEFAULT '[]'::jsonb,
+        referral_code TEXT,
+        blocked_status TEXT DEFAULT 'none'
+      );
+      CREATE INDEX IF NOT EXISTS idx_${TABLE_NAME}_identifier ON ${TABLE_NAME} (identifier);
+      CREATE INDEX IF NOT EXISTS idx_${TABLE_NAME}_normalized ON ${TABLE_NAME} (normalized);
+    `;
+    await pool.query(query);
+  })();
+  return tablePromise;
 }
 
 function normalizeIdentifier(value = "") {
@@ -130,79 +108,75 @@ function normalizeRowForInsert(user) {
   };
 }
 
-function upsertUserRecord(user) {
-  ensureTable();
+async function upsertUserRecord(user) {
+  await ensureTable();
   if (!pool) return user;
   const data = normalizeRowForInsert({ ...user });
-  const result = syncAwait(
-    pool.query(
-      `INSERT INTO ${TABLE_NAME} (
-        id, identifier, normalized, password, balance, coins, referral_count,
-        created_at, display_name, email, phone, avatar_url, deposit_history, referral_code, blocked_status
-      ) VALUES (
-        $1,$2,$3,$4,$5,$6,$7,COALESCE($8,NOW()),$9,$10,$11,$12,$13,$14,$15
-      )
-      ON CONFLICT (id) DO UPDATE SET
-        identifier = EXCLUDED.identifier,
-        normalized = EXCLUDED.normalized,
-        password = EXCLUDED.password,
-        balance = EXCLUDED.balance,
-        coins = EXCLUDED.coins,
-        referral_count = EXCLUDED.referral_count,
-        display_name = EXCLUDED.display_name,
-        email = EXCLUDED.email,
-        phone = EXCLUDED.phone,
-        avatar_url = EXCLUDED.avatar_url,
-        deposit_history = EXCLUDED.deposit_history,
-        referral_code = EXCLUDED.referral_code,
-        blocked_status = EXCLUDED.blocked_status
-      RETURNING *`,
-      [
-        data.id,
-        data.identifier,
-        data.normalized,
-        data.password,
-        data.balance,
-        data.coins,
-        data.referralCount,
-        data.createdAt,
-        data.displayName,
-        data.email,
-        data.phone,
-        data.avatarUrl,
-        JSON.stringify(data.depositHistory),
-        data.referralCode,
-        data.blockedStatus,
-      ]
+  const { rows } = await pool.query(
+    `INSERT INTO ${TABLE_NAME} (
+      id, identifier, normalized, password, balance, coins, referral_count,
+      created_at, display_name, email, phone, avatar_url, deposit_history, referral_code, blocked_status
+    ) VALUES (
+      $1,$2,$3,$4,$5,$6,$7,COALESCE($8,NOW()),$9,$10,$11,$12,$13,$14,$15
     )
+    ON CONFLICT (id) DO UPDATE SET
+      identifier = EXCLUDED.identifier,
+      normalized = EXCLUDED.normalized,
+      password = EXCLUDED.password,
+      balance = EXCLUDED.balance,
+      coins = EXCLUDED.coins,
+      referral_count = EXCLUDED.referral_count,
+      display_name = EXCLUDED.display_name,
+      email = EXCLUDED.email,
+      phone = EXCLUDED.phone,
+      avatar_url = EXCLUDED.avatar_url,
+      deposit_history = EXCLUDED.deposit_history,
+      referral_code = EXCLUDED.referral_code,
+      blocked_status = EXCLUDED.blocked_status
+    RETURNING *`,
+    [
+      data.id,
+      data.identifier,
+      data.normalized,
+      data.password,
+      data.balance,
+      data.coins,
+      data.referralCount,
+      data.createdAt,
+      data.displayName,
+      data.email,
+      data.phone,
+      data.avatarUrl,
+      JSON.stringify(data.depositHistory),
+      data.referralCode,
+      data.blockedStatus,
+    ]
   );
-  return mapRow(result.rows[0]);
+  return mapRow(rows[0]);
 }
 
-function readUsers() {
-  ensureTable();
-  if (!pool) return [];
-  const result = syncAwait(
-    pool.query(`SELECT * FROM ${TABLE_NAME} ORDER BY created_at DESC`)
-  );
-  return result.rows.map(mapRow);
+async function readUsers() {
+  await ensureTable();
+  const { rows } = await pool.query(`SELECT * FROM ${TABLE_NAME} ORDER BY created_at DESC`);
+  return rows.map(mapRow);
 }
 
-function saveUsers(users = []) {
-  ensureTable();
-  if (!pool) return;
-  users.forEach((user) => upsertUserRecord(user));
+async function saveUsers(users = []) {
+  await ensureTable();
+  for (const user of users) {
+    await upsertUserRecord(user);
+  }
 }
 
-function findUser(identifier) {
-  ensureTable();
-  if (!pool || !identifier) return { users: [], index: -1, user: null };
+async function findUser(identifier) {
+  await ensureTable();
+  if (!identifier) return { users: [], index: -1, user: null };
   const normalized = normalizeIdentifier(identifier);
   if (!normalized) return { users: [], index: -1, user: null };
-  const result = syncAwait(
-    pool.query(`SELECT * FROM ${TABLE_NAME} WHERE normalized = $1 LIMIT 1`, [normalized])
-  );
-  const row = result.rows[0];
+  const { rows } = await pool.query(`SELECT * FROM ${TABLE_NAME} WHERE normalized = $1 LIMIT 1`, [
+    normalized,
+  ]);
+  const row = rows[0];
   return {
     users: row ? [mapRow(row)] : [],
     index: row ? 0 : -1,
@@ -210,13 +184,11 @@ function findUser(identifier) {
   };
 }
 
-function findUserById(id) {
-  ensureTable();
-  if (!pool || !id) return { users: [], index: -1, user: null };
-  const result = syncAwait(
-    pool.query(`SELECT * FROM ${TABLE_NAME} WHERE id = $1 LIMIT 1`, [id])
-  );
-  const row = result.rows[0];
+async function findUserById(id) {
+  await ensureTable();
+  if (!id) return { users: [], index: -1, user: null };
+  const { rows } = await pool.query(`SELECT * FROM ${TABLE_NAME} WHERE id = $1 LIMIT 1`, [id]);
+  const row = rows[0];
   return {
     users: row ? [mapRow(row)] : [],
     index: row ? 0 : -1,
@@ -224,19 +196,19 @@ function findUserById(id) {
   };
 }
 
-function updateUser(identifier, updater) {
-  const { user } = findUser(identifier);
+async function updateUser(identifier, updater) {
+  const { user } = await findUser(identifier);
   if (!user) return null;
   const patch =
-    typeof updater === "function" ? updater({ ...user }) : { ...user, ...(updater || {}) };
+    typeof updater === "function" ? await updater({ ...user }) : { ...user, ...(updater || {}) };
   return upsertUserRecord(patch);
 }
 
-function updateUserById(id, updater) {
-  const { user } = findUserById(id);
+async function updateUserById(id, updater) {
+  const { user } = await findUserById(id);
   if (!user) return null;
   const patch =
-    typeof updater === "function" ? updater({ ...user }) : { ...user, ...(updater || {}) };
+    typeof updater === "function" ? await updater({ ...user }) : { ...user, ...(updater || {}) };
   return upsertUserRecord(patch);
 }
 

@@ -24,9 +24,9 @@ async function handleCheck(req, res) {
   return res.json({ exists });
 }
 
-function readAllUsers() {
+async function readAllUsers() {
   try {
-    return readUsers();
+    return await readUsers();
   } catch (err) {
     console.error("Gagal membaca users:", err);
     return [];
@@ -40,11 +40,11 @@ function matchesIdentifier(user, input) {
   return matchUsername(user, input);
 }
 
-function findFlexibleUser(identifier, predicate) {
-  const users = readAllUsers();
+async function findFlexibleUser(identifier, predicate) {
+  const users = await readAllUsers();
   for (const user of users) {
     if (!matchesIdentifier(user, identifier)) continue;
-    if (typeof predicate === "function" && !predicate(user)) continue;
+    if (typeof predicate === "function" && !(await predicate(user))) continue;
     return user;
   }
   return null;
@@ -57,7 +57,7 @@ async function handleRegister(req, res) {
   if (!normalized || !password || password.length < 6) {
     return res.status(400).json({ error: "Data registrasi tidak valid" });
   }
-  const users = readAllUsers();
+  const users = await readAllUsers();
   if (users.some((u) => u.normalized === normalized)) {
     return res.status(400).json({ error: "Akun sudah terdaftar" });
   }
@@ -85,13 +85,13 @@ async function handleRegister(req, res) {
     blockedStatus: "none",
   };
   users.push(user);
-  saveUsers(users);
+  await saveUsers(users);
   res.json({ success: true, user: sanitizeUser(user) });
 }
 
 async function handleSync(req, res) {
   try {
-    const users = readAllUsers();
+    const users = await readAllUsers();
     return res.json({
       success: true,
       total: users.length,
@@ -113,7 +113,7 @@ async function handleLogin(req, res) {
     return res.status(400).json({ error: "Data login tidak lengkap" });
   }
   const hashed = crypto.createHash("sha256").update(password).digest("hex");
-  const user = findFlexibleUser(identifier, (candidate) => candidate.password === hashed);
+  const user = await findFlexibleUser(identifier, (candidate) => candidate.password === hashed);
   if (!user) return res.status(401).json({ error: "Email/nomor atau password salah" });
   res.json({ success: true, user: sanitizeUser(user) });
 }
@@ -122,7 +122,7 @@ async function handleProfile(req, res) {
   if (req.method === "GET") {
     const identifier = normalizeIdentifier(req.query.identifier);
     if (!identifier) return res.status(400).json({ error: "Identifier tidak valid" });
-    const { user } = findUser(identifier);
+    const { user } = await findUser(identifier);
     if (!user) return res.status(404).json({ error: "Akun tidak ditemukan" });
     return res.json({ user: sanitizeUser(user) });
   }
@@ -136,7 +136,7 @@ async function handleProfile(req, res) {
       newPassword,
     } = req.body || {};
     if (!identifier) return res.status(400).json({ error: "Identifier wajib diisi" });
-    const { users, index, user } = findUser(identifier);
+    const { users, index, user } = await findUser(identifier);
     if (index < 0) return res.status(404).json({ error: "Akun tidak ditemukan" });
 
     if (email) {
@@ -160,7 +160,7 @@ async function handleProfile(req, res) {
       user.password = crypto.createHash("sha256").update(newPassword).digest("hex");
     }
     users[index] = user;
-    saveUsers(users);
+    await saveUsers(users);
     return res.json({ success: true, user: sanitizeUser(user) });
   }
   return res.status(405).json({ error: "Method not allowed" });
@@ -177,7 +177,7 @@ async function handleCreateDeposit(req, res) {
   if (!MIDTRANS_SERVER_KEY) {
     return res.status(500).json({ error: "MIDTRANS_SERVER_KEY belum diset" });
   }
-  const { user } = findUser(identifier);
+  const { user } = await findUser(identifier);
   if (!user) return res.status(404).json({ error: "Akun tidak ditemukan" });
 
   const orderId = `DEPO-${Date.now()}`;
@@ -229,7 +229,7 @@ async function handleHistory(req, res) {
   if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
   const identifier = req.query.identifier;
   if (!identifier) return res.status(400).json({ error: "Identifier diperlukan" });
-  const { user } = findUser(identifier);
+  const { user } = await findUser(identifier);
   if (!user) return res.status(404).json({ error: "Akun tidak ditemukan" });
   res.json({
     history: Array.isArray(user.depositHistory) ? user.depositHistory : [],
@@ -242,14 +242,14 @@ async function handleReward(req, res) {
   if (req.method !== "GET") return res.status(405).json({ error: "Method not allowed" });
   const identifier = req.query.identifier;
   if (!identifier) return res.status(400).json({ error: "Identifier diperlukan" });
-  const { user } = findUser(identifier);
+  const { user } = await findUser(identifier);
   if (!user) return res.status(404).json({ error: "Akun tidak ditemukan" });
   const referralCode = user.referralCode || user.id.slice(-6);
   if (!user.referralCode) {
-    const { users, index } = findUser(identifier);
+    const { users, index } = await findUser(identifier);
     if (index >= 0) {
       users[index].referralCode = referralCode;
-      saveUsers(users);
+      await saveUsers(users);
     }
   }
   res.json({
@@ -263,7 +263,7 @@ async function handleRewardUpdate(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   const { identifier, type, amount } = req.body || {};
   if (!identifier || !type) return res.status(400).json({ error: "Data tidak lengkap" });
-  const { users, index, user } = findUser(identifier);
+  const { users, index, user } = await findUser(identifier);
   if (index < 0) return res.status(404).json({ error: "Akun tidak ditemukan" });
 
   let coins = Number(user.coins || 0);
@@ -303,7 +303,7 @@ async function handleRewardUpdate(req, res) {
     balance,
     referralCount,
   };
-  saveUsers(users);
+  await saveUsers(users);
 
   res.json({ success: true, user: sanitizeUser(users[index]) });
 }
@@ -334,7 +334,7 @@ async function handlePasswordReset(req, res) {
   if (newPassword.length < 6) {
     return res.status(400).json({ error: "Password minimal 6 karakter" });
   }
-  const { users, index, user } = findUser(identifier);
+  const { users, index, user } = await findUser(identifier);
   if (index < 0 || !user) return res.status(404).json({ error: "Akun tidak ditemukan" });
   if (!matchUsername(user, username)) {
     return res.status(400).json({ error: "Nama pengguna tidak sesuai dengan akun ini" });
@@ -343,7 +343,7 @@ async function handlePasswordReset(req, res) {
     ...user,
     password: crypto.createHash("sha256").update(newPassword).digest("hex"),
   };
-  saveUsers(users);
+  await saveUsers(users);
   return res.json({ success: true });
 }
 

@@ -65,7 +65,7 @@ module.exports = async (req, res) => {
       if (!identifier || Number.isNaN(amount)) {
         console.error("Data deposit tidak valid");
       } else {
-        const updated = updateUser(identifier, (current) => {
+        const updated = await updateUser(identifier, (current) => {
           const history = Array.isArray(current.depositHistory)
             ? current.depositHistory
             : [];
