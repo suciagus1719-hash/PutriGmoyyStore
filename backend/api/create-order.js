@@ -56,6 +56,7 @@ module.exports = async (req, res) => {
       useBalance,
       resellerIdentifier,
       customComments,
+      commentUsername,
     } = req.body;
 
     if (!platformId || !categoryId || !serviceId || !target) {
@@ -76,8 +77,12 @@ module.exports = async (req, res) => {
 
     const commentRequired = requiresCustomComments(svc);
     const commentList = commentRequired ? normalizeComments(customComments) : [];
+    const commentOwner = commentRequired ? String(commentUsername || "").trim() : "";
     if (commentRequired && !commentList.length) {
       return res.status(400).json({ error: "Komentar wajib diisi untuk layanan ini." });
+    }
+    if (commentRequired && !commentOwner) {
+      return res.status(400).json({ error: "Username pemilik komentar wajib diisi." });
     }
 
     const qty = commentRequired ? commentList.length : Number(quantity);
@@ -95,6 +100,18 @@ module.exports = async (req, res) => {
     const frontendBase = PUBLIC_FRONTEND_URL.endsWith("/")
       ? PUBLIC_FRONTEND_URL
       : `${PUBLIC_FRONTEND_URL}/`;
+    const orderMeta = {
+      target,
+      quantity: qty,
+    };
+    if (commentList.length) {
+      orderMeta.comments = commentList;
+    }
+    if (commentOwner) {
+      orderMeta.commentUsername = commentOwner;
+    }
+    const orderMetaEncoded = Buffer.from(JSON.stringify(orderMeta)).toString("base64");
+
     const receiptParams = new URLSearchParams({
       order_id: orderId,
       service_id: String(serviceId),
@@ -117,11 +134,17 @@ module.exports = async (req, res) => {
       target,
       quantity: qty,
       customComments: commentList,
+      commentUsername: commentOwner || null,
       price: paymentAmount,
       buyer,
       status: wantsBalance ? "processing" : "pending_payment",
       type: wantsBalance ? "reseller" : "midtrans",
       createdAt: new Date().toISOString(),
+      panelOrderId: null,
+      panelStatus: null,
+      startCount: null,
+      remains: null,
+      lastStatusSync: null,
     };
     appendOrder(orderRecord);
 
@@ -132,6 +155,7 @@ module.exports = async (req, res) => {
       if (balance < paymentAmount) {
         return res.status(400).json({ error: "Saldo tidak mencukupi. Silakan deposit dulu." });
       }
+      let panelResponse = null;
       try {
         const payload = {
           action: "order",
@@ -142,7 +166,10 @@ module.exports = async (req, res) => {
         if (commentRequired && commentList.length) {
           payload.comments = commentList.join("\n");
         }
-        await callPanel(payload);
+        if (commentOwner) {
+          payload.username = commentOwner;
+        }
+        panelResponse = await callPanel(payload);
       } catch (e) {
         console.error("Gagal order panel via saldo:", e);
         return res.status(500).json({ error: "Gagal memproses pesanan ke panel." });
@@ -164,9 +191,15 @@ module.exports = async (req, res) => {
           }
         : null;
 
+      const panelData = (panelResponse && panelResponse.data) || panelResponse || {};
       updateOrder(orderId, {
-        status: "processing",
-        lastUpdate: new Date().toISOString(),
+        status: panelData.status || "processing",
+        panelStatus: panelData.status || null,
+        panelOrderId: panelData.id || panelData.order_id || panelData.order || null,
+        startCount: panelData.start_count ?? null,
+        remains: panelData.remains ?? null,
+        lastStatusSync: new Date().toISOString(),
+        panelResponse: panelResponse || null,
       });
 
       return res.json({
@@ -196,7 +229,7 @@ module.exports = async (req, res) => {
         },
       ],
       custom_field1: String(serviceId),
-      custom_field2: target,
+      custom_field2: orderMetaEncoded,
       custom_field3: String(qty),
       callbacks: {
         finish: `${frontendBase}struk.html?${receiptParams}`,

@@ -54,11 +54,11 @@ module.exports = async (req, res) => {
 
     // Ambil data layanan dari custom_field
     const field1 = custom_field1;
-    const field2 = custom_field2;
+    const rawField2 = custom_field2;
     const field3 = custom_field3;
 
     // Jika custom_field2 berisi tanda deposit, tambahkan saldo
-    if (field2 === "DEPOSIT") {
+    if (rawField2 === "DEPOSIT") {
       const identifier = field1;
       const amount = Number(field3);
       if (!identifier || Number.isNaN(amount)) {
@@ -82,9 +82,27 @@ module.exports = async (req, res) => {
         });
         if (!updated) console.error("Gagal memperbarui saldo deposit");
       }
-    } else if (!field1 || !field2 || !field3) {
+    } else if (!field1 || !rawField2 || !field3) {
       console.error("Data layanan tidak lengkap di custom_field, cek create-order.js");
     } else {
+      let parsedTarget = rawField2;
+      let parsedQuantity = field3;
+      let parsedComments = null;
+      let parsedCommentUsername = null;
+      if (rawField2 && rawField2 !== "DEPOSIT") {
+        try {
+          const decoded = JSON.parse(Buffer.from(String(rawField2), "base64").toString("utf8"));
+          if (decoded && typeof decoded === "object") {
+            if (decoded.target) parsedTarget = decoded.target;
+            if (decoded.quantity) parsedQuantity = decoded.quantity;
+            if (Array.isArray(decoded.comments)) parsedComments = decoded.comments;
+            if (decoded.commentUsername) parsedCommentUsername = decoded.commentUsername;
+          }
+        } catch (err) {
+          // treat as plain text
+        }
+      }
+
       try {
         updateOrder(order_id, {
           status: "processing",
@@ -94,21 +112,33 @@ module.exports = async (req, res) => {
         const payload = {
           action: "order", // sesuai dokumentasi PusatPanelSMM
           service: field1,
-          data: field2,
+          data: parsedTarget,
         };
-        if (field3) {
-          payload.quantity = field3;
+        if (parsedQuantity) {
+          payload.quantity = parsedQuantity;
         }
         const existing = getOrder(order_id);
-        if (existing?.customComments?.length) {
-          payload.comments = existing.customComments.join("\n");
+        const commentsList = parsedComments?.length
+          ? parsedComments
+          : existing?.customComments || [];
+        if (commentsList.length) {
+          payload.comments = commentsList.join("\n");
+        }
+        const usernameField = parsedCommentUsername || existing?.commentUsername;
+        if (usernameField) {
+          payload.username = usernameField;
         }
         const panelRes = await callPanel(payload);
         console.log("Order dikirim ke panel:", panelRes);
+        const panelData = (panelRes && panelRes.data) || panelRes || {};
         updateOrder(order_id, {
           panelResponse: panelRes,
-          status: "processing",
-          lastUpdate: new Date().toISOString(),
+          panelOrderId: panelData.id || panelData.order_id || panelData.order || null,
+          status: panelData.status || "processing",
+          panelStatus: panelData.status || null,
+          startCount: panelData.start_count ?? null,
+          remains: panelData.remains ?? null,
+          lastStatusSync: new Date().toISOString(),
         });
       } catch (e) {
         console.error("Gagal mengirim order ke panel:", e);

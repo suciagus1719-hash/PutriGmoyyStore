@@ -302,6 +302,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const time = row.createdAt ? new Date(row.createdAt).toLocaleString("id-ID") : "-";
         const statusClass = row.status || "processing";
         const targetValue = row.target || "-";
+        const hasPanel = Boolean(row.panelOrderId);
+        const detailButton = hasPanel
+          ? `<button class="status-action-btn" data-order="${row.id || ""}" title="Sinkron status">&#9776;</button>`
+          : `<button class="status-action-btn" disabled title="Menunggu ID panel">&#9888;</button>`;
         return `<tr>
           <td>${row.id || "-"}</td>
           <td>${time}</td>
@@ -319,7 +323,7 @@ document.addEventListener("DOMContentLoaded", () => {
           <td>${row.quantity || "-"}</td>
           <td>${formatStatusCurrency(row.price || 0)}</td>
           <td><span class="status-pill ${statusClass}">${String(statusClass).replace("_", " ")}</span></td>
-          <td><button class="status-action-btn" title="Detail">&#9776;</button></td>
+          <td>${detailButton}</td>
         </tr>`;
       })
       .join("");
@@ -505,6 +509,26 @@ document.addEventListener("DOMContentLoaded", () => {
       renderStatusPagination(Number(data.total || 0), statusState.page, statusState.limit);
     } catch (e) {
       statusTableBody.innerHTML = `<tr><td colspan="8">${e.message}</td></tr>`;
+    }
+  };
+
+  const syncOrderStatus = async (orderId, triggerBtn) => {
+    if (!orderId) return;
+    if (triggerBtn) {
+      triggerBtn.disabled = true;
+      triggerBtn.classList.add("loading");
+    }
+    try {
+      await apiPost("/api/order-status", { orderId });
+      alert("Status pesanan diperbarui dari panel.");
+      loadStatusOrders();
+    } catch (e) {
+      alert(e.message || "Gagal mengambil status dari panel.");
+    } finally {
+      if (triggerBtn) {
+        triggerBtn.disabled = false;
+        triggerBtn.classList.remove("loading");
+      }
     }
   };
   const loadMonitorOrders = async () => {
@@ -966,6 +990,12 @@ let priceState = {
     if (copyBtn && navigator.clipboard) {
       navigator.clipboard.writeText(copyBtn.dataset.copy || "");
       alert("Target disalin.");
+      return;
+    }
+    const statusBtn = e.target.closest(".status-action-btn[data-order]");
+    if (statusBtn) {
+      const orderId = statusBtn.dataset.order;
+      if (orderId) syncOrderStatus(orderId, statusBtn);
     }
   });
 

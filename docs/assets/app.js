@@ -147,6 +147,8 @@ const totalPriceInput = document.getElementById("total-price");
 const orderEmailInput = document.getElementById("order-email");
 const commentsInput = document.getElementById("comments-input");
 const commentBlock = document.getElementById("comment-block");
+const commentUsernameInput = document.getElementById("comment-username");
+const commentUsernameBlock = document.getElementById("comment-username-block");
 const quantityHint = document.getElementById("quantity-hint");
 const buyerName = document.getElementById("buyer-name") || { value: "" };
 const buyerWhatsapp = document.getElementById("buyer-whatsapp") || { value: "" };
@@ -199,6 +201,8 @@ const totalPriceField = totalPriceInput || createInputStub();
 const orderEmailField = orderEmailInput || createInputStub();
 const commentField = commentsInput || createInputStub();
 const commentBlockEl = commentBlock || null;
+const commentUsernameField = commentUsernameInput || createInputStub();
+const commentUsernameBlockEl = commentUsernameBlock || null;
 const quantityHintEl = quantityHint || null;
 const payButtonEl = payButton || createButtonStub();
 const errorMessageEl = errorMessage || createMessageStub();
@@ -301,6 +305,7 @@ function toggleCommentMode(enabled) {
   commentModeActive = Boolean(enabled);
   if (commentModeActive) {
     if (commentBlockEl) commentBlockEl.classList.remove("hidden");
+    if (commentUsernameBlockEl) commentUsernameBlockEl.classList.remove("hidden");
     if (quantityHintEl) quantityHintEl.classList.remove("hidden");
     if (quantityField?.setAttribute) quantityField.setAttribute("readonly", "readonly");
     quantityField.readOnly = true;
@@ -308,8 +313,10 @@ function toggleCommentMode(enabled) {
     syncCommentQuantity();
   } else {
     if (commentBlockEl) commentBlockEl.classList.add("hidden");
+    if (commentUsernameBlockEl) commentUsernameBlockEl.classList.add("hidden");
     if (quantityHintEl) quantityHintEl.classList.add("hidden");
     commentField.value = "";
+    commentUsernameField.value = "";
     if (quantityField?.removeAttribute) quantityField.removeAttribute("readonly");
     quantityField.readOnly = false;
     quantityField.placeholder = "Jumlah";
@@ -608,6 +615,9 @@ quantityField.addEventListener("change", updateTotalPrice);
 commentField.addEventListener("input", () => {
   if (commentModeActive) syncCommentQuantity();
 });
+commentUsernameField.addEventListener("input", () => {
+  if (!commentModeActive) return;
+});
 function showPaymentLoader(message = "Menyiapkan pembayaran...") {
   if (!paymentLoader) return;
   paymentLoader.classList.remove("hidden");
@@ -634,11 +644,15 @@ payButtonEl.addEventListener("click", async () => {
 
   const target = targetField.value.trim();
   const commentLines = commentModeActive ? parseCustomComments(commentField.value) : [];
+  const commentOwner = commentModeActive ? commentUsernameField.value.trim() : "";
   const qty = commentModeActive ? commentLines.length : Number(quantityField.value || 0);
 
   if (!target) return (errorMessageEl.textContent = "Target tidak boleh kosong.");
   if (commentModeActive && !commentLines.length) {
     return (errorMessageEl.textContent = "Masukkan daftar komentar terlebih dahulu.");
+  }
+  if (commentModeActive && !commentOwner) {
+    return (errorMessageEl.textContent = "Username pemilik komentar wajib diisi.");
   }
   if (!qty || qty <= 0) return (errorMessageEl.textContent = "Jumlah harus lebih dari 0.");
   const minQty = Number(selectedService?.min || 0);
@@ -663,6 +677,7 @@ payButtonEl.addEventListener("click", async () => {
       target,
       quantity: qty,
       customComments: commentModeActive ? commentLines : undefined,
+      commentUsername: commentModeActive ? commentOwner : undefined,
       useBalance: Boolean(resellerAccount),
       resellerIdentifier: resellerAccount?.identifier || null,
       buyer: {

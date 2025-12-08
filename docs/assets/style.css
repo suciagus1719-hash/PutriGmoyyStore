@@ -1131,6 +1131,16 @@ body {
   cursor: pointer;
 }
 
+.status-action-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.status-action-btn.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
 .status-footer {
   margin-top: 18px;
   display: flex;
