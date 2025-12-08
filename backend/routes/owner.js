@@ -125,7 +125,7 @@ async function filterResellers(q) {
   return { rows: sorted.map(sanitizeReseller), summary };
 }
 
-function updateReseller(payload = {}) {
+async function updateReseller(payload = {}) {
   const {
     id,
     identifier,
@@ -185,7 +185,7 @@ module.exports = async (req, res) => {
 
     if (req.method === "POST" && action === "resellers") {
       try {
-        const user = updateReseller(req.body || {});
+        const user = await updateReseller(req.body || {});
         return res.json({ success: true, user });
       } catch (e) {
         console.error("owner reseller update error:", e);

@@ -20,7 +20,7 @@ async function handleCheck(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   const { identifier } = req.body || {};
   if (!identifier) return res.status(400).json({ error: "Identifier tidak valid" });
-  const exists = Boolean(findFlexibleUser(identifier));
+  const exists = Boolean(await findFlexibleUser(identifier));
   return res.json({ exists });
 }
 
