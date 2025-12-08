@@ -1,4 +1,4 @@
-const CATEGORY_BLOCK_KEYWORDS = ["website traffic"];
+const CATEGORY_BLOCK_KEYWORDS = [];
 
 function encodeCategoryKey(platformId, categoryName) {
   try {
