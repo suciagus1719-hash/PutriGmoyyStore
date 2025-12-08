@@ -739,69 +739,6 @@ document.addEventListener("DOMContentLoaded", () => {
     ownerSettingsToggle.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
   };
 
-  const renderStatusOrderDetail = (row = {}) => {
-    if (!statusOrderDetail) return;
-    const detail = row.detail || {};
-    const buyer = detail.buyer || row.buyer || {};
-    const commentsSource = Array.isArray(detail.customComments)
-      ? detail.customComments
-      : Array.isArray(row.customComments)
-      ? row.customComments
-      : [];
-    const comments = commentsSource.filter((comment) => typeof comment === "string" && comment.trim().length);
-    const commentList = comments.length
-      ? `<ul class="comment-list">${comments.map((c) => `<li>${escapeHtml(c)}</li>`).join("")}</ul>`
-      : "";
-    statusOrderTitle && (statusOrderTitle.textContent = row.id || "Detail Order");
-    statusOrderDetail.innerHTML = `
-      <div class="detail-group">
-        <h5>Informasi Pesanan</h5>
-        ${ownerDetailItem("Order ID", row.id || "-")}
-        ${ownerDetailItem("ID Layanan", detail.serviceId || row.serviceId || "-")}
-        ${ownerDetailItem("Nama Layanan", detail.serviceName || row.serviceName || "-")}
-        ${ownerDetailItem("Target", detail.target || row.target || "-")}
-        ${ownerDetailItem("Jumlah", detail.quantity || row.quantity || "-")}
-        ${
-          comments.length
-            ? `${ownerDetailItem("Total Komentar", `${comments.length} teks`)}${commentList}`
-            : ""
-        }
-      </div>
-      <div class="detail-group">
-        <h5>Status & Pembayaran</h5>
-        ${ownerDetailItem("Status Sistem", formatTrackStatus(detail.status || row.status))}
-        ${ownerDetailItem("Status Panel", detail.panelStatus || row.panelStatus || "-")}
-        ${ownerDetailItem("ID Panel", detail.panelOrderId || row.panelOrderId || "-")}
-        ${ownerDetailItem("Harga", formatStatusCurrency(detail.grossAmount || row.price || 0))}
-        ${ownerDetailItem(
-          "Metode",
-          detail.paymentType || row.paymentType || (row.isReseller ? "Saldo Reseller" : "Midtrans")
-        )}
-        ${ownerDetailItem("Mulai Hitung", detail.startCount ?? row.startCount ?? "-")}
-        ${ownerDetailItem("Sisa", detail.remains ?? row.remains ?? "-")}
-        ${ownerDetailItem("Terakhir Sinkron", formatFullDateTime(row.lastStatusSync || row.createdAt))}
-      </div>
-      <div class="detail-group">
-        <h5>Data Pemesan</h5>
-        ${ownerDetailItem("Nama", buyer.name || buyer.displayName || row.buyerName || "-")}
-        ${ownerDetailItem("Email", buyer.email || row.buyerEmail || "-")}
-        ${ownerDetailItem("Nomor", buyer.phone || row.buyerPhone || "-")}
-        ${ownerDetailItem("Dipesan", formatFullDateTime(row.createdAt))}
-      </div>
-    `;
-  };
-
-  const openStatusOrderModal = (row) => {
-    if (!row) return;
-    renderStatusOrderDetail(row);
-    statusOrderModal?.classList.remove("hidden");
-  };
-
-  const closeStatusOrderModal = () => {
-    statusOrderModal?.classList.add("hidden");
-  };
-
-
   const openOwnerOrderModal = (orderId) => {
     const row = ownerOrdersMap[orderId];
     if (!row) return;
