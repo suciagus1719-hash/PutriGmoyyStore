@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const fetch = require("node-fetch");
 const { readUsers, saveUsers, normalizeIdentifier, findUser, updateUser } = require("../lib/accountStore");
+const { listDeposits } = require("../lib/depositStore");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 const MIDTRANS_SNAP_BASE_URL =
@@ -232,7 +233,10 @@ async function handleHistory(req, res) {
   const { user } = await findUser(identifier);
   if (!user) return res.status(404).json({ error: "Akun tidak ditemukan" });
   res.json({
-    history: Array.isArray(user.depositHistory) ? user.depositHistory : [],
+    history: await listDeposits(identifier, {
+      limit: Number(req.query.limit) || 100,
+      status: req.query.status || "all",
+    }),
     balance: user.balance || 0,
     coins: user.coins || 0,
   });

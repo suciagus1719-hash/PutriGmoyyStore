@@ -1,6 +1,7 @@
 const crypto = require("crypto");
 const { callPanel } = require("../lib/smmClient");
 const { updateUser } = require("../lib/accountStore");
+const { recordDeposit } = require("../lib/depositStore");
 const { updateOrder, getOrder } = require("../lib/orderStore");
 const { refundOrder } = require("../lib/refundManager");
 
@@ -82,6 +83,19 @@ module.exports = async (req, res) => {
           };
         });
         if (!updated) console.error("Gagal memperbarui saldo deposit");
+        try {
+          await recordDeposit({
+            id: order_id,
+            identifier,
+            amount,
+            method: data.payment_type || "midtrans",
+            status: "success",
+            metadata: data,
+            createdAt: new Date().toISOString(),
+          });
+        } catch (depErr) {
+          console.error("Gagal menyimpan riwayat deposit:", depErr);
+        }
       }
     } else if (!field1 || !rawField2 || !field3) {
       console.error("Data layanan tidak lengkap di custom_field, cek create-order.js");

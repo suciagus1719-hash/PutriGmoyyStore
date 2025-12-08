@@ -1862,7 +1862,7 @@ let historyOrdersData = [];
     try {
       const params = new URLSearchParams({ identifier: currentUser.identifier });
       const data = await apiGet(`/api/reseller?action=history&${params.toString()}`);
-      historyData = Array.isArray(data.history) ? data.history.slice().reverse() : [];
+      historyData = Array.isArray(data.history) ? data.history.slice() : [];
       historyBalance && (historyBalance.textContent = `Saldo: Rp ${Number(data.balance || 0).toLocaleString("id-ID")}`);
       historyState.page = 1;
       renderHistoryTable();
