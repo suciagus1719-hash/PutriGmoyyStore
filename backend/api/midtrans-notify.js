@@ -89,7 +89,6 @@ module.exports = async (req, res) => {
       let parsedTarget = rawField2;
       let parsedQuantity = field3;
       let parsedComments = null;
-      let parsedCommentUsername = null;
       if (rawField2 && rawField2 !== "DEPOSIT") {
         try {
           const decoded = JSON.parse(Buffer.from(String(rawField2), "base64").toString("utf8"));
@@ -97,7 +96,6 @@ module.exports = async (req, res) => {
             if (decoded.target) parsedTarget = decoded.target;
             if (decoded.quantity) parsedQuantity = decoded.quantity;
             if (Array.isArray(decoded.comments)) parsedComments = decoded.comments;
-            if (decoded.commentUsername) parsedCommentUsername = decoded.commentUsername;
           }
         } catch (err) {
           // treat as plain text
@@ -124,10 +122,6 @@ module.exports = async (req, res) => {
           : existing?.customComments || [];
         if (commentsList.length) {
           payload.comments = commentsList.join("\n");
-        }
-        const usernameField = parsedCommentUsername || existing?.commentUsername;
-        if (usernameField) {
-          payload.username = usernameField;
         }
         const panelRes = await callPanel(payload);
         console.log("Order dikirim ke panel:", panelRes);

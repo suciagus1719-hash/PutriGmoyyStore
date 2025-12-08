@@ -56,7 +56,6 @@ module.exports = async (req, res) => {
       useBalance,
       resellerIdentifier,
       customComments,
-      commentUsername,
     } = req.body;
 
     if (!platformId || !categoryId || !serviceId || !target) {
@@ -77,12 +76,8 @@ module.exports = async (req, res) => {
 
     const commentRequired = requiresCustomComments(svc);
     const commentList = commentRequired ? normalizeComments(customComments) : [];
-    const commentOwner = commentRequired ? String(commentUsername || "").trim() : "";
     if (commentRequired && !commentList.length) {
       return res.status(400).json({ error: "Komentar wajib diisi untuk layanan ini." });
-    }
-    if (commentRequired && !commentOwner) {
-      return res.status(400).json({ error: "Username pemilik komentar wajib diisi." });
     }
 
     const qty = commentRequired ? commentList.length : Number(quantity);
@@ -106,9 +101,6 @@ module.exports = async (req, res) => {
     };
     if (commentList.length) {
       orderMeta.comments = commentList;
-    }
-    if (commentOwner) {
-      orderMeta.commentUsername = commentOwner;
     }
     const orderMetaEncoded = Buffer.from(JSON.stringify(orderMeta)).toString("base64");
 
@@ -134,7 +126,6 @@ module.exports = async (req, res) => {
       target,
       quantity: qty,
       customComments: commentList,
-      commentUsername: commentOwner || null,
       price: paymentAmount,
       buyer,
       status: wantsBalance ? "processing" : "pending_payment",
@@ -166,9 +157,6 @@ module.exports = async (req, res) => {
         };
         if (commentRequired && commentList.length) {
           payload.comments = commentList.join("\n");
-        }
-        if (commentOwner) {
-          payload.username = commentOwner;
         }
         panelResponse = await callPanel(payload);
       } catch (e) {
