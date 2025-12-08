@@ -27,9 +27,18 @@ async function handleCheck(req, res) {
   const { identifier } = req.body || {};
   const normalized = normalizeIdentifier(identifier);
   if (!normalized) return res.status(400).json({ error: "Identifier tidak valid" });
-  const users = readUsers();
+  const users = readAllUsers();
   const exists = users.some((u) => u.normalized === normalized);
   return res.json({ exists });
+}
+
+function readAllUsers() {
+  try {
+    return readUsers();
+  } catch (err) {
+    console.error("Gagal membaca users:", err);
+    return [];
+  }
 }
 
 async function handleRegister(req, res) {
@@ -39,7 +48,7 @@ async function handleRegister(req, res) {
   if (!normalized || !password || password.length < 6) {
     return res.status(400).json({ error: "Data registrasi tidak valid" });
   }
-  const users = readUsers();
+  const users = readAllUsers();
   if (users.some((u) => u.normalized === normalized)) {
     return res.status(400).json({ error: "Akun sudah terdaftar" });
   }
@@ -71,6 +80,23 @@ async function handleRegister(req, res) {
   res.json({ success: true, user: sanitizeUser(user) });
 }
 
+async function handleSync(req, res) {
+  try {
+    const users = readAllUsers();
+    return res.json({
+      success: true,
+      total: users.length,
+      summary: {
+        total: users.length,
+        blocked: users.filter((u) => u.blockedStatus && u.blockedStatus !== "none").length,
+      },
+    });
+  } catch (err) {
+    console.error("Reseller sync error:", err);
+    return res.status(500).json({ error: "Gagal sinkron data reseller" });
+  }
+}
+
 async function handleLogin(req, res) {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   const { identifier, password } = req.body || {};
@@ -78,7 +104,7 @@ async function handleLogin(req, res) {
   if (!normalized || !password) {
     return res.status(400).json({ error: "Data login tidak lengkap" });
   }
-  const users = readUsers();
+  const users = readAllUsers();
   const hashed = crypto.createHash("sha256").update(password).digest("hex");
   const user = users.find((u) => u.normalized === normalized && u.password === hashed);
   if (!user) return res.status(401).json({ error: "Email/nomor atau password salah" });
@@ -330,6 +356,8 @@ module.exports = async (req, res) => {
         return handleLogin(req, res);
       case "profile":
         return handleProfile(req, res);
+      case "sync":
+        return handleSync(req, res);
       case "create-deposit":
         return handleCreateDeposit(req, res);
       case "history":
