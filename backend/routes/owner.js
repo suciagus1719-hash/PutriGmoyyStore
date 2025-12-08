@@ -53,6 +53,25 @@ async function handleOrders(res) {
       isReseller: latest.type === "reseller",
       resellerIdentifier: latest.resellerIdentifier || null,
       buyerName: latest.buyer?.name || null,
+      detail: {
+        orderId: latest.id,
+        serviceId: latest.serviceId,
+        serviceName: latest.serviceName || "-",
+        category: latest.category || "-",
+        platform: latest.platformName || latest.platformId || "-",
+        target: latest.target || "-",
+        quantity: latest.quantity || 0,
+        customComments: Array.isArray(latest.customComments) ? latest.customComments : [],
+        paymentType: latest.type === "reseller" ? "Saldo Reseller" : "Midtrans",
+        grossAmount: Number(latest.price || 0),
+        buyer: latest.buyer || {},
+        panelOrderId: latest.panelOrderId || "-",
+        panelStatus: latest.panelStatus || latest.status || "-",
+        startCount: latest.startCount ?? null,
+        remains: latest.remains ?? null,
+        createdAt: latest.createdAt,
+        updatedAt: latest.lastStatusSync || latest.updatedAt || latest.createdAt,
+      },
     });
   }
 
@@ -95,8 +114,12 @@ function filterResellers(q) {
   }
   const sorted = filtered
     .slice()
-    .sort((a, b) => Number(b.balance || 0) - Number(a.balance || 0))
-    .slice(0, 10);
+    .sort((a, b) => {
+      const balanceDiff = Number(b.balance || 0) - Number(a.balance || 0);
+      if (balanceDiff !== 0) return balanceDiff;
+      return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    })
+    .slice(0, 25);
   const summary = {
     total: users.length,
     blocked: users.filter((u) => u.blockedStatus && u.blockedStatus !== "none").length,
@@ -183,4 +206,3 @@ module.exports = async (req, res) => {
     res.status(500).json({ error: "Terjadi kesalahan pada server owner" });
   }
 };
-

@@ -326,11 +326,13 @@ document.addEventListener("DOMContentLoaded", () => {
   const ownerSummarySuccess = document.getElementById("owner-summary-success");
   const ownerSummaryFailed = document.getElementById("owner-summary-failed");
   const ownerOrdersBody = document.getElementById("owner-orders-body");
+  const ownerOrdersRefreshBtn = document.getElementById("owner-orders-refresh");
   const ownerResellerTotalChip = document.getElementById("owner-reseller-total");
   const ownerResellerActiveChip = document.getElementById("owner-reseller-active");
   const ownerResellerBlockedChip = document.getElementById("owner-reseller-blocked");
   const ownerResellerSearchInput = document.getElementById("owner-reseller-search");
   const ownerResellerBody = document.getElementById("owner-reseller-body");
+  const ownerResellerRefreshBtn = document.getElementById("owner-reseller-refresh");
   const ownerResellerModal = document.getElementById("owner-reseller-modal");
   const ownerResellerClose = document.getElementById("owner-reseller-close");
   const ownerResellerForm = document.getElementById("owner-reseller-form");
@@ -344,6 +346,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const ownerResellerBalanceAmount = document.getElementById("owner-reseller-balance-amount");
   const ownerResellerBlockSelect = document.getElementById("owner-reseller-block");
   const ownerResellerCancelBtn = document.getElementById("owner-reseller-cancel");
+  const ownerOrderModal = document.getElementById("owner-order-modal");
+  const ownerOrderClose = document.getElementById("owner-order-close");
+  const ownerOrderCloseBtn = document.getElementById("owner-order-close-btn");
+  const ownerOrderDetail = document.getElementById("owner-order-detail");
+  const ownerOrderTitle = document.getElementById("owner-order-title");
   const ownerPasswordModal = document.getElementById("owner-password-modal");
   const ownerPasswordInput = document.getElementById("owner-password-input");
   const ownerPasswordError = document.getElementById("owner-password-error");
@@ -408,6 +415,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const years = Math.floor(months / 12);
     return `${years} thn lalu`;
   };
+  const formatFullDateTime = (value) => {
+    if (!value) return "-";
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) return value;
+    return date.toLocaleString("id-ID", {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  };
   const formatPanelBalance = (value) =>
     `Rp ${Number(value || 0).toLocaleString("id-ID")}`;
 
@@ -465,8 +481,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const renderOwnerOrders = (rows = []) => {
     if (!ownerOrdersBody) return;
+    ownerOrdersMap = {};
     if (!rows.length) {
-      ownerOrdersBody.innerHTML = `<tr><td colspan="6">Belum ada data order.</td></tr>`;
+      ownerOrdersBody.innerHTML = `<tr><td colspan="7">Belum ada data order.</td></tr>`;
       return;
     }
     ownerOrdersBody.innerHTML = rows
@@ -476,6 +493,7 @@ document.addEventListener("DOMContentLoaded", () => {
           : "Publik";
         const statusText = formatTrackStatus(row.status);
         const statusClass = statusToClass(row.status);
+        ownerOrdersMap[row.id] = row;
         return `<tr>
           <td>${row.id || "-"}</td>
           <td>${buyerLabel}</td>
@@ -483,6 +501,14 @@ document.addEventListener("DOMContentLoaded", () => {
           <td><span class="status-pill ${statusClass}">${statusText}</span></td>
           <td>${formatStatusCurrency(row.price || 0)}</td>
           <td>${formatRelativeTime(row.lastUpdate || row.createdAt)}</td>
+          <td>
+            <button type="button" class="owner-icon-btn owner-detail-btn" data-owner-order="${row.id}">
+              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="6"></circle>
+                <line x1="16" y1="16" x2="21" y2="21"></line>
+              </svg>
+            </button>
+          </td>
         </tr>`;
       })
       .join("");
@@ -505,23 +531,87 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const loadOwnerOrders = async () => {
     if (!ownerOrdersBody) return;
-    ownerOrdersBody.innerHTML = `<tr><td colspan="6">Memuat data order...</td></tr>`;
+    ownerOrdersBody.innerHTML = `<tr><td colspan="7">Memuat data order...</td></tr>`;
     try {
       const data = await apiGet("/api/owner?action=orders");
       renderOwnerOrders(data.rows || []);
       updateOwnerOrderSummary(data.stats || {});
     } catch (e) {
-      ownerOrdersBody.innerHTML = `<tr><td colspan="6">${e.message || "Gagal memuat order."}</td></tr>`;
+      ownerOrdersBody.innerHTML = `<tr><td colspan="7">${e.message || "Gagal memuat order."}</td></tr>`;
+      ownerOrdersMap = {};
     }
+  };
+
+  const ownerDetailItem = (label, value) => {
+    const display =
+      value === undefined || value === null || value === "" ? "-" : value;
+    return `<div class="detail-item"><span>${label}</span><strong>${display}</strong></div>`;
+  };
+
+  const renderOwnerOrderDetail = (row) => {
+    if (!ownerOrderDetail) return;
+    const detail = row.detail || {};
+    const buyer = detail.buyer || {};
+    const comments = Array.isArray(detail.customComments) ? detail.customComments : [];
+    const commentList = comments.length
+      ? `<ul class="comment-list">${comments.map((c) => `<li>${c}</li>`).join("")}</ul>`
+      : "";
+    ownerOrderTitle && (ownerOrderTitle.textContent = row.id || "Detail Order");
+    ownerOrderDetail.innerHTML = `
+      <div class="detail-group">
+        <h5>Informasi Layanan</h5>
+        ${ownerDetailItem("Order ID", row.id)}
+        ${ownerDetailItem("Layanan", detail.serviceName || row.serviceName)}
+        ${ownerDetailItem("Kategori", detail.category || row.category || "-")}
+        ${ownerDetailItem("Platform", detail.platform || row.platformName || "-")}
+        ${ownerDetailItem("Target", detail.target || row.target)}
+        ${ownerDetailItem("Jumlah", detail.quantity || row.quantity)}
+        ${
+          comments.length
+            ? `${ownerDetailItem("Total Komentar", `${comments.length} teks`)}${commentList}`
+            : ""
+        }
+      </div>
+      <div class="detail-group">
+        <h5>Status & Pembayaran</h5>
+        ${ownerDetailItem("Metode", detail.paymentType || (row.isReseller ? "Saldo Reseller" : "Midtrans"))}
+        ${ownerDetailItem("Nominal", formatStatusCurrency(detail.grossAmount || row.price))}
+        ${ownerDetailItem("Status Panel", detail.panelStatus || row.status)}
+        ${ownerDetailItem("ID Panel", detail.panelOrderId || "-")}
+        ${ownerDetailItem("Mulai Hitung", detail.startCount ?? "-")}
+        ${ownerDetailItem("Sisa", detail.remains ?? "-")}
+        ${ownerDetailItem("Dibuat", formatFullDateTime(detail.createdAt || row.createdAt))}
+        ${ownerDetailItem("Update Terakhir", formatFullDateTime(detail.updatedAt || row.lastUpdate))}
+      </div>
+      <div class="detail-group">
+        <h5>Pemesan</h5>
+        ${ownerDetailItem("Tipe Pemesan", row.isReseller ? "Reseller" : "Publik")}
+        ${ownerDetailItem("Identifier", row.resellerIdentifier || buyer.email || buyer.phone || "-")}
+        ${ownerDetailItem("Nama", buyer.name || row.buyerName || "-")}
+        ${ownerDetailItem("Email", buyer.email || "-")}
+        ${ownerDetailItem("WhatsApp", buyer.phone || buyer.whatsapp || "-")}
+      </div>
+    `;
+  };
+
+  const openOwnerOrderModal = (orderId) => {
+    const row = ownerOrdersMap[orderId];
+    if (!row) return;
+    renderOwnerOrderDetail(row);
+    ownerOrderModal?.classList.remove("hidden");
+  };
+
+  const closeOwnerOrderModal = () => {
+    ownerOrderModal?.classList.add("hidden");
   };
 
   const renderOwnerResellers = (rows = []) => {
     if (!ownerResellerBody) return;
+    ownerResellerMap = {};
     if (!rows.length) {
       ownerResellerBody.innerHTML = `<tr><td colspan="5">Belum ada data reseller.</td></tr>`;
       return;
     }
-    ownerResellerMap = {};
     ownerResellerBody.innerHTML = rows
       .map((row) => {
         ownerResellerMap[row.identifier] = row;
@@ -557,6 +647,7 @@ document.addEventListener("DOMContentLoaded", () => {
       updateOwnerResellerSummary(data.summary || {});
     } catch (e) {
       ownerResellerBody.innerHTML = `<tr><td colspan="5">${e.message || "Gagal memuat data."}</td></tr>`;
+      ownerResellerMap = {};
     }
   };
 
@@ -1024,6 +1115,7 @@ let priceState = {
 };
 let ownerResellerRows = [];
 let ownerResellerMap = {};
+let ownerOrdersMap = {};
 let ownerResellerSearchTerm = "";
 let ownerResellerSearchTimer = null;
 let ownerResellerEditing = null;
@@ -1403,6 +1495,20 @@ let ownerResellerEditing = null;
     if (ownerResellerSearchTimer) clearTimeout(ownerResellerSearchTimer);
     ownerResellerSearchTimer = setTimeout(() => loadOwnerResellers(ownerResellerSearchTerm), 400);
   });
+  ownerOrdersBody?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".owner-detail-btn[data-owner-order]");
+    if (!btn) return;
+    ensureOwnerAccess(() => openOwnerOrderModal(btn.dataset.ownerOrder));
+  });
+
+  ownerOrdersRefreshBtn?.addEventListener("click", () =>
+    ensureOwnerAccess(() => loadOwnerOrders())
+  );
+
+  ownerResellerRefreshBtn?.addEventListener("click", () =>
+    ensureOwnerAccess(() => loadOwnerResellers(ownerResellerSearchTerm))
+  );
+
   ownerResellerBody?.addEventListener("click", (e) => {
     const btn = e.target.closest(".owner-manage-btn[data-reseller]");
     if (!btn) return;
@@ -1412,6 +1518,12 @@ let ownerResellerEditing = null;
   ownerResellerCancelBtn?.addEventListener("click", closeOwnerResellerModal);
   ownerResellerModal?.addEventListener("click", (e) => {
     if (e.target === ownerResellerModal) closeOwnerResellerModal();
+  });
+
+  ownerOrderClose?.addEventListener("click", closeOwnerOrderModal);
+  ownerOrderCloseBtn?.addEventListener("click", closeOwnerOrderModal);
+  ownerOrderModal?.addEventListener("click", (e) => {
+    if (e.target === ownerOrderModal) closeOwnerOrderModal();
   });
   ownerResellerForm?.addEventListener("submit", async (e) => {
     e.preventDefault();

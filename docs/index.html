@@ -825,10 +825,22 @@
           <div class="owner-admin-panels">
             <div class="owner-panel-card" id="owner-orders-card">
               <div class="owner-panel-header">
-                <h4>Riwayat Order Panel</h4>
-                <div class="owner-chip-row">
-                  <span class="owner-chip owner-chip-public">Publik</span>
-                  <span class="owner-chip owner-chip-reseller">Reseller</span>
+                <div class="owner-panel-title">
+                  <h4>Riwayat Order Panel</h4>
+                  <p>Pantau transaksi publik & reseller secara realtime.</p>
+                </div>
+                <div class="owner-panel-actions">
+                  <div class="owner-chip-row">
+                    <span class="owner-chip owner-chip-public">Publik</span>
+                    <span class="owner-chip owner-chip-reseller">Reseller</span>
+                  </div>
+                  <button type="button" class="owner-icon-btn" id="owner-orders-refresh" aria-label="Segarkan order">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="23 4 23 10 17 10"></polyline>
+                      <polyline points="1 20 1 14 7 14"></polyline>
+                      <path d="M3.51 9a9 9 0 0114.13-3.36L23 10M1 14l5.37 4.36A9 9 0 0020.49 15"></path>
+                    </svg>
+                  </button>
                 </div>
               </div>
               <table class="owner-admin-table">
@@ -840,25 +852,38 @@
                     <th>Status</th>
                     <th>Nominal</th>
                     <th>Terakhir</th>
+                    <th>Detail</th>
                   </tr>
                 </thead>
                 <tbody id="owner-orders-body">
                   <tr>
-                    <td colspan="6">Belum ada data order.</td>
+                    <td colspan="7">Belum ada data order.</td>
                   </tr>
                 </tbody>
               </table>
             </div>
             <div class="owner-panel-card" id="owner-reseller-card">
               <div class="owner-panel-header">
-                <h4>Data Akun Reseller</h4>
+                <div class="owner-panel-title">
+                  <h4>Data Akun Reseller</h4>
+                  <p>Kendalikan akun reseller, saldo, dan status blokir.</p>
+                </div>
                 <div class="owner-reseller-toolbar">
                   <div class="owner-chip-row">
                     <span class="owner-chip owner-chip-total">Jumlah: <strong id="owner-reseller-total">0</strong></span>
                     <span class="owner-chip owner-chip-public">Aktif: <strong id="owner-reseller-active">0</strong></span>
                     <span class="owner-chip owner-chip-error">Diblokir: <strong id="owner-reseller-blocked">0</strong></span>
                   </div>
-                  <input type="text" id="owner-reseller-search" placeholder="Cari email / username / WhatsApp" />
+                  <div class="owner-toolbar-controls">
+                    <button type="button" class="owner-icon-btn" id="owner-reseller-refresh" aria-label="Segarkan reseller">
+                      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0114.13-3.36L23 10M1 14l5.37 4.36A9 9 0 0020.49 15"></path>
+                      </svg>
+                    </button>
+                    <input type="text" id="owner-reseller-search" placeholder="Cari email / username / WhatsApp" />
+                  </div>
                 </div>
               </div>
               <div class="owner-reseller-table-wrapper">
@@ -956,6 +981,19 @@
             <button type="submit" class="primary-btn">Simpan Perubahan</button>
           </div>
         </form>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="owner-order-modal">
+      <div class="modal-card owner-order-modal">
+        <button class="modal-close" id="owner-order-close" aria-label="Tutup">&times;</button>
+        <p class="login-subtitle">Detail Transaksi</p>
+        <h3 id="owner-order-title">Order ID</h3>
+        <div id="owner-order-detail" class="owner-order-detail">
+          <p>Memuat detail pesanan...</p>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="primary-btn block" id="owner-order-close-btn">Tutup</button>
+        </div>
       </div>
     </div>
     <section class="hero-card">
