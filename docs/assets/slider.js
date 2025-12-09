@@ -430,6 +430,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const ownerHideServiceError = document.getElementById("owner-hide-service-error");
   const ownerHideServiceCancel = document.getElementById("owner-hide-service-cancel");
   const ownerHideServiceToggle = document.getElementById("owner-hide-service-toggle");
+  const ownerHideFeedback = document.getElementById("owner-hide-feedback");
+  const ownerHideFeedbackText = document.getElementById("owner-hide-feedback-text");
   const ownerHiddenListModal = document.getElementById("owner-hidden-list-modal");
   const ownerHiddenListClose = document.getElementById("owner-hidden-list-close");
   const ownerHiddenListContainer = document.getElementById("owner-hidden-list");
@@ -607,6 +609,7 @@ const loadHiddenServices = async (force = false) => {
     ownerHideServiceToggle && ownerHideServiceToggle.setAttribute("data-mode", "hide");
     ownerHideServiceToggle && (ownerHideServiceToggle.textContent = "Hide Layanan");
     ownerHideServiceData = null;
+    resetOwnerHideFeedbackState();
     await loadHiddenServices(true);
     ownerHideServiceModal?.classList.remove("hidden");
     setTimeout(() => ownerHideServiceInput?.focus(), 50);
@@ -620,6 +623,7 @@ const loadHiddenServices = async (force = false) => {
     ownerHideServiceData = null;
     ownerHideServiceToggle && (ownerHideServiceToggle.disabled = true);
     ownerHideServiceToggle && ownerHideServiceToggle.setAttribute("data-mode", "hide");
+    resetOwnerHideFeedbackState();
   };
 
   const renderAnnouncementPanel = () => {
@@ -1710,6 +1714,19 @@ let hiddenServices = new Set();
 let hiddenServicesLoaded = false;
 let ownerHideServiceData = null;
 let hiddenServicesList = [];
+const ownerHideStateClasses = ["is-loading", "is-success", "is-error"];
+const setOwnerHideFeedbackState = (state = "idle", message = "") => {
+  if (!ownerHideFeedback || !ownerHideFeedbackText) return;
+  ownerHideFeedback.classList.remove("hidden", ...ownerHideStateClasses);
+  if (!state || state === "idle") {
+    ownerHideFeedbackText.textContent = "";
+    ownerHideFeedback.classList.add("hidden");
+    return;
+  }
+  ownerHideFeedback.classList.add(`is-${state}`);
+  ownerHideFeedbackText.textContent = message || "";
+};
+const resetOwnerHideFeedbackState = () => setOwnerHideFeedbackState("idle");
 let announcementData = { message: "", updatedAt: null };
 let announcementLoaded = false;
 
@@ -2254,12 +2271,13 @@ let historyData = [];
     if (!id) {
       ownerHideServiceError && (ownerHideServiceError.textContent = "Masukkan ID layanan terlebih dahulu.");
       ownerHideServiceError?.classList.remove("hidden");
+      setOwnerHideFeedbackState("error", "ID layanan belum diisi.");
       return;
     }
     try {
       ownerHideServiceError?.classList.add("hidden");
       ownerHideServiceResult && (ownerHideServiceResult.textContent = "Mencari layanan...");
-      showLoader("Mencari layanan...");
+      setOwnerHideFeedbackState("loading", "Mencari layanan...");
       const res = await apiGet(`/api/service?id=${encodeURIComponent(id)}`);
       const svc = res.service;
       ownerHideServiceData = svc;
@@ -2276,14 +2294,17 @@ let historyData = [];
       ownerHideServiceToggle.disabled = false;
       ownerHideServiceToggle.dataset.mode = isHidden ? "show" : "hide";
       ownerHideServiceToggle.textContent = isHidden ? "Tampilkan Layanan" : "Hide Layanan";
+      setOwnerHideFeedbackState(
+        "success",
+        isHidden ? "Layanan ini sedang disembunyikan." : "Layanan aktif, siap disembunyikan."
+      );
     } catch (err) {
       ownerHideServiceResult && (ownerHideServiceResult.textContent = err.message || "Layanan tidak ditemukan.");
       ownerHideServiceToggle.disabled = true;
       ownerHideServiceToggle.textContent = "Hide Layanan";
       ownerHideServiceToggle.dataset.mode = "hide";
       ownerHideServiceData = null;
-    } finally {
-      hideLoader();
+      setOwnerHideFeedbackState("error", err.message || "Layanan tidak ditemukan.");
     }
   };
   ownerHideServiceSearchBtn?.addEventListener("click", handleServiceSearch);
@@ -2300,7 +2321,10 @@ let historyData = [];
     if (!serviceId) return;
     try {
       ownerHideServiceError?.classList.add("hidden");
-      showLoader(mode === "hide" ? "Menyembunyikan layanan..." : "Menampilkan layanan...");
+      setOwnerHideFeedbackState(
+        "loading",
+        mode === "hide" ? "Menyembunyikan layanan..." : "Menampilkan layanan..."
+      );
       await apiPost("/api/owner", {
         action: "settings",
         key: "hidden_services",
@@ -2321,14 +2345,14 @@ let historyData = [];
         <span>Platform: ${escapeHtml(ownerHideServiceData.platform || "-")}</span>
         <span>${isHidden ? "Status: Sedang disembunyikan" : "Status: Aktif & ditampilkan"}</span>
       `);
-      showToast(
-        isHidden ? "Layanan disembunyikan dari katalog." : "Layanan kini ditampilkan kembali."
+      setOwnerHideFeedbackState(
+        "success",
+        isHidden ? "Layanan disembunyikan dari katalog." : "Layanan ditampilkan kembali."
       );
     } catch (err) {
       ownerHideServiceError && (ownerHideServiceError.textContent = err.message || "Gagal memperbarui status layanan.");
       ownerHideServiceError?.classList.remove("hidden");
-    } finally {
-      hideLoader();
+      setOwnerHideFeedbackState("error", err.message || "Gagal memperbarui status layanan.");
     }
   });
   ownerHiddenListClose?.addEventListener("click", closeOwnerHiddenListModal);

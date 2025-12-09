@@ -47,8 +47,8 @@
           <img id="brand-avatar" src="https://ui-avatars.com/api/?name=PG&background=ac2acf&color=fff" alt="avatar" />
         </span>
         <div>
-          <strong id="brand-title">PutriGmoyy</strong>
-          <small id="brand-subtitle">Store</small>
+          <strong id="brand-title">PUTRI GMOYY STORE</strong>
+          <small id="brand-subtitle">Jasa kebutuhan social media</small>
         </div>
       </div>
       <div class="balance-pill hidden" id="balance-pill">Saldo: Rp0</div>
@@ -1100,6 +1100,10 @@
           <button type="button" class="outline-btn" id="owner-hide-service-cancel">Batal</button>
           <button type="button" class="primary-btn" id="owner-hide-service-toggle" disabled>Hide Layanan</button>
         </div>
+        <div class="owner-hide-feedback hidden" id="owner-hide-feedback">
+          <div class="owner-hide-spinner"></div>
+          <p id="owner-hide-feedback-text">Memproses...</p>
+        </div>
       </div>
     </div>
     <div class="modal-overlay hidden" id="owner-hidden-list-modal">
@@ -1161,43 +1165,35 @@
       <div class="hero-slider" id="hero-slider">
         <article class="hero-slide hero-slide-one active">
           <div class="hero-copy">
-            <span class="hero-tag">QRIS Dinamis</span>
+            <span class="hero-tag">Billboard #1</span>
             <h2>Bayar Sekali Scan</h2>
             <p>QR GoPay otomatis setiap order. Tidak perlu ribet pilih metode lain, proses langsung dari HP kamu.</p>
           </div>
-          <div class="hero-media">
-            <img src="img/banner.jpg" alt="QRIS Dinamis Putri Gmoyy" loading="lazy" />
+          <div class="hero-media hero-cover">
+            <img src="img/billboard-1.jpg" alt="Billboard utama 16:9" />
+            <small class="hero-media-note">Unggah file billboard-1.jpg (16:9)</small>
           </div>
         </article>
         <article class="hero-slide hero-slide-two">
           <div class="hero-copy">
-            <span class="hero-tag">Order Instan</span>
+            <span class="hero-tag">Billboard #2</span>
             <h2>Kategori Sosmed Lengkap</h2>
             <p>Instagram, TikTok, Threads sampai WhatsApp tersedia. Tinggal pilih platform favoritmu.</p>
           </div>
-          <div class="hero-media gradient">
-            <div class="hero-shape hero-shape-one"></div>
-            <div class="hero-shape hero-shape-two"></div>
-            <div class="hero-shape hero-shape-three"></div>
+          <div class="hero-media hero-cover">
+            <img src="img/billboard-2.jpg" alt="Billboard kedua 16:9" />
+            <small class="hero-media-note">Unggah file billboard-2.jpg (16:9)</small>
           </div>
         </article>
         <article class="hero-slide hero-slide-three">
           <div class="hero-copy">
-            <span class="hero-tag">Midtrans Snap</span>
+            <span class="hero-tag">Billboard #3</span>
             <h2>Struk Otomatis</h2>
             <p>Setiap pembayaran berhasil langsung diarahkan ke struk dan pesanan masuk panel tanpa delay.</p>
           </div>
-          <div class="hero-media mockup">
-            <div class="mockup-card">
-              <p>Order ID</p>
-              <strong>GMYY-2025</strong>
-              <span>QRIS • Rp 50.000</span>
-            </div>
-            <div class="mockup-card light">
-              <p>Status</p>
-              <strong>Berhasil</strong>
-              <span>05 Des 2025</span>
-            </div>
+          <div class="hero-media hero-cover">
+            <img src="img/billboard-3.jpg" alt="Billboard ketiga 16:9" />
+            <small class="hero-media-note">Unggah file billboard-3.jpg (16:9)</small>
           </div>
         </article>
         <div class="slider-dots" id="hero-dots">
@@ -1205,6 +1201,42 @@
           <button class="hero-dot" data-slide="1" aria-label="Slide 2"></button>
           <button class="hero-dot" data-slide="2" aria-label="Slide 3"></button>
         </div>
+      </div>
+    </section>
+    <section class="card cara-order-card">
+      <h3>Cara Order</h3>
+      <p class="platform-hint">Unggah gambar langkah di folder <code>img/cara-order-*.jpg</code> sesuai kebutuhan.</p>
+      <div class="order-steps">
+        <article class="order-step">
+          <div class="order-step-media">
+            <img src="img/cara-order-1.jpg" alt="Langkah 1" />
+            <small>Upload gambar cara-order-1.jpg</small>
+          </div>
+          <div class="order-step-body">
+            <h4>Langkah 1</h4>
+            <p>Tentukan platform dan layanan yang ingin dipesan, lalu isi data target dengan benar.</p>
+          </div>
+        </article>
+        <article class="order-step">
+          <div class="order-step-media">
+            <img src="img/cara-order-2.jpg" alt="Langkah 2" />
+            <small>Upload gambar cara-order-2.jpg</small>
+          </div>
+          <div class="order-step-body">
+            <h4>Langkah 2</h4>
+            <p>Pilih metode pembayaran dan selesaikan transaksi melalui QRIS otomatis.</p>
+          </div>
+        </article>
+        <article class="order-step">
+          <div class="order-step-media">
+            <img src="img/cara-order-3.jpg" alt="Langkah 3" />
+            <small>Upload gambar cara-order-3.jpg</small>
+          </div>
+          <div class="order-step-body">
+            <h4>Langkah 3</h4>
+            <p>Cek status di menu riwayat atau monitoring untuk memastikan pesanan berjalan.</p>
+          </div>
+        </article>
       </div>
     </section>
     <div class="page-screen active" id="page-default">
@@ -1248,17 +1280,19 @@
           <span id="platform-info-icon" class="platform-info-icon"></span>
           <span id="platform-info-text"></span>
         </div>
-        <select id="category-select">
-          <option value="">Pilih kategori layanan terlebih dahulu.</option>
-        </select>
+        <div class="inline-search">
+          <input type="text" id="category-search-input" placeholder="Cari kategori...">
+        </div>
+        <div id="category-list" class="category-list empty">Pilih platform terlebih dahulu.</div>
       </section>
 
       <!-- Step 3: Layanan -->
       <section class="card">
         <h3>Pilih Layanan</h3>
-        <select id="service-select">
-          <option value="">Pilih kategori dulu.</option>
-        </select>
+        <div class="inline-search">
+          <input type="text" id="service-search-input" placeholder="Cari ID atau nama layanan...">
+        </div>
+        <div id="service-list" class="service-list empty">Pilih kategori terlebih dahulu.</div>
 
         <div id="service-detail" class="service-detail hidden">
           <p class="detail-row"><strong>Harga / 100</strong><span id="service-price"></span></p>
@@ -1333,6 +1367,7 @@
   <script src="assets/app.js" defer></script>
 </body>
 </html>
+
 
 
 

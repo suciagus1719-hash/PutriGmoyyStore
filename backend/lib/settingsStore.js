@@ -1,8 +1,18 @@
+const fetch = require("node-fetch");
+const { put, head, BlobNotFoundError } = require("@vercel/blob");
 const { getPool } = require("./dbPool");
 
 const TABLE_NAME = process.env.SETTINGS_TABLE_NAME || "app_settings";
 const DEFAULT_MIN_DEPOSIT = Number(process.env.DEFAULT_MIN_DEPOSIT || 10000);
 const pool = getPool();
+const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || "";
+const HIDDEN_SERVICES_BLOB_PATH =
+  process.env.HIDDEN_SERVICES_BLOB_PATH || "settings/hidden-services.json";
+const HIDDEN_SERVICES_CACHE_MS = Number(process.env.HIDDEN_SERVICES_CACHE_MS || 15000);
+const useBlobHiddenStore = Boolean(BLOB_TOKEN);
+
+let hiddenServicesCache = null;
+let hiddenServicesCacheAt = 0;
 
 let tablePromise = null;
 
@@ -74,22 +84,86 @@ function normalizeServiceId(id) {
   return String(id).trim();
 }
 
-async function getHiddenServices() {
-  const stored = await getSetting("hidden_services", []);
-  if (!stored) return [];
-  if (Array.isArray(stored)) return stored.map((item) => normalizeServiceId(item)).filter(Boolean);
-  if (typeof stored === "string") return [normalizeServiceId(stored)].filter(Boolean);
-  return [];
-}
-
-async function setHiddenServices(list = []) {
-  const normalized = Array.from(
+function formatHiddenList(list = []) {
+  return Array.from(
     new Set(
       (Array.isArray(list) ? list : [list])
         .map((item) => normalizeServiceId(item))
         .filter(Boolean)
     )
   );
+}
+
+async function readHiddenServicesFromBlob(force = false) {
+  if (!useBlobHiddenStore) return null;
+  const now = Date.now();
+  if (!force && hiddenServicesCache && now - hiddenServicesCacheAt < HIDDEN_SERVICES_CACHE_MS) {
+    return hiddenServicesCache;
+  }
+  try {
+    const meta = await head(HIDDEN_SERVICES_BLOB_PATH, { token: BLOB_TOKEN });
+    const response = await fetch(meta.downloadUrl, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Gagal mengambil blob hidden services (${response.status})`);
+    }
+    const text = await response.text();
+    const parsed = text ? JSON.parse(text) : [];
+    const list = Array.isArray(parsed?.list) ? parsed.list : Array.isArray(parsed) ? parsed : [];
+    hiddenServicesCache = formatHiddenList(list);
+    hiddenServicesCacheAt = now;
+    return hiddenServicesCache;
+  } catch (err) {
+    if (err instanceof BlobNotFoundError) {
+      hiddenServicesCache = [];
+      hiddenServicesCacheAt = now;
+      return hiddenServicesCache;
+    }
+    console.error("read hidden services blob error:", err);
+    throw err;
+  }
+}
+
+async function writeHiddenServicesToBlob(list = []) {
+  if (!useBlobHiddenStore) return null;
+  const normalized = formatHiddenList(list);
+  const payload = JSON.stringify({
+    list: normalized,
+    updatedAt: new Date().toISOString(),
+  });
+  await put(HIDDEN_SERVICES_BLOB_PATH, payload, {
+    token: BLOB_TOKEN,
+    access: "private",
+    contentType: "application/json",
+    addRandomSuffix: false,
+    allowOverwrite: true,
+    cacheControlMaxAge: 0,
+  });
+  hiddenServicesCache = normalized;
+  hiddenServicesCacheAt = Date.now();
+  return normalized;
+}
+
+async function getHiddenServices(force = false) {
+  if (useBlobHiddenStore) {
+    try {
+      return await readHiddenServicesFromBlob(force);
+    } catch (err) {
+      return [];
+    }
+  }
+  const stored = await getSetting("hidden_services", []);
+  if (!stored) return [];
+  if (Array.isArray(stored)) return formatHiddenList(stored);
+  if (typeof stored === "string") return formatHiddenList([stored]);
+  return [];
+}
+
+async function setHiddenServices(list = []) {
+  if (useBlobHiddenStore) {
+    const saved = await writeHiddenServicesToBlob(list);
+    if (saved) return saved;
+  }
+  const normalized = formatHiddenList(list);
   await setSetting("hidden_services", normalized);
   return normalized;
 }
