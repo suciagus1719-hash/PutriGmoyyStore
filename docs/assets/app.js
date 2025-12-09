@@ -196,12 +196,8 @@ const resellerUsername = document.getElementById("reseller-username");
 const resellerPassword = document.getElementById("reseller-password");
 const resellerButton = document.getElementById("reseller-button");
 const resellerMessage = document.getElementById("reseller-message");
-  let platformLoader = document.getElementById("platform-loader");
-  if (platformLoader) {
-    platformLoader.remove();
-    platformLoader = null;
-  }
-  const paymentLoader = document.getElementById("payment-loader");
+const platformLoader = document.getElementById("platform-loader");
+const paymentLoader = document.getElementById("payment-loader");
   const platformInfo = document.getElementById("platform-info");
   const platformInfoIcon = document.getElementById("platform-info-icon");
   const platformInfoText = document.getElementById("platform-info-text");

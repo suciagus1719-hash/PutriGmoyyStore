@@ -2280,6 +2280,10 @@ body {
   z-index: 1;
 }
 
+.category-card {
+  overflow: visible;
+}
+
 .card h2,
 .card h3 {
   margin-bottom: 12px;
