@@ -71,7 +71,7 @@ module.exports = async (req, res) => {
             ? current.depositHistory
             : [];
           history.push({
-            orderId,
+            orderId: order_id,
             amount,
             method: data.payment_type || "midtrans",
             status: "success",
@@ -130,7 +130,7 @@ module.exports = async (req, res) => {
         if (parsedQuantity) {
           payload.quantity = parsedQuantity;
         }
-        const existing = getOrder(order_id);
+        const existing = await getOrder(order_id);
         const commentsList = parsedComments?.length
           ? parsedComments
           : existing?.customComments || [];

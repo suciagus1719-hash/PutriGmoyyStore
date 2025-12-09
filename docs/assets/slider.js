@@ -123,6 +123,27 @@ document.addEventListener("DOMContentLoaded", () => {
   const hideLoader = () => loaderOverlay?.classList.add("hidden");
   const OWNER_PASSWORD = "Senjasuci1719";
   const DEFAULT_MIN_DEPOSIT = 10000;
+  const toastContainer = document.getElementById("global-toast");
+  const toastMessageEl = document.getElementById("toast-message");
+  const toastClose = document.getElementById("toast-close");
+  let toastTimer = null;
+  const showToast = (message = "", type = "success") => {
+    if (!toastContainer || !toastMessageEl) {
+      window.alert(message);
+      return;
+    }
+    toastContainer.classList.remove("hidden", "success", "error", "info");
+    const variant = type === "error" ? "error" : type === "info" ? "info" : "success";
+    toastContainer.classList.add(variant);
+    toastMessageEl.textContent = message;
+    toastContainer.classList.remove("hidden");
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastContainer.classList.add("hidden"), 3200);
+  };
+  toastClose?.addEventListener("click", () => {
+    toastContainer?.classList.add("hidden");
+    if (toastTimer) clearTimeout(toastTimer);
+  });
   const OWNER_TOKEN_KEY = "pg_owner_token";
   const MENU_ICON_SVGS = {
     login:
@@ -211,7 +232,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener("click", () => navPanel.classList.remove("open"));
   }
   const showInfoMessage = (label) => {
-    alert(`${label} segera tersedia. Admin akan mengumumkan jika sudah aktif.`);
+    showToast(`${label} segera tersedia. Admin akan mengumumkan jika sudah aktif.`, "info");
   };
 
   if (menuList) {
@@ -1058,7 +1079,7 @@ const loadHiddenServices = async (force = false) => {
       closeOwnerResellerModal();
       await refreshOwnerPanels();
     } catch (err) {
-      alert(err.message || "Gagal menghapus akun reseller.");
+      showToast(err.message || "Gagal menghapus akun reseller.", "error");
     } finally {
       hideLoader();
     }
@@ -1468,10 +1489,10 @@ const loadHiddenServices = async (force = false) => {
     }
     try {
       await apiPost("/api/order-status", { orderId });
-      alert("Status pesanan diperbarui dari panel.");
+      showToast("Status pesanan diperbarui dari panel.");
       loadStatusOrders();
     } catch (e) {
-      alert(e.message || "Gagal mengambil status dari panel.");
+      showToast(e.message || "Gagal mengambil status dari panel.", "error");
     } finally {
       if (triggerBtn) {
         triggerBtn.disabled = false;
@@ -2017,7 +2038,7 @@ let historyData = [];
     const copyBtn = e.target.closest(".status-action-btn[data-copy]");
     if (copyBtn && navigator.clipboard) {
       navigator.clipboard.writeText(copyBtn.dataset.copy || "");
-      alert("Target disalin.");
+      showToast("Target disalin.");
       return;
     }
     const statusBtn = e.target.closest(".status-action-btn[data-order]");
@@ -2175,7 +2196,7 @@ let historyData = [];
       minDepositLoaded = true;
       updateDepositHint();
       closeOwnerMinDepositModal();
-      alert("Minimal deposit berhasil diperbarui.");
+      showToast("Minimal deposit berhasil diperbarui.");
     } catch (err) {
       ownerMinDepositError.textContent = err.message || "Gagal menyimpan minimal deposit.";
       ownerMinDepositError.classList.remove("hidden");
@@ -2259,7 +2280,9 @@ let historyData = [];
         <span>Platform: ${escapeHtml(ownerHideServiceData.platform || "-")}</span>
         <span>${isHidden ? "Status: Sedang disembunyikan" : "Status: Aktif & ditampilkan"}</span>
       `);
-      alert(isHidden ? "Layanan disembunyikan dari katalog." : "Layanan kini ditampilkan kembali.");
+      showToast(
+        isHidden ? "Layanan disembunyikan dari katalog." : "Layanan kini ditampilkan kembali."
+      );
     } catch (err) {
       ownerHideServiceError && (ownerHideServiceError.textContent = err.message || "Gagal memperbarui status layanan.");
       ownerHideServiceError?.classList.remove("hidden");
@@ -2291,9 +2314,9 @@ let historyData = [];
       });
       await loadHiddenServices(true);
       renderHiddenList();
-      alert(`Layanan #${serviceId} ditampilkan kembali.`);
+      showToast(`Layanan #${serviceId} ditampilkan kembali.`);
     } catch (err) {
-      alert(err.message || "Gagal menampilkan layanan.");
+      showToast(err.message || "Gagal menampilkan layanan.", "error");
     } finally {
       hideLoader();
     }
@@ -2318,7 +2341,7 @@ let historyData = [];
       });
       await loadAnnouncement(true);
       closeOwnerAnnouncementModal();
-      alert("Pengumuman disimpan.");
+      showToast("Pengumuman disimpan.");
     } catch (err) {
       ownerAnnouncementError.textContent = err.message || "Gagal menyimpan pengumuman.";
       ownerAnnouncementError.classList.remove("hidden");
@@ -2368,8 +2391,9 @@ let historyData = [];
       await apiPost("/api/owner", { action: "resellers", ...payload });
       closeOwnerResellerModal();
       await refreshOwnerPanels();
+      showToast("Perubahan reseller disimpan.");
     } catch (err) {
-      alert(err.message || "Gagal menyimpan perubahan reseller.");
+      showToast(err.message || "Gagal menyimpan perubahan reseller.", "error");
     } finally {
       hideLoader();
     }
@@ -2697,6 +2721,19 @@ let historyData = [];
         identifier: currentUser.identifier,
         amount,
       });
+      try {
+        localStorage.setItem(
+          "PG_LAST_DEPOSIT",
+          JSON.stringify({
+            orderId: res.orderId,
+            identifier: currentUser.identifier,
+            amount,
+            createdAt: new Date().toISOString(),
+          })
+        );
+      } catch (err) {
+        console.warn("Gagal menyimpan info deposit:", err);
+      }
       window.open(res.redirectUrl, "_blank");
       closeOverlay(depositModal);
     } catch (e) {

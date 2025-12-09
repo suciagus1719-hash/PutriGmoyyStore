@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Struk Deposit | Putri Gmoyy Store</title>
+    <link rel="stylesheet" href="assets/style.css" />
+    <style>
+      body {
+        background: #f5f6fb;
+        font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+      .receipt-page {
+        max-width: 620px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 18px;
+        border: 1px solid #e2e8f0;
+        padding: 32px;
+        box-shadow: 0 25px 45px rgba(15, 23, 42, 0.08);
+      }
+      .receipt-header {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+      .receipt-header h1 {
+        margin: 8px 0;
+        font-size: 26px;
+        color: #111827;
+      }
+      .receipt-body {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+      }
+      .receipt-body li {
+        display: flex;
+        justify-content: space-between;
+        padding: 12px 0;
+        border-bottom: 1px solid #f3f4f6;
+        color: #0f172a;
+        font-size: 15px;
+      }
+      .receipt-body li span:first-child {
+        color: #6b7280;
+      }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 6px 18px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 600;
+        margin-top: 8px;
+      }
+      .status-pill.success {
+        background: #ecfdf5;
+        color: #059669;
+        border: 1px solid #a7f3d0;
+      }
+      .status-pill.error {
+        background: #fef2f2;
+        color: #b91c1c;
+        border: 1px solid #fecaca;
+      }
+      .status-pill.pending {
+        background: #fffbeb;
+        color: #b45309;
+        border: 1px solid #fed7aa;
+      }
+      .action-row {
+        display: flex;
+        gap: 12px;
+        margin-top: 28px;
+        flex-wrap: wrap;
+      }
+      .action-row a {
+        flex: 1;
+        min-width: 140px;
+        text-align: center;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 12px;
+        border-radius: 12px;
+      }
+      .action-primary {
+        background: #2563eb;
+        color: #fff;
+      }
+      .action-secondary {
+        border: 1px solid #d1d5db;
+        color: #374151;
+      }
+      @media (max-width: 640px) {
+        .receipt-page {
+          margin: 16px;
+          padding: 20px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="receipt-page">
+      <div class="receipt-header">
+        <p class="subtitle">Putri Gmoyy Store</p>
+        <h1>Struk Deposit Saldo</h1>
+        <div id="deposit-status" class="status-pill pending">Memeriksa status...</div>
+      </div>
+      <ul class="receipt-body">
+        <li><span>Kode Deposit</span><span id="deposit-id">-</span></li>
+        <li><span>Username / Email</span><span id="deposit-user">-</span></li>
+        <li><span>Nominal</span><span id="deposit-amount">-</span></li>
+        <li><span>Metode Pembayaran</span><span id="deposit-method">-</span></li>
+        <li><span>Status Pembayaran</span><span id="deposit-status-text">-</span></li>
+        <li><span>Waktu Transaksi</span><span id="deposit-time">-</span></li>
+      </ul>
+      <div class="action-row">
+        <a href="index.html" class="action-primary">Kembali ke Beranda</a>
+        <a href="index.html#deposit" class="action-secondary">Deposit Lagi</a>
+      </div>
+    </div>
+    <script>
+      const params = new URLSearchParams(window.location.search);
+      const getParam = (key, fallback = "-") =>
+        params.has(key) ? decodeURIComponent(params.get(key)) : fallback;
+
+      let orderId = getParam("order_id");
+      let identifier = getParam("custom_field1") || getParam("identifier");
+      let amountRaw = getParam("gross_amount") || getParam("amount");
+      const transactionStatus = (getParam("transaction_status") || "").toLowerCase();
+      const paymentType = getParam("payment_type", "Midtrans");
+      const transactionTime = getParam("transaction_time") || getParam("timestamp");
+      try {
+        const stored = localStorage.getItem("PG_LAST_DEPOSIT");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (
+            parsed &&
+            typeof parsed === "object" &&
+            (!orderId || orderId === "-" || parsed.orderId === orderId)
+          ) {
+            if (!orderId || orderId === "-") orderId = parsed.orderId || orderId;
+            if (!identifier) identifier = parsed.identifier;
+            if (!amountRaw) amountRaw = parsed.amount;
+            localStorage.removeItem("PG_LAST_DEPOSIT");
+          }
+        }
+      } catch (err) {
+        console.warn("Gagal membaca info deposit:", err);
+      }
+
+      document.getElementById("deposit-id").textContent = orderId;
+      document.getElementById("deposit-user").textContent = identifier || "-";
+      document.getElementById("deposit-amount").textContent = amountRaw
+        ? `Rp ${Number(amountRaw).toLocaleString("id-ID")}`
+        : "-";
+      document.getElementById("deposit-method").textContent = paymentType || "Midtrans";
+      document.getElementById("deposit-status-text").textContent = formatStatus(transactionStatus);
+      document.getElementById("deposit-time").textContent = formatDate(transactionTime);
+
+      const statusPill = document.getElementById("deposit-status");
+      statusPill.textContent = formatStatus(transactionStatus);
+      statusPill.classList.remove("success", "error", "pending");
+      if (["capture", "settlement"].includes(transactionStatus)) {
+        statusPill.classList.add("success");
+      } else if (["pending"].includes(transactionStatus)) {
+        statusPill.classList.add("pending");
+      } else {
+        statusPill.classList.add("error");
+      }
+
+      function formatStatus(value) {
+        const map = {
+          settlement: "Pembayaran Berhasil",
+          capture: "Pembayaran Berhasil",
+          pending: "Menunggu Pembayaran",
+          deny: "Pembayaran Ditolak",
+          cancel: "Pembayaran Dibatalkan",
+          expire: "Pembayaran Kedaluwarsa",
+        };
+        return map[value] || value || "-";
+      }
+
+      function formatDate(value) {
+        if (!value || value === "-") return "-";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return date.toLocaleString("id-ID", {
+          dateStyle: "full",
+          timeStyle: "medium",
+        });
+      }
+    </script>
+  </body>
+</html>
