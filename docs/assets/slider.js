@@ -72,7 +72,11 @@ function apiDelete(path, body, attempts = 1) {
     attempts
   );
 }
+<<<<<<< ours
 
+=======
+
+>>>>>>> theirs
 function initSliderApp() {
   const slides = Array.from(document.querySelectorAll(".hero-slide"));
   const dots = Array.from(document.querySelectorAll(".hero-dot"));
@@ -257,6 +261,7 @@ function initSliderApp() {
       })
       .join("");
   };
+<<<<<<< ours
   renderMenu();
   if (menuBtn && navPanel) {
     menuBtn.addEventListener("click", (e) => {
@@ -266,6 +271,17 @@ function initSliderApp() {
     navPanel.addEventListener("click", (e) => e.stopPropagation());
     document.addEventListener("click", () => navPanel.classList.remove("open"));
   }
+=======
+  renderMenu();
+  if (menuBtn && navPanel) {
+    menuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      navPanel.classList.toggle("open");
+    });
+    navPanel.addEventListener("click", (e) => e.stopPropagation());
+    document.addEventListener("click", () => navPanel.classList.remove("open"));
+  }
+>>>>>>> theirs
   const showInfoMessage = (label) => {
     showToast(`${label} segera tersedia. Admin akan mengumumkan jika sudah aktif.`, "info");
   };
@@ -293,10 +309,17 @@ function initSliderApp() {
       showInfoMessage("Menu");
     });
   }
+<<<<<<< ours
 
   const openLogin = document.getElementById("open-login");
   const openRegister = document.getElementById("open-register");
   const goRegisterFromLogin = document.getElementById("go-register-from-login");
+=======
+
+  const openLogin = document.getElementById("open-login");
+  const openRegister = document.getElementById("open-register");
+  const goRegisterFromLogin = document.getElementById("go-register-from-login");
+>>>>>>> theirs
   const balancePill = document.getElementById("balance-pill");
   const coinPill = document.getElementById("coin-pill");
   const brandTitle = document.getElementById("brand-title");
@@ -305,6 +328,7 @@ function initSliderApp() {
   const defaultAvatar =
     brandAvatar?.src ||
     "https://ui-avatars.com/api/?name=PG&background=ac2acf&color=fff";
+<<<<<<< ours
 
   const loginModal = document.getElementById("login-modal");
   const closeLogin = document.getElementById("close-login");
@@ -349,13 +373,63 @@ function initSliderApp() {
   const profileSaveBtn = document.getElementById("profile-save");
   const profileCancelBtn = document.getElementById("profile-cancel");
 
+=======
+
+  const loginModal = document.getElementById("login-modal");
+  const closeLogin = document.getElementById("close-login");
+  const loginInput = document.getElementById("login-identifier");
+  const nextBtn = document.querySelector(".next-btn");
+  const loginError = document.getElementById("login-error");
+
+  const identifierStep = document.querySelector(".login-step-identifier");
+  const passwordStep = document.querySelector(".login-step-password");
+  const registerStep = document.querySelector(".login-step-register");
+
+  const passwordLabel = document.getElementById("password-step-label");
+  const passwordTitle = document.getElementById("password-step-title");
+  const passwordInput = document.getElementById("password-input");
+  const confirmPasswordInput = document.getElementById("confirm-password-input");
+  const passwordError = document.getElementById("password-error");
+  const createAccountBtn = document.getElementById("create-account-btn");
+
+  const registerIdentifierInput = document.getElementById("register-identifier");
+  const registerPasswordInput = document.getElementById("register-password");
+  const registerConfirmInput = document.getElementById("register-confirm");
+  const registerSubmitBtn = document.getElementById("register-submit-btn");
+  const registerError = document.getElementById("register-error");
+
+  const confirmModal = document.getElementById("confirm-modal");
+  const confirmTitle = document.getElementById("confirm-title");
+  const confirmMessage = document.getElementById("confirm-message");
+  const confirmIdentifier = document.getElementById("confirm-identifier");
+  const confirmEdit = document.getElementById("confirm-edit");
+  const confirmRegister = document.getElementById("confirm-register");
+
+  const profileModal = document.getElementById("profile-modal");
+  const closeProfile = document.getElementById("close-profile");
+  const profileNameInput = document.getElementById("profile-name");
+  const profileEmailInput = document.getElementById("profile-email");
+  const profilePhoneInput = document.getElementById("profile-phone");
+  const profileAvatarInput = document.getElementById("profile-avatar");
+  const profileAvatarPreview = document.getElementById("profile-avatar-preview");
+  const profilePasswordInput = document.getElementById("profile-password");
+  const profilePasswordConfirmInput = document.getElementById("profile-password-confirm");
+  const profileError = document.getElementById("profile-error");
+  const profileSaveBtn = document.getElementById("profile-save");
+  const profileCancelBtn = document.getElementById("profile-cancel");
+
+>>>>>>> theirs
   const depositModal = document.getElementById("deposit-modal");
   const depositAmountInput = document.getElementById("deposit-amount");
   const depositError = document.getElementById("deposit-error");
   const depositSubmit = document.getElementById("deposit-submit");
   const closeDeposit = document.getElementById("close-deposit");
   const depositHintText = document.getElementById("deposit-hint");
+<<<<<<< ours
 
+=======
+
+>>>>>>> theirs
   const historySection = document.getElementById("history-section");
   const historyList = document.getElementById("history-list");
   const historyBalance = document.getElementById("history-balance");
@@ -1696,6 +1770,7 @@ const loadHiddenServices = async (force = false) => {
   const forgotLink = document.querySelector(".forgot-link a");
 
   const toggleButtons = Array.from(document.querySelectorAll(".toggle-pass"));
+<<<<<<< ours
   let avatarData = "";
   const broadcastAccount = () => {
     window.currentAccount = currentUser ? { ...currentUser } : null;
@@ -1704,6 +1779,16 @@ const loadHiddenServices = async (force = false) => {
     );
   };
 
+=======
+  let avatarData = "";
+  const broadcastAccount = () => {
+    window.currentAccount = currentUser ? { ...currentUser } : null;
+    window.dispatchEvent(
+      new CustomEvent("account:change", { detail: currentUser ? { ...currentUser } : null })
+    );
+  };
+
+>>>>>>> theirs
   let pendingIdentifier = "";
   let currentUser = null;
 let authMode = "login"; // login, register
@@ -1863,7 +1948,11 @@ let historyData = [];
     renderHistoryTable();
   });
 
+<<<<<<< ours
 
+=======
+
+>>>>>>> theirs
   const showStep = (step) => {
     identifierStep?.classList.add("hidden");
     passwordStep?.classList.add("hidden");
@@ -1871,10 +1960,17 @@ let historyData = [];
     forgotStep?.classList.add("hidden");
     step?.classList.remove("hidden");
   };
+<<<<<<< ours
 
   const openOverlay = (modal) => modal?.classList.remove("hidden");
   const closeOverlay = (modal) => modal?.classList.add("hidden");
 
+=======
+
+  const openOverlay = (modal) => modal?.classList.remove("hidden");
+  const closeOverlay = (modal) => modal?.classList.add("hidden");
+
+>>>>>>> theirs
   const showIdentifierStep = () => {
     showStep(identifierStep);
     loginError?.classList.add("hidden");
@@ -1886,6 +1982,7 @@ let historyData = [];
     }
     resetForgotForm();
   };
+<<<<<<< ours
 
   const showLoginPasswordStep = (mode) => {
     authMode = mode;
@@ -1907,6 +2004,29 @@ let historyData = [];
     passwordInput?.focus();
   };
 
+=======
+
+  const showLoginPasswordStep = (mode) => {
+    authMode = mode;
+    showStep(passwordStep);
+    passwordInput && (passwordInput.value = "");
+    confirmPasswordInput && (confirmPasswordInput.value = "");
+    passwordError?.classList.add("hidden");
+    if (createAccountBtn) {
+      createAccountBtn.disabled = true;
+      createAccountBtn.classList.remove("ready");
+      createAccountBtn.textContent = mode === "login" ? "Masuk" : "Buat & Masuk";
+    }
+    if (passwordLabel) {
+      passwordLabel.textContent = mode === "login" ? "Masukkan Password" : "Buat Password";
+    }
+    if (passwordTitle) {
+      passwordTitle.textContent = mode === "login" ? "Masuk ke Reseller Area" : "Aktifkan Akun";
+    }
+    passwordInput?.focus();
+  };
+
+>>>>>>> theirs
   const showRegisterStep = () => {
     showStep(registerStep);
     registerError?.classList.add("hidden");
@@ -1946,6 +2066,7 @@ let historyData = [];
   [forgotUsernameInput, forgotIdentifierInput, forgotPasswordInput, forgotPasswordConfirmInput].forEach((input) => {
     input?.addEventListener("input", validateForgotForm);
   });
+<<<<<<< ours
 
   const closeLoginModal = () => {
     loginModal?.classList.add("hidden");
@@ -1958,6 +2079,20 @@ let historyData = [];
     return identifier;
   };
 
+=======
+
+  const closeLoginModal = () => {
+    loginModal?.classList.add("hidden");
+    showIdentifierStep();
+  };
+
+  const extractUsername = (identifier) => {
+    if (!identifier) return "";
+    if (identifier.includes("@")) return identifier.split("@")[0];
+    return identifier;
+  };
+
+>>>>>>> theirs
   const setLoggedIn = (user, persist = true) => {
     if (!user) return;
     currentUser = user;
@@ -2000,7 +2135,11 @@ let historyData = [];
     brandAvatar && (brandAvatar.src = defaultAvatar);
     switchPage("default");
   };
+<<<<<<< ours
 
+=======
+
+>>>>>>> theirs
   const syncCurrentAccount = async () => {
     if (!currentUser?.identifier) return;
     try {
@@ -2029,7 +2168,11 @@ let historyData = [];
       localStorage.removeItem(ACCOUNT_KEY);
     }
   };
+<<<<<<< ours
 
+=======
+
+>>>>>>> theirs
   const handleLoginCheck = async () => {
     if (!loginInput || !nextBtn) return;
     const value = loginInput.value.trim();
@@ -2039,6 +2182,7 @@ let historyData = [];
       loginError?.classList.remove("success");
       nextBtn.disabled = true;
       nextBtn.textContent = "Memeriksa...";
+<<<<<<< ours
       const { exists } = await authPost("/api/reseller?action=check", { identifier: value });
       pendingIdentifier = value;
       if (exists) {
@@ -2050,6 +2194,19 @@ let historyData = [];
         confirmIdentifier.textContent = value;
         confirmModal?.classList.remove("hidden");
       }
+=======
+      const { exists } = await authPost("/api/reseller?action=check", { identifier: value });
+      pendingIdentifier = value;
+      if (exists) {
+        showLoginPasswordStep("login");
+      } else {
+        const isEmail = value.includes("@");
+        confirmTitle.textContent = isEmail ? "Email Belum Terdaftar" : "Nomor Ini Belum Terdaftar";
+        confirmMessage.textContent = isEmail ? "Lanjut daftar dengan email ini" : "Lanjut daftar dengan nomor ini";
+        confirmIdentifier.textContent = value;
+        confirmModal?.classList.remove("hidden");
+      }
+>>>>>>> theirs
     } catch (e) {
       loginError.textContent = e.message;
       loginError.classList.remove("hidden");
@@ -2059,6 +2216,7 @@ let historyData = [];
       nextBtn.disabled = false;
     }
   };
+<<<<<<< ours
 
   if (openLogin && loginModal) {
     openLogin.addEventListener("click", () => {
@@ -2100,6 +2258,49 @@ let historyData = [];
     nextBtn.addEventListener("click", handleLoginCheck);
   }
 
+=======
+
+  if (openLogin && loginModal) {
+    openLogin.addEventListener("click", () => {
+      loginModal.classList.remove("hidden");
+      showIdentifierStep();
+    });
+  }
+
+  if (openRegister && loginModal) {
+    openRegister.addEventListener("click", () => {
+      loginModal.classList.remove("hidden");
+      showRegisterStep();
+    });
+  }
+
+  if (goRegisterFromLogin) {
+    goRegisterFromLogin.addEventListener("click", () => {
+      showRegisterStep();
+    });
+  }
+
+  if (closeLogin) {
+    closeLogin.addEventListener("click", closeLoginModal);
+    loginModal.addEventListener("click", (e) => {
+      if (e.target === loginModal) closeLoginModal();
+    });
+  }
+
+  if (loginInput && nextBtn) {
+    loginInput.addEventListener("input", () => {
+      if (loginInput.value.trim()) {
+        nextBtn.disabled = false;
+        nextBtn.classList.add("ready");
+      } else {
+        nextBtn.disabled = true;
+        nextBtn.classList.remove("ready");
+      }
+    });
+    nextBtn.addEventListener("click", handleLoginCheck);
+  }
+
+>>>>>>> theirs
   if (confirmModal) {
     confirmModal.addEventListener("click", (e) => {
       if (e.target === confirmModal) confirmModal.classList.add("hidden");
@@ -2144,7 +2345,11 @@ let historyData = [];
     });
   }
 
+<<<<<<< ours
 
+=======
+
+>>>>>>> theirs
   const handleOwnerPasswordSubmit = () => {
     const value = ownerPasswordInput?.value.trim();
     if (!value) {
@@ -2521,6 +2726,7 @@ let historyData = [];
   });
 
   const validatePasswords = () => {
+<<<<<<< ours
     if (!passwordInput || !confirmPasswordInput || !createAccountBtn || !passwordError) return;
     const pass = passwordInput.value.trim();
     const confirmPass = confirmPasswordInput.value.trim();
@@ -2556,11 +2762,49 @@ let historyData = [];
     }
   };
 
+=======
+    if (!passwordInput || !confirmPasswordInput || !createAccountBtn || !passwordError) return;
+    const pass = passwordInput.value.trim();
+    const confirmPass = confirmPasswordInput.value.trim();
+    const validLength = pass.length >= 6;
+    const match = pass === confirmPass && confirmPass.length > 0;
+    if (!match && confirmPass.length) passwordError.classList.remove("hidden");
+    else passwordError.classList.add("hidden");
+    if (validLength && match) {
+      createAccountBtn.disabled = false;
+      createAccountBtn.classList.add("ready");
+    } else {
+      createAccountBtn.disabled = true;
+      createAccountBtn.classList.remove("ready");
+    }
+  };
+
+  [passwordInput, confirmPasswordInput].forEach((input) => {
+    input?.addEventListener("input", validatePasswords);
+  });
+
+  const validateRegisterForm = () => {
+    if (!registerIdentifierInput || !registerPasswordInput || !registerConfirmInput || !registerSubmitBtn) return;
+    const id = registerIdentifierInput.value.trim();
+    const pass = registerPasswordInput.value.trim();
+    const conf = registerConfirmInput.value.trim();
+    const ok = id && pass.length >= 6 && pass === conf;
+    if (ok) {
+      registerSubmitBtn.disabled = false;
+      registerSubmitBtn.classList.add("ready");
+    } else {
+      registerSubmitBtn.disabled = true;
+      registerSubmitBtn.classList.remove("ready");
+    }
+  };
+
+>>>>>>> theirs
   [registerIdentifierInput, registerPasswordInput, registerConfirmInput].forEach((input) => {
     input?.addEventListener("input", validateRegisterForm);
   });
 
   toggleButtons.forEach((btn) => {
+<<<<<<< ours
     btn.addEventListener("click", () => {
       const target = document.getElementById(btn.dataset.target || "");
       if (!target) return;
@@ -2569,6 +2813,16 @@ let historyData = [];
     });
   });
 
+=======
+    btn.addEventListener("click", () => {
+      const target = document.getElementById(btn.dataset.target || "");
+      if (!target) return;
+      target.type = target.type === "password" ? "text" : "password";
+      btn.textContent = target.type === "password" ? "👁" : "🙈";
+    });
+  });
+
+>>>>>>> theirs
   const finishLogin = (user) => {
     setLoggedIn(user);
     closeLoginModal();
@@ -2611,6 +2865,7 @@ let historyData = [];
       forgotSubmitBtn.textContent = "Reset Password";
     }
   });
+<<<<<<< ours
 
   const openProfileModal = () => {
     if (!currentUser) return;
@@ -2627,6 +2882,24 @@ let historyData = [];
     openOverlay(profileModal);
   };
 
+=======
+
+  const openProfileModal = () => {
+    if (!currentUser) return;
+    profileNameInput && (profileNameInput.value = currentUser.displayName || "");
+    profileEmailInput && (profileEmailInput.value = currentUser.email || currentUser.identifier || "");
+    profilePhoneInput && (profilePhoneInput.value = currentUser.phone || "");
+    profilePasswordInput && (profilePasswordInput.value = "");
+    profilePasswordConfirmInput && (profilePasswordConfirmInput.value = "");
+    profileError?.classList.add("hidden");
+    avatarData = currentUser.avatarUrl || "";
+    if (profileAvatarPreview) {
+      profileAvatarPreview.src = currentUser.avatarUrl || "https://ui-avatars.com/api/?name=" + encodeURIComponent(currentUser.displayName || "PG");
+    }
+    openOverlay(profileModal);
+  };
+
+>>>>>>> theirs
   const openDepositModal = () => {
     ensureMinDeposit();
     if (depositAmountInput) {
@@ -2636,7 +2909,11 @@ let historyData = [];
     depositError?.classList.add("hidden");
     openOverlay(depositModal);
   };
+<<<<<<< ours
 
+=======
+
+>>>>>>> theirs
   const openHistoryModal = async () => {
     if (!currentUser) return;
     switchPage("history");
@@ -2712,7 +2989,11 @@ let historyData = [];
       rewardError.classList.remove("hidden");
     }
   };
+<<<<<<< ours
 
+=======
+
+>>>>>>> theirs
   const compressImage = (file) =>
     new Promise((resolve, reject) => {
       const img = new Image();
@@ -2766,7 +3047,11 @@ let historyData = [];
       reader.readAsDataURL(file);
     }
   });
+<<<<<<< ours
 
+=======
+
+>>>>>>> theirs
   profileSaveBtn?.addEventListener("click", async () => {
     if (!currentUser) return;
     profileError?.classList.add("hidden");
@@ -2783,6 +3068,7 @@ let historyData = [];
         email: profileEmailInput.value.trim(),
         phone: profilePhoneInput.value.trim(),
         avatarUrl: avatarData,
+<<<<<<< ours
       };
       if (profilePasswordInput.value.trim()) {
         payload.newPassword = profilePasswordInput.value.trim();
@@ -2791,18 +3077,37 @@ let historyData = [];
       finishLogin(res.user);
       closeOverlay(profileModal);
     } catch (e) {
+=======
+      };
+      if (profilePasswordInput.value.trim()) {
+        payload.newPassword = profilePasswordInput.value.trim();
+      }
+      const res = await authPost("/api/reseller?action=profile", payload);
+      finishLogin(res.user);
+      closeOverlay(profileModal);
+    } catch (e) {
+>>>>>>> theirs
       profileError.textContent = e.message;
       profileError.classList.remove("hidden");
     } finally {
       hideLoader();
     }
   });
+<<<<<<< ours
 
   profileCancelBtn?.addEventListener("click", () => {
     closeOverlay(profileModal);
   });
   closeProfile?.addEventListener("click", () => closeOverlay(profileModal));
 
+=======
+
+  profileCancelBtn?.addEventListener("click", () => {
+    closeOverlay(profileModal);
+  });
+  closeProfile?.addEventListener("click", () => closeOverlay(profileModal));
+
+>>>>>>> theirs
   depositSubmit?.addEventListener("click", async () => {
     if (!currentUser) return;
     const amount = Number(depositAmountInput.value || 0);
@@ -2845,8 +3150,13 @@ let historyData = [];
       depositSubmit.textContent = "Lanjutkan Pembayaran";
     }
   });
+<<<<<<< ours
   closeDeposit?.addEventListener("click", () => closeOverlay(depositModal));
 
+=======
+  closeDeposit?.addEventListener("click", () => closeOverlay(depositModal));
+
+>>>>>>> theirs
   [profileModal, depositModal].forEach((modal) => {
     modal?.addEventListener("click", (e) => {
       if (e.target === modal) closeOverlay(modal);
@@ -2932,6 +3242,7 @@ let historyData = [];
       rewardError.classList.remove("hidden");
     }
   });
+<<<<<<< ours
 
   if (createAccountBtn) {
     createAccountBtn.addEventListener("click", async () => {
@@ -2978,6 +3289,54 @@ let historyData = [];
     });
   }
 
+=======
+
+  if (createAccountBtn) {
+    createAccountBtn.addEventListener("click", async () => {
+      if (createAccountBtn.disabled) return;
+      try {
+        createAccountBtn.disabled = true;
+        createAccountBtn.textContent = authMode === "login" ? "Masuk..." : "Mendaftarkan...";
+        const payload = { identifier: pendingIdentifier, password: passwordInput.value.trim() };
+        const res =
+          authMode === "login"
+            ? await authPost("/api/reseller?action=login", payload)
+            : await authPost("/api/reseller?action=register", payload);
+        finishLogin(res.user);
+      } catch (e) {
+        passwordError.textContent = e.message;
+        passwordError.classList.remove("hidden");
+      } finally {
+        createAccountBtn.textContent = authMode === "login" ? "Masuk" : "Buat & Masuk";
+        validatePasswords();
+      }
+    });
+  }
+
+  if (registerSubmitBtn) {
+    registerSubmitBtn.addEventListener("click", async () => {
+      if (registerSubmitBtn.disabled) return;
+      const payload = {
+        identifier: registerIdentifierInput.value.trim(),
+        password: registerPasswordInput.value.trim(),
+      };
+      try {
+        registerError.classList.add("hidden");
+        registerSubmitBtn.disabled = true;
+        registerSubmitBtn.textContent = "Mendaftarkan...";
+        const res = await authPost("/api/reseller?action=register", payload);
+        finishLogin(res.user);
+      } catch (e) {
+        registerError.textContent = e.message;
+        registerError.classList.remove("hidden");
+      } finally {
+        registerSubmitBtn.textContent = "Daftar & Masuk";
+        validateRegisterForm();
+      }
+    });
+  }
+
+>>>>>>> theirs
   ensureMinDeposit();
   loadHiddenServices();
   loadAnnouncement();
@@ -2991,6 +3350,7 @@ if (document.readyState === "loading") {
 }
 })();
 }
+<<<<<<< ours
 
 
 
@@ -3001,3 +3361,15 @@ if (document.readyState === "loading") {
 
 
 
+=======
+
+
+
+
+
+
+
+
+
+
+>>>>>>> theirs

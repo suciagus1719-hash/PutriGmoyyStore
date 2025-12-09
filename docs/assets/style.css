@@ -961,11 +961,12 @@ body {
 
 .hero-slider {
   position: relative;
-  width: min(100%, 1100px);
-  margin: 0 auto;
+  width: 100%;
+  margin: 0;
   aspect-ratio: 16 / 9;
+  max-height: clamp(220px, 60vw, 420px);
   border-radius: 28px;
-  overflow: visible;
+  overflow: hidden;
 }
 
 .hero-slider::before,
