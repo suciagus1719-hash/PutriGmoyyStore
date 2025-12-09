@@ -181,7 +181,6 @@ const servicePanel = document.getElementById("service-panel");
 const serviceOptions = document.getElementById("service-options");
 const serviceSearchInput = document.getElementById("service-search-input");
 const serviceSelectedLabel = document.getElementById("service-selected-label");
-const serviceSelectedDesc = document.getElementById("service-selected-desc");
 const serviceDetail = document.getElementById("service-detail");
 const servicePrice = document.getElementById("service-price");
 const serviceMin = document.getElementById("service-min");
@@ -320,12 +319,14 @@ function updateCategorySelectedLabel() {
 function updateServiceSelectedLabel(service = null) {
   if (!service) {
     if (serviceSelectedLabel) serviceSelectedLabel.textContent = "Pilih layanan";
-    if (serviceSelectedDesc) serviceSelectedDesc.textContent = "ID / nama layanan akan tampil di sini";
     return;
   }
-  if (serviceSelectedLabel) serviceSelectedLabel.textContent = service.name || `#${service.id || "-"}`;
-  if (serviceSelectedDesc) {
-    serviceSelectedDesc.textContent = `#${service.id || "-"} · Min ${service.min || 0} - Max ${service.max || 0}`;
+  if (serviceSelectedLabel) {
+    const basePrice = getBasePricePer100(service);
+    const margin = isResellerActive() ? RESELLER_MARGIN : PUBLIC_PROFIT_MARGIN;
+    const displayPrice = basePrice ? basePrice * (1 + margin) : 0;
+    const priceLabel = displayPrice ? formatCurrency(displayPrice).replace("Rp ", "Rp. ") : "Rp. 0";
+    serviceSelectedLabel.textContent = `${service.id} - ${service.name || "-"} - ${priceLabel}`;
   }
 }
 
