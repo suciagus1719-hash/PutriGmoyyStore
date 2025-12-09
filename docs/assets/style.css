@@ -963,6 +963,8 @@ body {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
+  max-height: min(420px, 60vw);
+  min-height: 220px;
   border-radius: 28px;
   overflow: visible;
   margin: 0;
@@ -983,6 +985,13 @@ body {
 .hero-slider::after {
   inset: 40px 20px auto 60px;
   background: linear-gradient(135deg, rgba(14,165,233,0.3), rgba(34,197,94,0.3));
+}
+
+@media (max-width: 768px) {
+  .hero-slider {
+    max-height: min(320px, 70vw);
+    border-radius: 20px;
+  }
 }
 
 .hero-slide {
