@@ -183,6 +183,26 @@ async function getOrder(id) {
   return mapRow(rows[0]);
 }
 
+async function findOrderByPanelId(panelOrderId) {
+  await ensureTable();
+  if (!panelOrderId) return null;
+  const { rows } = await pool.query(
+    `SELECT * FROM ${TABLE_NAME} WHERE panel_order_id = $1 ORDER BY created_at DESC LIMIT 1`,
+    [panelOrderId]
+  );
+  return mapRow(rows[0]);
+}
+
+async function findOrderByServiceId(serviceId) {
+  await ensureTable();
+  if (!serviceId) return null;
+  const { rows } = await pool.query(
+    `SELECT * FROM ${TABLE_NAME} WHERE service_id = $1 ORDER BY created_at DESC LIMIT 1`,
+    [serviceId]
+  );
+  return mapRow(rows[0]);
+}
+
 async function updateOrder(id, patch = {}) {
   const existing = await getOrder(id);
   if (!existing) return null;
@@ -256,4 +276,6 @@ module.exports = {
   listOrders,
   listRecentOrders,
   deleteOlderOrders,
+  findOrderByPanelId,
+  findOrderByServiceId,
 };

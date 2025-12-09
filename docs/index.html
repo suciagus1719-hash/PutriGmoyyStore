@@ -21,7 +21,7 @@
       <div class="balance-pill hidden" id="balance-pill">Saldo: Rp0</div>
       <div class="coin-pill hidden" id="coin-pill">Koin: 0</div>
       <div class="topbar-actions">
-        <button class="topbar-icon" id="announcement-btn" aria-label="Pengumuman">
+        <button class="topbar-icon hidden" id="announcement-btn" aria-label="Pengumuman">
           <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
             <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
             <path d="M13.73 21a2 2 0 01-3.46 0"></path>
@@ -543,12 +543,12 @@
         <section class="card info-card track-card" id="track-card">
           <div class="status-header">
             <h3>Cek Status Pesanan</h3>
-            <p>Masukkan ID pesanan (contoh: GMYY-123456789) untuk melihat status terbaru langsung dari panel.</p>
+            <p>Masukkan ID layanan panel (contoh: 77665) untuk menarik status terbaru secara langsung.</p>
           </div>
           <form id="track-form" class="track-form">
             <label>
-              ID Pesanan
-              <input type="text" id="track-order-id" placeholder="GMYY-xxxxxxxxxxxx" />
+              ID Layanan Panel
+              <input type="text" id="track-service-id" placeholder="contoh: 77665" />
             </label>
             <button type="submit" class="primary-btn">Cek Status</button>
             <p id="track-error" class="error hidden"></p>
