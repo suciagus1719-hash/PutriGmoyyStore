@@ -100,6 +100,29 @@ const CATALOG_CACHE_KEY = "pg_catalog_cache_v1";
 const SIMPLE_ICONS_VERSION = "11.0.0";
 const PUBLIC_PROFIT_MARGIN = 0.4;
 const RESELLER_MARGIN = 0.2;
+const headerAmbientLayer = document.querySelector(".topbar-ambient");
+const categoryAmbientLayer = document.querySelector(".category-ambient");
+
+function animatePlatformButton(button) {
+  if (!button) return;
+  button.classList.remove("burst");
+  void button.offsetWidth;
+  button.classList.add("burst");
+  if (headerAmbientLayer) {
+    headerAmbientLayer.classList.remove("pulse");
+    void headerAmbientLayer.offsetWidth;
+    headerAmbientLayer.classList.add("pulse");
+    setTimeout(() => headerAmbientLayer.classList.remove("pulse"), 700);
+  }
+}
+
+function flashCategoryAmbient() {
+  if (!categoryAmbientLayer) return;
+  categoryAmbientLayer.classList.remove("pulse");
+  void categoryAmbientLayer.offsetWidth;
+  categoryAmbientLayer.classList.add("pulse");
+  setTimeout(() => categoryAmbientLayer.classList.remove("pulse"), 600);
+}
 
 function readCatalogCache() {
   if (typeof localStorage === "undefined") return null;
@@ -169,27 +192,11 @@ const resellerMessage = document.getElementById("reseller-message");
   const platformInfo = document.getElementById("platform-info");
   const platformInfoIcon = document.getElementById("platform-info-icon");
   const platformInfoText = document.getElementById("platform-info-text");
-  const categoryAmbientLayer = document.querySelector(".category-ambient");
   if (!platformList || !categorySelect || !serviceSelect) {
     console.warn("Elemen utama platform tidak ditemukan, melewati initOrderApp.");
     return;
   }
 
-  const animatePlatformButton = (button) => {
-    if (!button) return;
-    button.classList.remove("burst");
-    void button.offsetWidth;
-    button.classList.add("burst");
-    setTimeout(() => button.classList.remove("burst"), 500);
-  };
-
-  const flashCategoryAmbient = () => {
-    if (!categoryAmbientLayer) return;
-    categoryAmbientLayer.classList.remove("pulse");
-    void categoryAmbientLayer.offsetWidth;
-    categoryAmbientLayer.classList.add("pulse");
-    setTimeout(() => categoryAmbientLayer.classList.remove("pulse"), 600);
-  };
 
 const createInputStub = () => ({
   value: "",

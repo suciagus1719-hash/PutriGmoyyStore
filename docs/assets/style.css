@@ -40,6 +40,7 @@ body {
   overflow: hidden;
   pointer-events: none;
   background: linear-gradient(120deg, rgba(7, 89, 133, 0.18), rgba(88, 28, 135, 0.18));
+  z-index: 0;
 }
 
 .ambient-pile {
@@ -65,7 +66,7 @@ body {
   justify-content: center;
   background: rgba(255, 255, 255, 0.12);
   box-shadow: 0 12px 18px rgba(0, 0, 0, 0.3);
-  animation: chipFall 5.8s cubic-bezier(0.32, 0.03, 0.27, 1) infinite;
+  animation: chipFall 6s cubic-bezier(0.32, 0.03, 0.27, 1) infinite;
 }
 
 .ambient-chip img {
@@ -75,16 +76,16 @@ body {
   filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
 }
 
-.chip-1 { left: 6%; animation-delay: 0s; animation-duration: 6s; }
-.chip-2 { left: 18%; animation-delay: 0.5s; animation-duration: 6.4s; }
-.chip-3 { left: 32%; animation-delay: 1s; animation-duration: 6.1s; }
-.chip-4 { left: 45%; animation-delay: 1.4s; animation-duration: 5.8s; }
-.chip-5 { left: 58%; animation-delay: 1.9s; animation-duration: 6.5s; }
-.chip-6 { left: 72%; animation-delay: 2.3s; animation-duration: 5.7s; }
-.chip-7 { left: 84%; animation-delay: 2.8s; animation-duration: 6.3s; }
-.chip-8 { left: 26%; animation-delay: 3.2s; animation-duration: 5.9s; }
-.chip-9 { left: 66%; animation-delay: 3.6s; animation-duration: 6.2s; }
-.chip-10 { left: 92%; animation-delay: 4s; animation-duration: 6.6s; }
+.chip-1 { left: 6%; animation-delay: 0s; animation-duration: 6.4s; }
+.chip-2 { left: 18%; animation-delay: 0.4s; animation-duration: 6.8s; }
+.chip-3 { left: 32%; animation-delay: 0.9s; animation-duration: 6.3s; }
+.chip-4 { left: 45%; animation-delay: 1.3s; animation-duration: 6s; }
+.chip-5 { left: 58%; animation-delay: 1.8s; animation-duration: 6.7s; }
+.chip-6 { left: 72%; animation-delay: 2.2s; animation-duration: 5.9s; }
+.chip-7 { left: 84%; animation-delay: 2.6s; animation-duration: 6.5s; }
+.chip-8 { left: 26%; animation-delay: 3s; animation-duration: 6.1s; }
+.chip-9 { left: 66%; animation-delay: 3.4s; animation-duration: 6.6s; }
+.chip-10 { left: 92%; animation-delay: 3.8s; animation-duration: 6.9s; }
 
 .topbar-logo {
   display: flex;
@@ -105,20 +106,23 @@ body {
 
 @keyframes chipFall {
   0% {
-    transform: translate(-30px, -150px) rotate(-30deg);
+    transform: translate(-30px, -180px) rotate(-25deg);
     opacity: 0;
   }
-  20% {
+  15% {
     opacity: 1;
   }
-  72% {
-    transform: translate(18px, calc(70% + 14px)) rotate(380deg);
+  65% {
+    transform: translate(18px, calc(78% + 18px)) rotate(375deg);
   }
-  88% {
-    transform: translate(-6px, calc(78% + 18px)) rotate(405deg) scale(0.95);
+  80% {
+    transform: translate(-12px, calc(84% + 20px)) rotate(400deg) scale(0.92);
+  }
+  90% {
+    transform: translate(4px, calc(82% + 16px)) rotate(390deg) scale(0.95);
   }
   100% {
-    transform: translate(-24px, calc(80% + 20px)) rotate(420deg) scale(0.88);
+    transform: translate(-26px, calc(86% + 22px)) rotate(420deg) scale(0.86);
     opacity: 0;
   }
 }
@@ -2315,6 +2319,10 @@ body {
   0% { opacity: 1; }
   50% { opacity: 0.7; }
   100% { opacity: 1; }
+}
+
+.topbar-ambient.pulse {
+  animation: ambientFlash 0.8s ease;
 }
 
 .platform-loader {
