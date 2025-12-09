@@ -162,6 +162,7 @@ const categoryDropdown = document.getElementById("category-dropdown");
 const categoryToggle = document.getElementById("category-toggle");
 const categoryPanel = document.getElementById("category-panel");
 const categorySelectedLabel = document.getElementById("category-selected-label");
+const categoryPlatformPreview = document.getElementById("category-platform-preview");
 const serviceListEl = document.getElementById("service-list");
 const serviceSearchInput = document.getElementById("service-search-input");
 const serviceDropdown = document.getElementById("service-dropdown");
@@ -485,6 +486,7 @@ function renderPlatformButtons(list = catalogPlatforms) {
     }
     platformList.appendChild(btn);
   });
+  renderCategoryPlatformPreview();
 }
 
 function ensurePlatformSelection() {
@@ -513,6 +515,38 @@ function getCategoriesForPlatform(platformId) {
     }
   });
   return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+function renderCategoryPlatformPreview() {
+  if (!categoryPlatformPreview) return;
+  if (!catalogPlatforms.length) {
+    categoryPlatformPreview.innerHTML = `<p>Platform belum tersedia.</p>`;
+    return;
+  }
+  const previewList = catalogPlatforms.slice(0, 6);
+  categoryPlatformPreview.innerHTML = previewList
+    .map((platform) => {
+      const icon = platformIcon(platform.id);
+      return `
+        <button type="button" data-preview-platform="${platform.id}">
+          <span class="platform-chip" style="background:${icon.color}">
+            <img src="${icon.url}" alt="${platform.name}" />
+          </span>
+          <small>${platform.name}</small>
+        </button>
+      `;
+    })
+    .join("");
+  categoryPlatformPreview.querySelectorAll("button").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      const platformId = btn.dataset.previewPlatform;
+      const platform = catalogPlatforms.find((p) => p.id === platformId);
+      if (!platform) return;
+      selectPlatform(platform);
+      openDropdownPanel(categoryPanel, categoryDropdown);
+    });
+  });
 }
 
 function getServicesForCategory(platformId, categoryName) {
