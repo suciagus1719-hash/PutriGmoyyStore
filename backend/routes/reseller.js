@@ -2,6 +2,7 @@ const crypto = require("crypto");
 const fetch = require("node-fetch");
 const { readUsers, saveUsers, normalizeIdentifier, findUser, updateUser } = require("../lib/accountStore");
 const { listDeposits, deleteOldDeposits } = require("../lib/depositStore");
+const { getMinimumDeposit } = require("../lib/settingsStore");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
 const MIDTRANS_SNAP_BASE_URL =
@@ -172,8 +173,11 @@ async function handleCreateDeposit(req, res) {
   const { identifier, amount } = req.body || {};
   if (!identifier || !amount) return res.status(400).json({ error: "Data tidak lengkap" });
   const numeric = Number(amount);
-  if (Number.isNaN(numeric) || numeric < 10000) {
-    return res.status(400).json({ error: "Minimal deposit Rp 10.000" });
+  const minDeposit = await getMinimumDeposit();
+  if (Number.isNaN(numeric) || numeric < minDeposit) {
+    return res
+      .status(400)
+      .json({ error: `Minimal deposit Rp ${Number(minDeposit).toLocaleString("id-ID")}` });
   }
   if (!MIDTRANS_SERVER_KEY) {
     return res.status(500).json({ error: "MIDTRANS_SERVER_KEY belum diset" });

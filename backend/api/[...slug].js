@@ -11,6 +11,7 @@ const routeHandlers = {
   "owner": require("../routes/owner"),
   "platforms": require("../routes/platforms"),
   "reseller": require("../routes/reseller"),
+  "settings": require("../routes/settings"),
   "service": require("../routes/service"),
   "services": require("../routes/services"),
 };

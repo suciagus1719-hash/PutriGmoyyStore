@@ -21,6 +21,12 @@
       <div class="balance-pill hidden" id="balance-pill">Saldo: Rp0</div>
       <div class="coin-pill hidden" id="coin-pill">Koin: 0</div>
       <div class="topbar-actions">
+        <button class="topbar-icon" id="announcement-btn" aria-label="Pengumuman">
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 01-3.46 0"></path>
+          </svg>
+        </button>
         <button class="link-btn" id="open-login">Masuk</button>
         <button class="outline-btn" id="open-register">Daftar Reseller</button>
         <button class="menu-btn" id="menu-toggle" aria-label="Menu">
@@ -179,7 +185,7 @@
       <div class="modal-card">
         <button class="modal-close" id="close-deposit">&times;</button>
         <h2>Deposit Saldo</h2>
-        <p class="modal-desc">Pembayaran via QRIS otomatis saldo masuk ke akunmu. Minimal deposit Rp. 10.000.</p>
+        <p class="modal-desc" id="deposit-hint">Pembayaran via QRIS otomatis saldo masuk ke akunmu. Minimal deposit Rp. 10.000.</p>
         <label>
           Nominal
           <input type="number" id="deposit-amount" min="10000" placeholder="Masukkan nominal" />
@@ -782,6 +788,7 @@
             <button type="button" class="owner-settings-item" data-setting="reset_order_history">Reset Histori Status Order</button>
             <button type="button" class="owner-settings-item" data-setting="reset_monitoring">Reset Histori Monitoring</button>
             <button type="button" class="owner-settings-item" data-setting="hide_services">Hide Layanan</button>
+            <button type="button" class="owner-settings-item" data-setting="show_hidden">Unhide Layanan</button>
             <button type="button" class="owner-settings-item" data-setting="public_margin">Ubah Margin Publik</button>
             <button type="button" class="owner-settings-item" data-setting="reseller_margin">Ubah Margin Reseller</button>
             <button type="button" class="owner-settings-item" data-setting="bonus_deposit">Bonus Deposit</button>
@@ -978,6 +985,10 @@
             <input type="text" id="owner-reseller-phone" placeholder="08xxxxxxxxxx" />
           </label>
           <label>
+            Password Sekarang
+            <input type="text" id="owner-reseller-password-current" readonly class="readonly-input" />
+          </label>
+          <label>
             Password Baru
             <input type="password" id="owner-reseller-password" placeholder="Kosongkan jika tidak diganti" />
           </label>
@@ -1004,9 +1015,91 @@
           <button type="button" class="danger-btn" id="owner-reseller-delete">Hapus Akun</button>
           <div class="modal-actions">
             <button type="button" class="outline-btn" id="owner-reseller-cancel">Batal</button>
-            <button type="submit" class="primary-btn">Simpan Perubahan</button>
+          <button type="submit" class="primary-btn">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+    <div class="announcement-panel hidden" id="announcement-panel">
+      <div class="announcement-header">
+        <strong>Pengumuman Owner</strong>
+        <button type="button" class="announcement-close" id="announcement-close" aria-label="Tutup">&times;</button>
+      </div>
+      <div class="announcement-body" id="announcement-message">
+        Belum ada pengumuman.
+      </div>
+      <small class="announcement-time hidden" id="announcement-time"></small>
+    </div>
+    </div>
+    <div class="modal-overlay hidden" id="owner-min-deposit-modal">
+      <div class="modal-card owner-reseller-modal">
+        <button class="modal-close" id="owner-min-deposit-close" aria-label="Tutup">&times;</button>
+        <h3>Atur Minimal Deposit</h3>
+        <p>Masukkan minimal deposit untuk menu reseller.</p>
+        <label>
+          Minimal Deposit (Rp)
+          <input type="number" id="owner-min-deposit-input" min="1000" />
+        </label>
+        <p class="profile-error hidden" id="owner-min-deposit-error">Nilai minimal tidak valid.</p>
+        <div class="modal-actions">
+          <button type="button" class="outline-btn" id="owner-min-deposit-cancel">Batal</button>
+          <button type="button" class="primary-btn" id="owner-min-deposit-save">Simpan</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="owner-hide-service-modal">
+      <div class="modal-card owner-reseller-modal">
+        <button class="modal-close" id="owner-hide-service-close" aria-label="Tutup">&times;</button>
+        <h3>Sembunyikan Layanan</h3>
+        <p>Masukkan ID layanan yang ingin disembunyikan dari katalog.</p>
+        <label>
+          ID Layanan
+          <div class="owner-service-search">
+            <input type="text" id="owner-hide-service-input" placeholder="contoh: 77665" />
+            <button type="button" class="owner-icon-btn owner-search-btn" id="owner-hide-service-search" aria-label="Cari layanan">
+              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="7"></circle>
+                <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
+              </svg>
+            </button>
           </div>
-        </form>
+        </label>
+        <div class="owner-hide-service-result" id="owner-hide-service-result">
+          Masukkan ID layanan lalu tekan ikon pencarian.
+        </div>
+        <p class="profile-error hidden" id="owner-hide-service-error">Gagal memuat layanan.</p>
+        <div class="modal-actions">
+          <button type="button" class="outline-btn" id="owner-hide-service-cancel">Batal</button>
+          <button type="button" class="primary-btn" id="owner-hide-service-toggle" disabled>Hide Layanan</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="owner-hidden-list-modal">
+      <div class="modal-card owner-reseller-modal">
+        <button class="modal-close" id="owner-hidden-list-close" aria-label="Tutup">&times;</button>
+        <h3>Daftar Layanan Tersembunyi</h3>
+        <p>Layanan di bawah ini tidak tampil di katalog publik.</p>
+        <div class="owner-hidden-list" id="owner-hidden-list">
+          <p>Memuat daftar...</p>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="primary-btn" id="owner-hidden-list-refresh">Segarkan</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="owner-announcement-modal">
+      <div class="modal-card owner-reseller-modal">
+        <button class="modal-close" id="owner-announcement-close" aria-label="Tutup">&times;</button>
+        <h3>Pengumuman Owner</h3>
+        <p>Tulis pesan yang akan tampil di ikon notifikasi untuk semua user.</p>
+        <label>
+          Pesan Pengumuman
+          <textarea id="owner-announcement-input" rows="5" placeholder="Contoh: Maintenance 12.00 - 14.00 WIB"></textarea>
+        </label>
+        <p class="profile-error hidden" id="owner-announcement-error">Pesan tidak boleh kosong.</p>
+        <div class="modal-actions">
+          <button type="button" class="outline-btn" id="owner-announcement-cancel">Batal</button>
+          <button type="button" class="primary-btn" id="owner-announcement-save">Simpan Pengumuman</button>
+        </div>
       </div>
     </div>
     <div class="modal-overlay hidden" id="owner-order-modal">

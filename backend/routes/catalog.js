@@ -14,6 +14,7 @@ const {
   getServiceName,
   getServiceCategory,
 } = require("../lib/serviceParser");
+const { getHiddenServices } = require("../lib/settingsStore");
 
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -24,11 +25,15 @@ module.exports = async (req, res) => {
     const servicesRaw = normalizeServicesResponse(panelRes);
     const platforms = collectPlatforms(servicesRaw);
 
-    const services = servicesRaw.map((svc) => {
-      const detected = detectPlatformDef(svc);
-      const platformId =
-        (detected && detected.id) ||
-        (svc.platform ? String(svc.platform).toLowerCase() : "other");
+    const hiddenList = await getHiddenServices();
+    const hiddenSet = new Set(hiddenList.map((id) => String(id).toLowerCase()));
+
+    const services = servicesRaw
+      .map((svc) => {
+        const detected = detectPlatformDef(svc);
+        const platformId =
+          (detected && detected.id) ||
+          (svc.platform ? String(svc.platform).toLowerCase() : "other");
       const platformName =
         (detected && detected.name) || svc.platform || "Lainnya";
 
@@ -51,7 +56,8 @@ module.exports = async (req, res) => {
         pricePer100: per100,
         sortPrice: per100 || 0,
       };
-    });
+      })
+      .filter((svc) => !hiddenSet.has(String(svc.id).toLowerCase()));
 
     res.json({
       platforms,

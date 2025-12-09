@@ -122,6 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
   };
   const hideLoader = () => loaderOverlay?.classList.add("hidden");
   const OWNER_PASSWORD = "Senjasuci1719";
+  const DEFAULT_MIN_DEPOSIT = 10000;
   const OWNER_TOKEN_KEY = "pg_owner_token";
   const MENU_ICON_SVGS = {
     login:
@@ -297,6 +298,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const depositError = document.getElementById("deposit-error");
   const depositSubmit = document.getElementById("deposit-submit");
   const closeDeposit = document.getElementById("close-deposit");
+  const depositHintText = document.getElementById("deposit-hint");
 
   const historySection = document.getElementById("history-section");
   const historyList = document.getElementById("history-list");
@@ -378,6 +380,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const ownerResellerNameInput = document.getElementById("owner-reseller-name");
   const ownerResellerEmailInput = document.getElementById("owner-reseller-email");
   const ownerResellerPhoneInput = document.getElementById("owner-reseller-phone");
+  const ownerResellerPasswordCurrentInput = document.getElementById("owner-reseller-password-current");
   const ownerResellerPasswordInput = document.getElementById("owner-reseller-password");
   const ownerResellerBalanceType = document.getElementById("owner-reseller-balance-type");
   const ownerResellerBalanceAmount = document.getElementById("owner-reseller-balance-amount");
@@ -388,6 +391,35 @@ document.addEventListener("DOMContentLoaded", () => {
   const ownerOrderCloseBtn = document.getElementById("owner-order-close-btn");
   const ownerOrderDetail = document.getElementById("owner-order-detail");
   const ownerOrderTitle = document.getElementById("owner-order-title");
+  const ownerMinDepositModal = document.getElementById("owner-min-deposit-modal");
+  const ownerMinDepositClose = document.getElementById("owner-min-deposit-close");
+  const ownerMinDepositInput = document.getElementById("owner-min-deposit-input");
+  const ownerMinDepositError = document.getElementById("owner-min-deposit-error");
+  const ownerMinDepositCancel = document.getElementById("owner-min-deposit-cancel");
+  const ownerMinDepositSave = document.getElementById("owner-min-deposit-save");
+  const ownerHideServiceModal = document.getElementById("owner-hide-service-modal");
+  const ownerHideServiceClose = document.getElementById("owner-hide-service-close");
+  const ownerHideServiceInput = document.getElementById("owner-hide-service-input");
+  const ownerHideServiceSearchBtn = document.getElementById("owner-hide-service-search");
+  const ownerHideServiceResult = document.getElementById("owner-hide-service-result");
+  const ownerHideServiceError = document.getElementById("owner-hide-service-error");
+  const ownerHideServiceCancel = document.getElementById("owner-hide-service-cancel");
+  const ownerHideServiceToggle = document.getElementById("owner-hide-service-toggle");
+  const ownerHiddenListModal = document.getElementById("owner-hidden-list-modal");
+  const ownerHiddenListClose = document.getElementById("owner-hidden-list-close");
+  const ownerHiddenListContainer = document.getElementById("owner-hidden-list");
+  const ownerHiddenListRefresh = document.getElementById("owner-hidden-list-refresh");
+  const announcementBtn = document.getElementById("announcement-btn");
+  const announcementPanel = document.getElementById("announcement-panel");
+  const announcementMessageEl = document.getElementById("announcement-message");
+  const announcementTimeEl = document.getElementById("announcement-time");
+  const announcementClose = document.getElementById("announcement-close");
+  const ownerAnnouncementModal = document.getElementById("owner-announcement-modal");
+  const ownerAnnouncementClose = document.getElementById("owner-announcement-close");
+  const ownerAnnouncementInput = document.getElementById("owner-announcement-input");
+  const ownerAnnouncementError = document.getElementById("owner-announcement-error");
+  const ownerAnnouncementCancel = document.getElementById("owner-announcement-cancel");
+  const ownerAnnouncementSave = document.getElementById("owner-announcement-save");
   const ownerSettingsToggle = document.getElementById("owner-settings-toggle");
   const ownerSettingsMenu = document.getElementById("owner-settings-menu");
   const ownerPasswordModal = document.getElementById("owner-password-modal");
@@ -473,6 +505,180 @@ document.addEventListener("DOMContentLoaded", () => {
       .replace(/>/g, "&gt;")
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
+
+  const updateDepositHint = () => {
+    const label = `Pembayaran via QRIS otomatis saldo masuk ke akunmu. Minimal deposit Rp. ${Number(
+      minDepositValue || DEFAULT_MIN_DEPOSIT
+    ).toLocaleString("id-ID")}.`;
+    if (depositHintText) depositHintText.textContent = label;
+    if (depositAmountInput) {
+      depositAmountInput.min = Math.max(1, minDepositValue || DEFAULT_MIN_DEPOSIT);
+      depositAmountInput.placeholder = `Minimal Rp ${Number(minDepositValue || DEFAULT_MIN_DEPOSIT).toLocaleString(
+        "id-ID"
+      )}`;
+    }
+  };
+
+const ensureMinDeposit = async (force = false) => {
+    if (minDepositLoaded && !force) return minDepositValue;
+    try {
+      const res = await apiGet("/api/settings?key=min_deposit");
+      const val = Number(res.value ?? DEFAULT_MIN_DEPOSIT);
+      if (Number.isFinite(val) && val > 0) {
+        minDepositValue = Math.round(val);
+      } else {
+        minDepositValue = DEFAULT_MIN_DEPOSIT;
+      }
+    } catch (err) {
+      console.error("load min deposit error:", err);
+      minDepositValue = DEFAULT_MIN_DEPOSIT;
+    }
+    minDepositLoaded = true;
+    updateDepositHint();
+  return minDepositValue;
+};
+
+const loadHiddenServices = async (force = false) => {
+    if (hiddenServicesLoaded && !force) return hiddenServices;
+    if (!ownerToken) return hiddenServices;
+    try {
+      const res = await apiPost("/api/owner", {
+        action: "settings",
+        key: "hidden_services",
+        password: ownerToken,
+      });
+      const list = Array.isArray(res.list || res.value) ? res.list || res.value : [];
+      hiddenServicesList = list;
+      hiddenServices = new Set(list.map((id) => String(id).toLowerCase()));
+      hiddenServicesLoaded = true;
+    } catch (err) {
+      console.error("load hidden services error:", err);
+      hiddenServices = new Set();
+    }
+    return hiddenServices;
+  };
+
+  const openOwnerMinDepositModal = async () => {
+    ownerMinDepositError?.classList.add("hidden");
+    await ensureMinDeposit(true);
+    if (ownerMinDepositInput) {
+      ownerMinDepositInput.value = minDepositValue;
+      ownerMinDepositInput.min = 1;
+    }
+    ownerMinDepositModal?.classList.remove("hidden");
+    setTimeout(() => ownerMinDepositInput?.focus(), 50);
+  };
+
+  const closeOwnerMinDepositModal = () => {
+    ownerMinDepositModal?.classList.add("hidden");
+  };
+
+  const openOwnerHideServiceModal = async () => {
+    ownerHideServiceError?.classList.add("hidden");
+    ownerHideServiceResult &&
+      (ownerHideServiceResult.innerHTML = "Masukkan ID layanan lalu tekan ikon pencarian.");
+    ownerHideServiceInput && (ownerHideServiceInput.value = "");
+    ownerHideServiceToggle && (ownerHideServiceToggle.disabled = true);
+    ownerHideServiceToggle && ownerHideServiceToggle.setAttribute("data-mode", "hide");
+    ownerHideServiceToggle && (ownerHideServiceToggle.textContent = "Hide Layanan");
+    ownerHideServiceData = null;
+    await loadHiddenServices(true);
+    ownerHideServiceModal?.classList.remove("hidden");
+    setTimeout(() => ownerHideServiceInput?.focus(), 50);
+  };
+
+  const closeOwnerHideServiceModal = () => {
+    ownerHideServiceModal?.classList.add("hidden");
+    ownerHideServiceError?.classList.add("hidden");
+    ownerHideServiceResult &&
+      (ownerHideServiceResult.textContent = "Masukkan ID layanan lalu tekan ikon pencarian.");
+    ownerHideServiceData = null;
+    ownerHideServiceToggle && (ownerHideServiceToggle.disabled = true);
+    ownerHideServiceToggle && ownerHideServiceToggle.setAttribute("data-mode", "hide");
+  };
+
+  const renderAnnouncementPanel = () => {
+    if (!announcementMessageEl) return;
+    if (!announcementData.message) {
+      announcementMessageEl.textContent = "Belum ada pengumuman.";
+      announcementTimeEl?.classList.add("hidden");
+      announcementBtn?.classList.remove("active");
+      return;
+    }
+    announcementMessageEl.textContent = announcementData.message;
+    if (announcementData.updatedAt && announcementTimeEl) {
+      const date = new Date(announcementData.updatedAt);
+      if (!Number.isNaN(date.getTime())) {
+        announcementTimeEl.textContent = `Diperbarui ${date.toLocaleString("id-ID")}`;
+        announcementTimeEl.classList.remove("hidden");
+      } else {
+        announcementTimeEl.classList.add("hidden");
+      }
+    }
+    announcementBtn?.classList.add("active");
+  };
+
+  const loadAnnouncement = async (force = false) => {
+    if (announcementLoaded && !force) return announcementData;
+    try {
+      const res = await apiGet("/api/settings?key=announcement");
+      const value = res.value || {};
+      announcementData = {
+        message: value.message || "",
+        updatedAt: value.updatedAt || null,
+      };
+    } catch (err) {
+      console.error("Announcement load error:", err);
+      announcementData = { message: "", updatedAt: null };
+    }
+    announcementLoaded = true;
+    renderAnnouncementPanel();
+    return announcementData;
+  };
+
+  const openOwnerAnnouncementModal = async () => {
+    ownerAnnouncementError?.classList.add("hidden");
+    const current = await loadAnnouncement(true);
+    if (ownerAnnouncementInput) ownerAnnouncementInput.value = current.message || "";
+    ownerAnnouncementModal?.classList.remove("hidden");
+    setTimeout(() => ownerAnnouncementInput?.focus(), 50);
+  };
+
+  const closeOwnerAnnouncementModal = () => {
+    ownerAnnouncementModal?.classList.add("hidden");
+  };
+
+  const renderHiddenList = () => {
+    if (!ownerHiddenListContainer) return;
+    if (!hiddenServicesList.length) {
+      ownerHiddenListContainer.innerHTML =
+        "<p>Tidak ada layanan yang disembunyikan.</p>";
+      return;
+    }
+    ownerHiddenListContainer.innerHTML = hiddenServicesList
+      .map(
+        (id) => `
+        <div class="owner-hidden-item">
+          <div>
+            <span>#${escapeHtml(id)}</span>
+            <small>klik tombol untuk menampilkan kembali</small>
+          </div>
+          <button type="button" data-unhide-service="${escapeHtml(id)}">Unhide</button>
+        </div>
+      `
+      )
+      .join("");
+  };
+
+  const openOwnerHiddenListModal = async () => {
+    await loadHiddenServices(true);
+    renderHiddenList();
+    ownerHiddenListModal?.classList.remove("hidden");
+  };
+
+  const closeOwnerHiddenListModal = () => {
+    ownerHiddenListModal?.classList.add("hidden");
+  };
 
   const getPlatformKey = (row = {}) => {
     const raw = row.platformId || row.platform || row.platformName || row.category || "";
@@ -876,6 +1082,7 @@ document.addEventListener("DOMContentLoaded", () => {
     ownerResellerNameInput && (ownerResellerNameInput.value = data.displayName || "");
     ownerResellerEmailInput && (ownerResellerEmailInput.value = data.email || "");
     ownerResellerPhoneInput && (ownerResellerPhoneInput.value = data.phone || "");
+    ownerResellerPasswordCurrentInput && (ownerResellerPasswordCurrentInput.value = data.passwordPreview || "");
     ownerResellerPasswordInput && (ownerResellerPasswordInput.value = "");
     ownerResellerBalanceAmount && (ownerResellerBalanceAmount.value = "");
     ownerResellerBalanceType && (ownerResellerBalanceType.value = "add");
@@ -886,6 +1093,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const closeOwnerResellerModal = () => {
     ownerResellerModal?.classList.add("hidden");
     ownerResellerForm?.reset();
+    ownerResellerPasswordCurrentInput && (ownerResellerPasswordCurrentInput.value = "");
     ownerResellerEditing = null;
   };
 
@@ -1440,6 +1648,14 @@ let ownerResellerSearchTerm = "";
 let ownerResellerSearchTimer = null;
 let ownerResellerEditing = null;
 let ownerRefreshPromise = null;
+let minDepositValue = 10000;
+let minDepositLoaded = false;
+let hiddenServices = new Set();
+let hiddenServicesLoaded = false;
+let ownerHideServiceData = null;
+let hiddenServicesList = [];
+let announcementData = { message: "", updatedAt: null };
+let announcementLoaded = false;
 
   window.addEventListener("catalog:update", (event) => {
     priceServices = Array.isArray(event.detail?.services) ? event.detail.services : [];
@@ -1897,7 +2113,33 @@ let historyData = [];
     e.stopPropagation();
     toggleOwnerSettingsMenu();
   });
-  ownerSettingsMenu?.addEventListener("click", (e) => e.stopPropagation());
+  ownerSettingsMenu?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    const item = e.target.closest(".owner-settings-item");
+    if (!item) return;
+    const setting = item.dataset.setting;
+    if (setting === "min_deposit") {
+      ensureOwnerAccess(() => {
+        toggleOwnerSettingsMenu(false);
+        openOwnerMinDepositModal();
+      });
+    } else if (setting === "hide_services") {
+      ensureOwnerAccess(() => {
+        toggleOwnerSettingsMenu(false);
+        openOwnerHideServiceModal();
+      });
+    } else if (setting === "show_hidden") {
+      ensureOwnerAccess(async () => {
+        toggleOwnerSettingsMenu(false);
+        await openOwnerHiddenListModal();
+      });
+    } else if (setting === "announcement") {
+      ensureOwnerAccess(() => {
+        toggleOwnerSettingsMenu(false);
+        openOwnerAnnouncementModal();
+      });
+    }
+  });
   document.addEventListener("click", (e) => {
     if (
       ownerSettingsMenu?.classList.contains("open") &&
@@ -1905,6 +2147,199 @@ let historyData = [];
       !ownerSettingsToggle?.contains(e.target)
     ) {
       toggleOwnerSettingsMenu(false);
+    }
+  });
+  ownerMinDepositClose?.addEventListener("click", closeOwnerMinDepositModal);
+  ownerMinDepositCancel?.addEventListener("click", closeOwnerMinDepositModal);
+  ownerMinDepositModal?.addEventListener("click", (e) => {
+    if (e.target === ownerMinDepositModal) closeOwnerMinDepositModal();
+  });
+  ownerMinDepositSave?.addEventListener("click", async () => {
+    if (!ownerMinDepositInput) return;
+    const value = Number(ownerMinDepositInput.value || 0);
+    if (!Number.isFinite(value) || value <= 0) {
+      ownerMinDepositError.textContent = "Masukkan minimal deposit yang valid.";
+      ownerMinDepositError.classList.remove("hidden");
+      return;
+    }
+    try {
+      ownerMinDepositError?.classList.add("hidden");
+      await apiPost("/api/owner", {
+        action: "settings",
+        key: "min_deposit",
+        mode: "set",
+        value,
+        password: ownerToken,
+      });
+      minDepositValue = Math.round(value);
+      minDepositLoaded = true;
+      updateDepositHint();
+      closeOwnerMinDepositModal();
+      alert("Minimal deposit berhasil diperbarui.");
+    } catch (err) {
+      ownerMinDepositError.textContent = err.message || "Gagal menyimpan minimal deposit.";
+      ownerMinDepositError.classList.remove("hidden");
+    }
+  });
+  ownerHideServiceClose?.addEventListener("click", closeOwnerHideServiceModal);
+  ownerHideServiceCancel?.addEventListener("click", closeOwnerHideServiceModal);
+  ownerHideServiceModal?.addEventListener("click", (e) => {
+    if (e.target === ownerHideServiceModal) closeOwnerHideServiceModal();
+  });
+  const handleServiceSearch = async () => {
+    if (!ownerHideServiceInput) return;
+    const id = ownerHideServiceInput.value.trim();
+    if (!id) {
+      ownerHideServiceError && (ownerHideServiceError.textContent = "Masukkan ID layanan terlebih dahulu.");
+      ownerHideServiceError?.classList.remove("hidden");
+      return;
+    }
+    try {
+      ownerHideServiceError?.classList.add("hidden");
+      ownerHideServiceResult && (ownerHideServiceResult.textContent = "Mencari layanan...");
+      showLoader("Mencari layanan...");
+      const res = await apiGet(`/api/service?id=${encodeURIComponent(id)}`);
+      const svc = res.service;
+      ownerHideServiceData = svc;
+      await loadHiddenServices();
+      const isHidden = hiddenServices.has(String(svc.id).toLowerCase());
+      const statusText = isHidden ? "Status: Sedang disembunyikan" : "Status: Aktif & ditampilkan";
+      ownerHideServiceResult &&
+        (ownerHideServiceResult.innerHTML = `
+        <strong>${escapeHtml(svc.name || "-")} (#${escapeHtml(svc.id || id)})</strong>
+        <span>Kategori: ${escapeHtml(svc.category || "-")}</span>
+        <span>Platform: ${escapeHtml(svc.platform || "-")}</span>
+        <span>${statusText}</span>
+      `);
+      ownerHideServiceToggle.disabled = false;
+      ownerHideServiceToggle.dataset.mode = isHidden ? "show" : "hide";
+      ownerHideServiceToggle.textContent = isHidden ? "Tampilkan Layanan" : "Hide Layanan";
+    } catch (err) {
+      ownerHideServiceResult && (ownerHideServiceResult.textContent = err.message || "Layanan tidak ditemukan.");
+      ownerHideServiceToggle.disabled = true;
+      ownerHideServiceToggle.textContent = "Hide Layanan";
+      ownerHideServiceToggle.dataset.mode = "hide";
+      ownerHideServiceData = null;
+    } finally {
+      hideLoader();
+    }
+  };
+  ownerHideServiceSearchBtn?.addEventListener("click", handleServiceSearch);
+  ownerHideServiceInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      handleServiceSearch();
+    }
+  });
+  ownerHideServiceToggle?.addEventListener("click", async () => {
+    if (!ownerHideServiceData) return;
+    const mode = ownerHideServiceToggle.dataset.mode || "hide";
+    const serviceId = ownerHideServiceData.id || ownerHideServiceInput?.value.trim();
+    if (!serviceId) return;
+    try {
+      ownerHideServiceError?.classList.add("hidden");
+      showLoader(mode === "hide" ? "Menyembunyikan layanan..." : "Menampilkan layanan...");
+      await apiPost("/api/owner", {
+        action: "settings",
+        key: "hidden_services",
+        mode: mode === "hide" ? "add" : "remove",
+        value: serviceId,
+        password: ownerToken,
+      });
+      await loadHiddenServices(true);
+      const isHidden = hiddenServices.has(String(serviceId).toLowerCase());
+      ownerHideServiceToggle.dataset.mode = isHidden ? "show" : "hide";
+      ownerHideServiceToggle.textContent = isHidden ? "Tampilkan Layanan" : "Hide Layanan";
+      ownerHideServiceResult &&
+        (ownerHideServiceResult.innerHTML = `
+        <strong>${escapeHtml(ownerHideServiceData.name || "-")} (#${escapeHtml(
+        ownerHideServiceData.id || serviceId
+      )})</strong>
+        <span>Kategori: ${escapeHtml(ownerHideServiceData.category || "-")}</span>
+        <span>Platform: ${escapeHtml(ownerHideServiceData.platform || "-")}</span>
+        <span>${isHidden ? "Status: Sedang disembunyikan" : "Status: Aktif & ditampilkan"}</span>
+      `);
+      alert(isHidden ? "Layanan disembunyikan dari katalog." : "Layanan kini ditampilkan kembali.");
+    } catch (err) {
+      ownerHideServiceError && (ownerHideServiceError.textContent = err.message || "Gagal memperbarui status layanan.");
+      ownerHideServiceError?.classList.remove("hidden");
+    } finally {
+      hideLoader();
+    }
+  });
+  ownerHiddenListClose?.addEventListener("click", closeOwnerHiddenListModal);
+  ownerHiddenListModal?.addEventListener("click", (e) => {
+    if (e.target === ownerHiddenListModal) closeOwnerHiddenListModal();
+  });
+  ownerHiddenListRefresh?.addEventListener("click", async () => {
+    await loadHiddenServices(true);
+    renderHiddenList();
+  });
+  ownerHiddenListContainer?.addEventListener("click", async (e) => {
+    const btn = e.target.closest("[data-unhide-service]");
+    if (!btn) return;
+    const serviceId = btn.dataset.unhideService;
+    if (!serviceId) return;
+    try {
+      showLoader("Menampilkan layanan...");
+      await apiPost("/api/owner", {
+        action: "settings",
+        key: "hidden_services",
+        mode: "remove",
+        value: serviceId,
+        password: ownerToken,
+      });
+      await loadHiddenServices(true);
+      renderHiddenList();
+      alert(`Layanan #${serviceId} ditampilkan kembali.`);
+    } catch (err) {
+      alert(err.message || "Gagal menampilkan layanan.");
+    } finally {
+      hideLoader();
+    }
+  });
+  ownerAnnouncementClose?.addEventListener("click", closeOwnerAnnouncementModal);
+  ownerAnnouncementCancel?.addEventListener("click", closeOwnerAnnouncementModal);
+  ownerAnnouncementModal?.addEventListener("click", (e) => {
+    if (e.target === ownerAnnouncementModal) closeOwnerAnnouncementModal();
+  });
+  ownerAnnouncementSave?.addEventListener("click", async () => {
+    if (!ownerAnnouncementInput) return;
+    const message = ownerAnnouncementInput.value.trim();
+    try {
+      ownerAnnouncementError?.classList.add("hidden");
+      showLoader("Menyimpan pengumuman...");
+      await apiPost("/api/owner", {
+        action: "settings",
+        key: "announcement",
+        mode: "set",
+        value: message,
+        password: ownerToken,
+      });
+      await loadAnnouncement(true);
+      closeOwnerAnnouncementModal();
+      alert("Pengumuman disimpan.");
+    } catch (err) {
+      ownerAnnouncementError.textContent = err.message || "Gagal menyimpan pengumuman.";
+      ownerAnnouncementError.classList.remove("hidden");
+    } finally {
+      hideLoader();
+    }
+  });
+  announcementBtn?.addEventListener("click", async (e) => {
+    e.stopPropagation();
+    await loadAnnouncement();
+    announcementPanel?.classList.toggle("hidden");
+  });
+  announcementClose?.addEventListener("click", () => announcementPanel?.classList.add("hidden"));
+  document.addEventListener("click", (e) => {
+    if (
+      announcementPanel &&
+      !announcementPanel.classList.contains("hidden") &&
+      !announcementPanel.contains(e.target) &&
+      !announcementBtn?.contains(e.target)
+    ) {
+      announcementPanel.classList.add("hidden");
     }
   });
   ownerResellerForm?.addEventListener("submit", async (e) => {
@@ -2073,7 +2508,11 @@ let historyData = [];
   };
 
   const openDepositModal = () => {
-    depositAmountInput && (depositAmountInput.value = "");
+    ensureMinDeposit();
+    if (depositAmountInput) {
+      depositAmountInput.value = "";
+      depositAmountInput.min = Math.max(1, minDepositValue);
+    }
     depositError?.classList.add("hidden");
     openOverlay(depositModal);
   };
@@ -2243,8 +2682,9 @@ let historyData = [];
   depositSubmit?.addEventListener("click", async () => {
     if (!currentUser) return;
     const amount = Number(depositAmountInput.value || 0);
-    if (!amount || amount < 10000) {
-      depositError.textContent = "Minimal deposit Rp 10.000";
+    const minAllowed = await ensureMinDeposit(true);
+    if (!amount || amount < minAllowed) {
+      depositError.textContent = `Minimal deposit Rp ${Number(minAllowed).toLocaleString("id-ID")}`;
       depositError.classList.remove("hidden");
       return;
     }
@@ -2401,6 +2841,9 @@ let historyData = [];
     });
   }
 
+  ensureMinDeposit();
+  loadHiddenServices();
+  loadAnnouncement();
   loadAccount();
 });
 })();

@@ -9,6 +9,15 @@ const {
   deleteUserById,
   normalizeIdentifier,
 } = require("../lib/accountStore");
+const {
+  getMinimumDeposit,
+  setMinimumDeposit,
+  getHiddenServices,
+  addHiddenService,
+  removeHiddenService,
+  getAnnouncement,
+  setAnnouncement,
+} = require("../lib/settingsStore");
 
 const OWNER_PASSWORD = process.env.OWNER_PANEL_PASSWORD || "Senjasuci1719";
 
@@ -24,6 +33,7 @@ function sanitizeReseller(user) {
     balance: Number(user.balance || 0),
     blockedStatus: user.blockedStatus || "none",
     createdAt: user.createdAt,
+    passwordPreview: user.password || "",
   };
 }
 
@@ -208,6 +218,60 @@ module.exports = async (req, res) => {
       const success = id ? await deleteUserById(id) : await deleteUser(identifier);
       if (!success) return res.status(404).json({ error: "Akun tidak ditemukan" });
       return res.json({ success: true });
+    }
+
+    if (action === "settings") {
+      const { password, key, mode = "get", value } = req.body || {};
+      if (!password || password !== OWNER_PASSWORD) {
+        return res.status(401).json({ error: "Password owner salah" });
+      }
+      if (!key) return res.status(400).json({ error: "Key wajib diisi" });
+      const normalizedMode = String(mode || "get").toLowerCase();
+      if (key === "min_deposit") {
+        if (normalizedMode === "set") {
+          try {
+            const updated = await setMinimumDeposit(value);
+            return res.json({
+              success: true,
+              key,
+              value: updated,
+            });
+          } catch (err) {
+            return res.status(400).json({ error: err.message || "Gagal menyimpan minimal deposit" });
+          }
+        }
+        const current = await getMinimumDeposit();
+        return res.json({ key, value: current });
+      }
+      if (key === "hidden_services") {
+        if (normalizedMode === "add") {
+          try {
+            const list = await addHiddenService(value);
+            return res.json({ success: true, key, list });
+          } catch (err) {
+            return res.status(400).json({ error: err.message || "Gagal menyembunyikan layanan" });
+          }
+        }
+        if (normalizedMode === "remove") {
+          try {
+            const list = await removeHiddenService(value);
+            return res.json({ success: true, key, list });
+          } catch (err) {
+            return res.status(400).json({ error: err.message || "Gagal menampilkan layanan" });
+          }
+        }
+        const list = await getHiddenServices();
+        return res.json({ key, list });
+      }
+      if (key === "announcement") {
+        if (normalizedMode === "set") {
+          const payload = await setAnnouncement(value || "");
+          return res.json({ success: true, key, value: payload });
+        }
+        const current = await getAnnouncement();
+        return res.json({ key, value: current });
+      }
+      return res.status(400).json({ error: "Pengaturan tidak dikenal" });
     }
 
     if (req.method === "POST" && action === "profile") {
