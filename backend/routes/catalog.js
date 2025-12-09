@@ -16,6 +16,8 @@ const {
 } = require("../lib/serviceParser");
 const { getHiddenServices } = require("../lib/settingsStore");
 
+const BLOCKED_KEYWORDS = ["website traffic"];
+
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   if (req.method === "OPTIONS") return res.status(200).end();
@@ -57,7 +59,12 @@ module.exports = async (req, res) => {
         sortPrice: per100 || 0,
       };
       })
-      .filter((svc) => !hiddenSet.has(String(svc.id).toLowerCase()));
+      .filter((svc) => {
+        const lowerName = String(svc.name || "").toLowerCase();
+        const blocked = BLOCKED_KEYWORDS.some((keyword) => lowerName.includes(keyword));
+        if (blocked) return false;
+        return !hiddenSet.has(String(svc.id).toLowerCase());
+      });
 
     res.json({
       platforms,
