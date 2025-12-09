@@ -131,35 +131,35 @@ function writeCatalogCache(platforms = [], services = []) {
 
 
 function initOrderApp() {
-// DOM
-const platformList = document.getElementById("platform-list");
-const categorySelect = document.getElementById("category-select");
-const serviceSelect = document.getElementById("service-select");
-const serviceDetail = document.getElementById("service-detail");
-const servicePrice = document.getElementById("service-price");
-const serviceMin = document.getElementById("service-min");
-const serviceMax = document.getElementById("service-max");
-const serviceDescriptionRow = document.getElementById("service-description-row");
-const serviceNoteText = document.getElementById("service-note-text");
-const targetInput = document.getElementById("target-input");
-const quantityInput = document.getElementById("quantity-input");
-const totalPriceInput = document.getElementById("total-price");
-const orderEmailInput = document.getElementById("order-email");
-const commentsInput = document.getElementById("comments-input");
-const commentBlock = document.getElementById("comment-block");
-const quantityHint = document.getElementById("quantity-hint");
-const buyerName = document.getElementById("buyer-name") || { value: "" };
-const buyerWhatsapp = document.getElementById("buyer-whatsapp") || { value: "" };
-const buyerEmail = document.getElementById("buyer-email") || { value: "" };
-const payButton = document.getElementById("pay-button");
-const errorMessage = document.getElementById("error-message");
-const resellerName = document.getElementById("reseller-name");
-const resellerWhatsapp = document.getElementById("reseller-whatsapp");
-const resellerEmail = document.getElementById("reseller-email");
-const resellerUsername = document.getElementById("reseller-username");
-const resellerPassword = document.getElementById("reseller-password");
-const resellerButton = document.getElementById("reseller-button");
-const resellerMessage = document.getElementById("reseller-message");
+  // DOM
+  const platformList = document.getElementById("platform-list");
+  const categorySelect = document.getElementById("category-select");
+  const serviceSelect = document.getElementById("service-select");
+  const serviceDetail = document.getElementById("service-detail");
+  const servicePrice = document.getElementById("service-price");
+  const serviceMin = document.getElementById("service-min");
+  const serviceMax = document.getElementById("service-max");
+  const serviceDescriptionRow = document.getElementById("service-description-row");
+  const serviceNoteText = document.getElementById("service-note-text");
+  const targetInput = document.getElementById("target-input");
+  const quantityInput = document.getElementById("quantity-input");
+  const totalPriceInput = document.getElementById("total-price");
+  const orderEmailInput = document.getElementById("order-email");
+  const commentsInput = document.getElementById("comments-input");
+  const commentBlock = document.getElementById("comment-block");
+  const quantityHint = document.getElementById("quantity-hint");
+  const buyerName = document.getElementById("buyer-name") || { value: "" };
+  const buyerWhatsapp = document.getElementById("buyer-whatsapp") || { value: "" };
+  const buyerEmail = document.getElementById("buyer-email") || { value: "" };
+  const payButton = document.getElementById("pay-button");
+  const errorMessage = document.getElementById("error-message");
+  const resellerName = document.getElementById("reseller-name");
+  const resellerWhatsapp = document.getElementById("reseller-whatsapp");
+  const resellerEmail = document.getElementById("reseller-email");
+  const resellerUsername = document.getElementById("reseller-username");
+  const resellerPassword = document.getElementById("reseller-password");
+  const resellerButton = document.getElementById("reseller-button");
+  const resellerMessage = document.getElementById("reseller-message");
   let platformLoader = document.getElementById("platform-loader");
   if (platformLoader) {
     platformLoader.remove();
@@ -168,12 +168,27 @@ const resellerMessage = document.getElementById("reseller-message");
   const paymentLoader = document.getElementById("payment-loader");
   const platformInfo = document.getElementById("platform-info");
   const platformInfoIcon = document.getElementById("platform-info-icon");
-const platformInfoText = document.getElementById("platform-info-text");
-if (!platformList || !categorySelect || !serviceSelect) {
-  console.warn("Elemen utama platform tidak ditemukan, melewati initOrderApp.");
-  return;
-}
+  const platformInfoText = document.getElementById("platform-info-text");
+  const categoryAmbientLayer = document.querySelector(".category-ambient");
+  if (!platformList || !categorySelect || !serviceSelect) {
+    console.warn("Elemen utama platform tidak ditemukan, melewati initOrderApp.");
+    return;
+  }
 
+  const triggerPlatformBurst = (platformId) => {
+    const btn = document.querySelector(`.platform-btn[data-platform-id="${platformId}"]`);
+    if (!btn) return;
+    btn.classList.remove("burst");
+    void btn.offsetWidth;
+    btn.classList.add("burst");
+  };
+
+  const triggerCategoryAmbient = () => {
+    if (!categoryAmbientLayer) return;
+    categoryAmbientLayer.classList.remove("pulse");
+    void categoryAmbientLayer.offsetWidth;
+    categoryAmbientLayer.classList.add("pulse");
+  };
 const createInputStub = () => ({
   value: "",
   min: 0,
@@ -486,6 +501,8 @@ function selectPlatform(platform, options = {}) {
   document.querySelectorAll(".platform-btn").forEach((btn) => {
     if (btn.dataset.platformId === platform.id) btn.classList.add("active");
   });
+  triggerPlatformBurst(platform.id);
+  triggerCategoryAmbient();
 
   const categories = getCategoriesForPlatform(platform.id);
   categorySelect.innerHTML = `<option value="">${
