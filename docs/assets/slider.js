@@ -79,7 +79,7 @@ function initSliderApp() {
 
   if (slides.length) {
     let current = 0;
-    let autoTimer;
+    let autoTimer = null;
     const autoplayDelay = 3000;
 
     const setActive = (index) => {
@@ -91,24 +91,21 @@ function initSliderApp() {
     };
 
     const nextSlide = () => setActive((current + 1) % slides.length);
-    const scheduleNext = () => {
-      if (autoTimer) clearTimeout(autoTimer);
-      autoTimer = setTimeout(() => {
-        nextSlide();
-        scheduleNext();
-      }, autoplayDelay);
+    const startAuto = () => {
+      if (autoTimer) clearInterval(autoTimer);
+      autoTimer = setInterval(() => nextSlide(), autoplayDelay);
     };
 
     dots.forEach((dot, index) => {
       dot.addEventListener("click", () => {
-        if (autoTimer) clearTimeout(autoTimer);
+        if (autoTimer) clearInterval(autoTimer);
         setActive(index);
-        scheduleNext();
+        startAuto();
       });
     });
 
     setActive(0);
-    scheduleNext();
+    startAuto();
   }
 
   const menuBtn = document.getElementById("menu-toggle");
