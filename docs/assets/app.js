@@ -193,7 +193,7 @@ const createMessageStub = () => ({
   classList: { add() {}, remove() {} },
 });
 
-const BLOCKED_SERVICE_KEYWORDS = ["website traffic"];
+const BLOCKED_SERVICE_KEYWORDS = ["website traffic", "website social signal"];
 
 const targetField = targetInput || createInputStub();
 const quantityField = quantityInput || createInputStub();

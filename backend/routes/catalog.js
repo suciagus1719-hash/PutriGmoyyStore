@@ -16,7 +16,7 @@ const {
 } = require("../lib/serviceParser");
 const { getHiddenServices } = require("../lib/settingsStore");
 
-const BLOCKED_KEYWORDS = ["website traffic"];
+const BLOCKED_KEYWORDS = ["website traffic", "website social signal"];
 
 function isBlockedService(rawService) {
   const name = String(getServiceName(rawService) || "");

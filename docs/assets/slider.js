@@ -146,7 +146,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (toastTimer) clearTimeout(toastTimer);
   });
   const OWNER_TOKEN_KEY = "pg_owner_token";
-  const BLOCKED_SERVICE_KEYWORDS = ["website traffic"];
+  const BLOCKED_SERVICE_KEYWORDS = ["website traffic", "website social signal"];
   const MENU_ICON_SVGS = {
     login:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5.25v13.5A2.25 2.25 0 007.25 21H12"/><path d="M12 8.25H5"/><path d="M13.5 8.25L18 12l-4.5 3.75"/><path d="M18 12H9"/></svg>',
