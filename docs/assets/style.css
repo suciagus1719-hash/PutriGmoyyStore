@@ -34,6 +34,24 @@ body {
   color: #111827;
 }
 
+.topbar-badge {
+  width: 70px;
+  height: 70px;
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.08);
+  background: #f8f8ff;
+}
+
+.topbar-badge img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 .topbar-logo .logo-icon {
   width: 48px;
   height: 48px;
