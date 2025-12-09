@@ -553,16 +553,6 @@ function resetServiceDetailView() {
   if (quantityField?.removeAttribute) quantityField.removeAttribute("max");
 }
 
-function markServiceActive(serviceId) {
-  if (!serviceListEl) return;
-  const idStr = serviceId ? String(serviceId) : "";
-  const buttons = serviceListEl.querySelectorAll("[data-service-id]");
-  buttons.forEach((btn) => {
-    const btnId = String(btn.dataset.serviceId || "");
-    btn.classList.toggle("active", idStr && btnId === idStr);
-  });
-}
-
 function clearServiceSelection() {
   selectedService = null;
   if (serviceSelect) serviceSelect.value = "";
@@ -632,6 +622,10 @@ categorySelect?.addEventListener("change", (e) => {
     return;
   }
   buildServiceOptions();
+});
+
+serviceSelect?.addEventListener("change", (e) => {
+  applyServiceSelection(e.target.value);
 });
 
 function buildServiceOptions(preserveServiceId = null) {
