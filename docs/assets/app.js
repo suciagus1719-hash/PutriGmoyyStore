@@ -168,11 +168,28 @@ const resellerMessage = document.getElementById("reseller-message");
   const paymentLoader = document.getElementById("payment-loader");
   const platformInfo = document.getElementById("platform-info");
   const platformInfoIcon = document.getElementById("platform-info-icon");
-const platformInfoText = document.getElementById("platform-info-text");
-if (!platformList || !categorySelect || !serviceSelect) {
-  console.warn("Elemen utama platform tidak ditemukan, melewati initOrderApp.");
-  return;
-}
+  const platformInfoText = document.getElementById("platform-info-text");
+  const categoryAmbientLayer = document.querySelector(".category-ambient");
+  if (!platformList || !categorySelect || !serviceSelect) {
+    console.warn("Elemen utama platform tidak ditemukan, melewati initOrderApp.");
+    return;
+  }
+
+  const animatePlatformButton = (button) => {
+    if (!button) return;
+    button.classList.remove("burst");
+    void button.offsetWidth;
+    button.classList.add("burst");
+    setTimeout(() => button.classList.remove("burst"), 500);
+  };
+
+  const flashCategoryAmbient = () => {
+    if (!categoryAmbientLayer) return;
+    categoryAmbientLayer.classList.remove("pulse");
+    void categoryAmbientLayer.offsetWidth;
+    categoryAmbientLayer.classList.add("pulse");
+    setTimeout(() => categoryAmbientLayer.classList.remove("pulse"), 600);
+  };
 
 const createInputStub = () => ({
   value: "",
@@ -420,7 +437,10 @@ function renderPlatformButtons(list = catalogPlatforms) {
       </span>
       <span>${p.name}</span>
     `;
-    btn.onclick = () => selectPlatform(p);
+    btn.addEventListener("click", () => {
+      animatePlatformButton(btn);
+      selectPlatform(p);
+    });
     if (currentId && currentId === p.id) {
       btn.classList.add("active");
     }
@@ -486,6 +506,7 @@ function selectPlatform(platform, options = {}) {
   document.querySelectorAll(".platform-btn").forEach((btn) => {
     if (btn.dataset.platformId === platform.id) btn.classList.add("active");
   });
+  flashCategoryAmbient();
 
   const categories = getCategoriesForPlatform(platform.id);
   categorySelect.innerHTML = `<option value="">${
