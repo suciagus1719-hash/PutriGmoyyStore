@@ -163,7 +163,6 @@ const categoryDropdown = document.getElementById("category-dropdown");
 const categoryToggle = document.getElementById("category-toggle");
 const categoryPanel = document.getElementById("category-panel");
 const categorySelectedLabel = document.getElementById("category-selected-label");
-const categoryPlatformPreview = document.getElementById("category-platform-preview");
 const serviceListEl = document.getElementById("service-list");
 const serviceSearchInput = document.getElementById("service-search-input");
 const serviceDropdown = document.getElementById("service-dropdown");
@@ -211,19 +210,36 @@ const resellerMessage = document.getElementById("reseller-message");
   renderPlatformButtons();
   ensurePlatformSelection();
 
+  categoryPanel?.classList.remove("hidden");
+  categoryDropdown?.classList.add("open");
+  categoryDropdown?.setAttribute("data-sticky", "true");
+  servicePanel?.classList.remove("hidden");
+  serviceDropdown?.classList.add("open");
+  serviceDropdown?.setAttribute("data-sticky", "true");
+
   categoryToggle?.addEventListener("click", (e) => {
     e.stopPropagation();
+    if (categoryDropdown?.getAttribute("data-sticky") === "true") return;
     toggleDropdownPanel(categoryPanel, categoryDropdown);
   });
   serviceToggle?.addEventListener("click", (e) => {
     e.stopPropagation();
+    if (serviceDropdown?.getAttribute("data-sticky") === "true") return;
     toggleDropdownPanel(servicePanel, serviceDropdown);
   });
   document.addEventListener("click", (e) => {
-    if (categoryDropdown && !categoryDropdown.contains(e.target)) {
+    if (
+      categoryDropdown &&
+      categoryDropdown.getAttribute("data-sticky") !== "true" &&
+      !categoryDropdown.contains(e.target)
+    ) {
       closeDropdownPanel(categoryPanel, categoryDropdown);
     }
-    if (serviceDropdown && !serviceDropdown.contains(e.target)) {
+    if (
+      serviceDropdown &&
+      serviceDropdown.getAttribute("data-sticky") !== "true" &&
+      !serviceDropdown.contains(e.target)
+    ) {
       closeDropdownPanel(servicePanel, serviceDropdown);
     }
   });
@@ -499,7 +515,6 @@ function renderPlatformButtons(list = catalogPlatforms) {
     }
     platformList.appendChild(btn);
   });
-  renderCategoryPlatformPreview();
 }
 
 function ensurePlatformSelection() {
@@ -530,37 +545,6 @@ function getCategoriesForPlatform(platformId) {
   return Array.from(set).sort((a, b) => a.localeCompare(b));
 }
 
-function renderCategoryPlatformPreview() {
-  if (!categoryPlatformPreview) return;
-  if (!catalogPlatforms.length) {
-    categoryPlatformPreview.innerHTML = `<p>Platform belum tersedia.</p>`;
-    return;
-  }
-  const previewList = catalogPlatforms.slice(0, 6);
-  categoryPlatformPreview.innerHTML = previewList
-    .map((platform) => {
-      const icon = platformIcon(platform.id);
-      return `
-        <button type="button" data-preview-platform="${platform.id}">
-          <span class="platform-chip" style="background:${icon.color}">
-            <img src="${icon.url}" alt="${platform.name}" />
-          </span>
-          <small>${platform.name}</small>
-        </button>
-      `;
-    })
-    .join("");
-  categoryPlatformPreview.querySelectorAll("button").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      const platformId = btn.dataset.previewPlatform;
-      const platform = catalogPlatforms.find((p) => p.id === platformId);
-      if (!platform) return;
-      selectPlatform(platform);
-      openDropdownPanel(categoryPanel, categoryDropdown);
-    });
-  });
-}
 
 function getServicesForCategory(platformId, categoryName) {
   return catalogServices
@@ -586,6 +570,11 @@ function clearListState(el) {
 let openedDropdownPanel = null;
 const openDropdownPanel = (panel, container) => {
   if (!panel || !container) return;
+  if (container.dataset?.sticky === "true") {
+    panel.classList.remove("hidden");
+    container.classList.add("open");
+    return;
+  }
   if (openedDropdownPanel && openedDropdownPanel !== panel) {
     openedDropdownPanel.classList.add("hidden");
     openedDropdownPanel.parentElement?.classList?.remove("open");
@@ -597,6 +586,7 @@ const openDropdownPanel = (panel, container) => {
 
 const closeDropdownPanel = (panel, container) => {
   if (!panel || !container) return;
+  if (container.dataset?.sticky === "true") return;
   panel.classList.add("hidden");
   container.classList.remove("open");
   if (openedDropdownPanel === panel) openedDropdownPanel = null;
