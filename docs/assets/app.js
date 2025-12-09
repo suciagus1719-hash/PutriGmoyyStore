@@ -193,6 +193,8 @@ const createMessageStub = () => ({
   classList: { add() {}, remove() {} },
 });
 
+const BLOCKED_SERVICE_KEYWORDS = ["website traffic"];
+
 const targetField = targetInput || createInputStub();
 const quantityField = quantityInput || createInputStub();
 const totalPriceField = totalPriceInput || createInputStub();
@@ -215,6 +217,12 @@ let commentModeActive = false;
 let catalogPlatforms = [];
 let catalogServices = [];
 let resellerAccount = window.currentAccount || null;
+
+const isBlockedService = (svc = {}) => {
+  const combined = `${svc.name || ""} ${svc.description || ""} ${svc.category || ""}`.toLowerCase();
+  return BLOCKED_SERVICE_KEYWORDS.some((keyword) => combined.includes(keyword));
+};
+
 window.addEventListener("account:change", (e) => {
   resellerAccount = e.detail || null;
   refreshServicePricing();
@@ -347,7 +355,9 @@ async function loadCatalog() {
   const cached = readCatalogCache();
   if (cached?.platforms?.length) {
     catalogPlatforms = sortPlatforms(cached.platforms);
-    catalogServices = Array.isArray(cached.services) ? cached.services : [];
+    catalogServices = Array.isArray(cached.services)
+      ? cached.services.filter((svc) => !isBlockedService(svc))
+      : [];
   } else {
     catalogPlatforms = sortPlatforms(FALLBACK_PLATFORMS);
   }
@@ -359,8 +369,11 @@ async function loadCatalog() {
     const sourcePlatforms = data.platforms?.length ? data.platforms : FALLBACK_PLATFORMS;
     catalogPlatforms = sortPlatforms(sourcePlatforms);
     if (Array.isArray(data.services) && data.services.length) {
-      catalogServices = data.services;
-      writeCatalogCache(sourcePlatforms, catalogServices);
+      catalogServices = data.services.filter((svc) => !isBlockedService(svc));
+      writeCatalogCache(
+        sourcePlatforms,
+        catalogServices.map((svc) => ({ ...svc }))
+      );
     } else if (!catalogServices.length) {
       catalogServices = [];
     }
