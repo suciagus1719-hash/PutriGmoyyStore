@@ -47,8 +47,8 @@
           <img id="brand-avatar" src="https://ui-avatars.com/api/?name=PG&background=ac2acf&color=fff" alt="avatar" />
         </span>
         <div>
-          <strong id="brand-title">PUTRI GMOYY STORE</strong>
-          <small id="brand-subtitle">Jasa kebutuhan social media</small>
+          <strong id="brand-title">PutriGmoyy</strong>
+          <small id="brand-subtitle">Store</small>
         </div>
       </div>
       <div class="balance-pill hidden" id="balance-pill">Saldo: Rp0</div>
@@ -1100,10 +1100,6 @@
           <button type="button" class="outline-btn" id="owner-hide-service-cancel">Batal</button>
           <button type="button" class="primary-btn" id="owner-hide-service-toggle" disabled>Hide Layanan</button>
         </div>
-        <div class="owner-hide-feedback hidden" id="owner-hide-feedback">
-          <div class="owner-hide-spinner"></div>
-          <p id="owner-hide-feedback-text">Memproses...</p>
-        </div>
       </div>
     </div>
     <div class="modal-overlay hidden" id="owner-hidden-list-modal">
@@ -1165,35 +1161,43 @@
       <div class="hero-slider" id="hero-slider">
         <article class="hero-slide hero-slide-one active">
           <div class="hero-copy">
-            <span class="hero-tag">Billboard #1</span>
+            <span class="hero-tag">QRIS Dinamis</span>
             <h2>Bayar Sekali Scan</h2>
             <p>QR GoPay otomatis setiap order. Tidak perlu ribet pilih metode lain, proses langsung dari HP kamu.</p>
           </div>
-          <div class="hero-media hero-cover">
-            <img src="img/billboard-1.jpg" alt="Billboard utama 16:9" />
-            <small class="hero-media-note">Unggah file billboard-1.jpg (16:9)</small>
+          <div class="hero-media">
+            <img src="img/banner.jpg" alt="QRIS Dinamis Putri Gmoyy" loading="lazy" />
           </div>
         </article>
         <article class="hero-slide hero-slide-two">
           <div class="hero-copy">
-            <span class="hero-tag">Billboard #2</span>
+            <span class="hero-tag">Order Instan</span>
             <h2>Kategori Sosmed Lengkap</h2>
             <p>Instagram, TikTok, Threads sampai WhatsApp tersedia. Tinggal pilih platform favoritmu.</p>
           </div>
-          <div class="hero-media hero-cover">
-            <img src="img/billboard-2.jpg" alt="Billboard kedua 16:9" />
-            <small class="hero-media-note">Unggah file billboard-2.jpg (16:9)</small>
+          <div class="hero-media gradient">
+            <div class="hero-shape hero-shape-one"></div>
+            <div class="hero-shape hero-shape-two"></div>
+            <div class="hero-shape hero-shape-three"></div>
           </div>
         </article>
         <article class="hero-slide hero-slide-three">
           <div class="hero-copy">
-            <span class="hero-tag">Billboard #3</span>
+            <span class="hero-tag">Midtrans Snap</span>
             <h2>Struk Otomatis</h2>
             <p>Setiap pembayaran berhasil langsung diarahkan ke struk dan pesanan masuk panel tanpa delay.</p>
           </div>
-          <div class="hero-media hero-cover">
-            <img src="img/billboard-3.jpg" alt="Billboard ketiga 16:9" />
-            <small class="hero-media-note">Unggah file billboard-3.jpg (16:9)</small>
+          <div class="hero-media mockup">
+            <div class="mockup-card">
+              <p>Order ID</p>
+              <strong>GMYY-2025</strong>
+              <span>QRIS • Rp 50.000</span>
+            </div>
+            <div class="mockup-card light">
+              <p>Status</p>
+              <strong>Berhasil</strong>
+              <span>05 Des 2025</span>
+            </div>
           </div>
         </article>
         <div class="slider-dots" id="hero-dots">
@@ -1203,49 +1207,6 @@
         </div>
       </div>
     </section>
-    <div class="page-screen" id="page-guide">
-      <div class="content">
-        <div class="page-back">
-          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
-        </div>
-        <section class="card cara-order-card">
-          <h3>Cara Order</h3>
-          <p class="platform-hint">Unggah gambar langkah di folder <code>img/cara-order-*.jpg</code> sesuai kebutuhan.</p>
-          <div class="order-steps">
-            <article class="order-step">
-              <div class="order-step-media">
-                <img src="img/cara-order-1.jpg" alt="Langkah 1" />
-                <small>Upload gambar cara-order-1.jpg</small>
-              </div>
-              <div class="order-step-body">
-                <h4>Langkah 1</h4>
-                <p>Tentukan platform dan layanan yang ingin dipesan, lalu isi data target dengan benar.</p>
-              </div>
-            </article>
-            <article class="order-step">
-              <div class="order-step-media">
-                <img src="img/cara-order-2.jpg" alt="Langkah 2" />
-                <small>Upload gambar cara-order-2.jpg</small>
-              </div>
-              <div class="order-step-body">
-                <h4>Langkah 2</h4>
-                <p>Pilih metode pembayaran dan selesaikan transaksi melalui QRIS otomatis.</p>
-              </div>
-            </article>
-            <article class="order-step">
-              <div class="order-step-media">
-                <img src="img/cara-order-3.jpg" alt="Langkah 3" />
-                <small>Upload gambar cara-order-3.jpg</small>
-              </div>
-              <div class="order-step-body">
-                <h4>Langkah 3</h4>
-                <p>Cek status di menu riwayat atau monitoring untuk memastikan pesanan berjalan.</p>
-              </div>
-            </article>
-          </div>
-        </section>
-      </div>
-    </div>
     <div class="page-screen active" id="page-default">
     <main class="content">
       <!-- Step 1: Platform -->
@@ -1259,150 +1220,7 @@
           <p>Sedang memuat platform...</p>
         </div>
         <div id="platform-list" class="platform-grid">
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#E1306C">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/instagram.svg" alt="Instagram" loading="lazy" />
-            </span>
-            <span>Instagram</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#000000">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/tiktok.svg" alt="TikTok" loading="lazy" />
-            </span>
-            <span>TikTok</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#FF0000">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/youtube.svg" alt="YouTube" loading="lazy" />
-            </span>
-            <span>YouTube</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#1877F2">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/facebook.svg" alt="Facebook" loading="lazy" />
-            </span>
-            <span>Facebook</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#229ED9">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/telegram.svg" alt="Telegram" loading="lazy" />
-            </span>
-            <span>Telegram</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#F1582C">
-              <img src="https://logo.clearbit.com/shopee.co.id" alt="Shopee" loading="lazy" />
-            </span>
-            <span>Shopee</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#101010">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/threads.svg" alt="Threads" loading="lazy" />
-            </span>
-            <span>Threads</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#25D366">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/whatsapp.svg" alt="WhatsApp" loading="lazy" />
-            </span>
-            <span>WhatsApp</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#1DB954">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/spotify.svg" alt="Spotify" loading="lazy" />
-            </span>
-            <span>Spotify</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#5865F2">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/discord.svg" alt="Discord" loading="lazy" />
-            </span>
-            <span>Discord</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#FFB400">
-              <img src="https://logo.clearbit.com/snackvideo.com" alt="Snack Video" loading="lazy" />
-            </span>
-            <span>Snack Video</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#1D9BF0">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/twitter.svg" alt="Twitter / X" loading="lazy" />
-            </span>
-            <span>Twitter / X</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#9146FF">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/twitch.svg" alt="Twitch" loading="lazy" />
-            </span>
-            <span>Twitch</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#FF7700">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/soundcloud.svg" alt="SoundCloud" loading="lazy" />
-            </span>
-            <span>SoundCloud</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#E60023">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/pinterest.svg" alt="Pinterest" loading="lazy" />
-            </span>
-            <span>Pinterest</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#FF4500">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/reddit.svg" alt="Reddit" loading="lazy" />
-            </span>
-            <span>Reddit</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#B92B27">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/quora.svg" alt="Quora" loading="lazy" />
-            </span>
-            <span>Quora</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#0F9D58">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/googleplay.svg" alt="Mobile App" loading="lazy" />
-            </span>
-            <span>Mobile App</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#FF6B00">
-              <img src="https://logo.clearbit.com/kwai.com" alt="Kwai" loading="lazy" />
-            </span>
-            <span>Kwai</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#0A66C2">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/linkedin.svg" alt="LinkedIn" loading="lazy" />
-            </span>
-            <span>LinkedIn</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#FF6E7F">
-              <img src="https://logo.clearbit.com/likee.com" alt="Likee" loading="lazy" />
-            </span>
-            <span>Likee</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#0F9D58">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/googleplay.svg" alt="Google Play Review" loading="lazy" />
-            </span>
-            <span>Google Play Review</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#0066DC">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/dailymotion.svg" alt="Dailymotion" loading="lazy" />
-            </span>
-            <span>Dailymotion</span>
-          </button>
-          <button type="button" class="platform-btn">
-            <span class="logo" style="background:#FF8F00">
-              <img src="https://cdn.jsdelivr.net/npm/simple-icons@9/icons/audiomack.svg" alt="Audiomack" loading="lazy" />
-            </span>
-            <span>Audiomack</span>
-          </button>
+          <!-- tombol platform akan di-render via JS -->
         </div>
       </section>
 
@@ -1515,7 +1333,6 @@
   <script src="assets/app.js" defer></script>
 </body>
 </html>
-
 
 
 
