@@ -18,6 +18,14 @@ const { getHiddenServices } = require("../lib/settingsStore");
 
 const BLOCKED_KEYWORDS = ["website traffic"];
 
+function isBlockedService(rawService) {
+  const name = String(getServiceName(rawService) || "");
+  const description = String(getServiceDescription(rawService) || "");
+  const category = String(getServiceCategory(rawService) || "");
+  const combined = `${name} ${description} ${category}`.toLowerCase();
+  return BLOCKED_KEYWORDS.some((keyword) => combined.includes(keyword));
+}
+
 module.exports = async (req, res) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   if (req.method === "OPTIONS") return res.status(200).end();
@@ -31,6 +39,7 @@ module.exports = async (req, res) => {
     const hiddenSet = new Set(hiddenList.map((id) => String(id).toLowerCase()));
 
     const services = servicesRaw
+      .filter((svc) => !isBlockedService(svc))
       .map((svc) => {
         const detected = detectPlatformDef(svc);
         const platformId =
@@ -59,12 +68,7 @@ module.exports = async (req, res) => {
         sortPrice: per100 || 0,
       };
       })
-      .filter((svc) => {
-        const lowerName = String(svc.name || "").toLowerCase();
-        const blocked = BLOCKED_KEYWORDS.some((keyword) => lowerName.includes(keyword));
-        if (blocked) return false;
-        return !hiddenSet.has(String(svc.id).toLowerCase());
-      });
+      .filter((svc) => !hiddenSet.has(String(svc.id).toLowerCase()));
 
     res.json({
       platforms,
