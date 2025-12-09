@@ -2280,7 +2280,8 @@ body {
   z-index: 1;
 }
 
-.category-card {
+.card.category-card,
+.card.with-ambient.category-card {
   overflow: visible;
 }
 

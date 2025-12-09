@@ -102,7 +102,18 @@ const PUBLIC_PROFIT_MARGIN = 0.4;
 const RESELLER_MARGIN = 0.2;
 const headerAmbientLayer = document.querySelector(".topbar-ambient");
 const categoryAmbientLayer = document.querySelector(".category-ambient");
-
+let selectedPlatform = null;
+let selectedCategory = null;
+let selectedService = null;
+let categorySearchTerm = "";
+let serviceSearchTerm = "";
+let currentCategoryOptions = [];
+let currentServiceOptions = [];
+let selectedPricePer100 = 0;
+let commentModeActive = false;
+let catalogPlatforms = [];
+let catalogServices = [];
+let resellerAccount = window.currentAccount || null;
 function animatePlatformButton(button) {
   if (!button) return;
   button.classList.remove("burst");
@@ -279,19 +290,6 @@ function notifyCatalogUpdate() {
   }));
   window.dispatchEvent(new CustomEvent("catalog:update", { detail: { services: decorated } }));
 }
-
-let selectedPlatform = null;
-let selectedCategory = null;
-let selectedService = null;
-let categorySearchTerm = "";
-let serviceSearchTerm = "";
-let currentCategoryOptions = [];
-let currentServiceOptions = [];
-let selectedPricePer100 = 0;
-let commentModeActive = false;
-let catalogPlatforms = [];
-let catalogServices = [];
-let resellerAccount = window.currentAccount || null;
 
 const isBlockedService = (svc = {}) => {
   const combined = `${svc.name || ""} ${svc.description || ""} ${svc.category || ""}`.toLowerCase();
