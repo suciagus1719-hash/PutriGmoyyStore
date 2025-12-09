@@ -158,6 +158,8 @@ function initOrderApp() {
 const platformList = document.getElementById("platform-list");
 const categorySelect = document.getElementById("category-select");
 const serviceSelect = document.getElementById("service-select");
+const serviceSelectSearchInput = document.getElementById("service-select-search");
+const serviceSelectSearchInput = document.getElementById("service-select-search");
 const serviceDetail = document.getElementById("service-detail");
 const servicePrice = document.getElementById("service-price");
 const serviceMin = document.getElementById("service-min");
@@ -240,6 +242,8 @@ function notifyCatalogUpdate() {
 let selectedPlatform = null;
 let selectedCategory = null;
 let selectedService = null;
+let serviceSearchTerm = "";
+let currentServiceOptions = [];
 let selectedPricePer100 = 0;
 let commentModeActive = false;
 let catalogPlatforms = [];
@@ -575,14 +579,22 @@ function buildServiceOptions(preserveServiceId = null) {
   }
 
   const data = getServicesForCategory(selectedPlatform.id, selectedCategory);
-  if (!data.length) {
+  let filtered = data;
+  const term = serviceSearchTerm ? serviceSearchTerm.toLowerCase() : "";
+  if (term) {
+    filtered = data.filter((svc) => {
+      const haystack = `${svc.id} ${svc.name || ""} ${svc.description || ""}`.toLowerCase();
+      return haystack.includes(term);
+    });
+  }
+  if (!filtered.length) {
     serviceSelect.innerHTML = `<option value="">Layanan tidak tersedia.</option>`;
     return;
   }
 
   serviceSelect.innerHTML = `<option value="">Pilih layanan</option>`;
   let matchedId = null;
-  data.forEach((svc) => {
+  filtered.forEach((svc) => {
     const opt = document.createElement("option");
     const basePrice = getBasePricePer100(svc);
     const margin = isResellerActive() ? RESELLER_MARGIN : PUBLIC_PROFIT_MARGIN;
@@ -604,6 +616,12 @@ function buildServiceOptions(preserveServiceId = null) {
     applyServiceSelection("");
   }
 }
+
+serviceSelectSearchInput?.addEventListener("input", (e) => {
+  serviceSearchTerm = (e.target.value || "").trim().toLowerCase();
+  const preserveId = selectedService ? String(selectedService.id) : null;
+  buildServiceOptions(preserveId);
+});
 
 function refreshServicePricing() {
   if (!selectedPlatform || !selectedCategory) return;
