@@ -663,7 +663,6 @@ function renderCategoryOptions() {
       return `
         <button type="button" class="dropdown-option-item ${activeClass}" data-category-option="${item.value}">
           <strong>${item.label}</strong>
-          <span>${selectedPlatform?.name || "-"}</span>
         </button>
       `;
     })
@@ -784,11 +783,17 @@ function renderServiceOptions({ preserveServiceId = null } = {}) {
   serviceOptions.classList.remove("empty");
   serviceOptions.innerHTML = filtered
     .map((svc) => {
-      const isActive = (preserveServiceId && String(preserveServiceId) === String(svc.id)) || selectedService?.id === svc.id;
+      const isActive =
+        (preserveServiceId && String(preserveServiceId) === String(svc.id)) || selectedService?.id === svc.id;
+      const basePrice = getBasePricePer100(svc);
+      const margin = isResellerActive() ? RESELLER_MARGIN : PUBLIC_PROFIT_MARGIN;
+      const displayPrice = basePrice ? basePrice * (1 + margin) : 0;
+      const priceLabel = displayPrice
+        ? formatCurrency(displayPrice).replace("Rp ", "Rp. ")
+        : "Rp. 0";
       return `
         <button type="button" class="dropdown-option-item ${isActive ? "active" : ""}" data-service-option="${svc.id}">
-          <strong>${svc.name || "-"}</strong>
-          <span>#${svc.id} &middot; Min ${svc.min || 0} - Max ${svc.max || 0}</span>
+          <strong>${svc.id} - ${svc.name || "-"} - ${priceLabel}</strong>
         </button>
       `;
     })
