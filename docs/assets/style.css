@@ -26,7 +26,6 @@ body {
   border-radius: 16px;
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
   position: relative;
-  overflow: hidden;
 }
 
 .topbar > * {
@@ -37,10 +36,10 @@ body {
 .topbar-ambient {
   position: absolute;
   inset: 0;
-  overflow: hidden;
   pointer-events: none;
   background: linear-gradient(120deg, rgba(7, 89, 133, 0.18), rgba(88, 28, 135, 0.18));
   z-index: 0;
+  clip-path: inset(0 round 16px);
 }
 
 .ambient-pile {
