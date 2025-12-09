@@ -93,6 +93,39 @@ body {
   color: #111827;
 }
 
+.brand-meta strong {
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.brand-meta small {
+  text-transform: none;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.avatar-upload {
+  margin-left: auto;
+}
+
+.avatar-upload button {
+  border: 1px dashed #cbd5f5;
+  background: rgba(255, 255, 255, 0.6);
+  color: #1d4ed8;
+  font-size: 12px;
+  border-radius: 999px;
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.avatar-upload button:hover,
+.avatar-upload button:focus-visible {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #60a5fa;
+  outline: none;
+}
+
 .topbar-badge {
   width: 120px;
   height: 70px;
@@ -2456,6 +2489,7 @@ body {
 .service-toggle-text strong {
   font-size: 15px;
   color: #0f172a;
+  font-weight: 400;
 }
 
 .service-toggle-text small {
@@ -3051,6 +3085,17 @@ label {
   min-width: 120px;
   font-weight: 600;
   color: #111827;
+  display: inline-flex;
+  justify-content: flex-start;
+  position: relative;
+  padding-right: 10px;
+}
+
+.service-detail .detail-row strong::after {
+  content: ":";
+  margin-left: 6px;
+  color: #94a3b8;
+  font-weight: 400;
 }
 
 .service-detail .detail-row.description {

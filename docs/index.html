@@ -46,9 +46,15 @@
         <span class="logo-icon">
           <img id="brand-avatar" src="https://ui-avatars.com/api/?name=PG&background=ac2acf&color=fff" alt="avatar" />
         </span>
-        <div>
-          <strong id="brand-title">PutriGmoyy</strong>
-          <small id="brand-subtitle">Store</small>
+        <div class="brand-meta">
+          <strong id="brand-title">PUTRI GMOYY STORE</strong>
+          <small id="brand-subtitle">Kebutuhan social media</small>
+        </div>
+        <div class="avatar-upload">
+          <input type="file" id="brand-avatar-input" accept="image/*" hidden />
+          <button type="button" id="brand-avatar-trigger" aria-label="Ubah foto brand">
+            Ubah Foto
+          </button>
         </div>
       </div>
       <div class="balance-pill hidden" id="balance-pill">Saldo: Rp0</div>
@@ -1213,12 +1219,6 @@
       <section class="card">
         <h3>Pilih Platform &amp; Layanan</h3>
         <p class="platform-hint">Klik salah satu logo platform untuk memuat kategori layanan otomatis dari panel.</p>
-        <div id="platform-loader" class="platform-loader loading-box hidden">
-          <div class="loader-dots">
-            <span></span><span></span><span></span><span></span><span></span>
-          </div>
-          <p>Sedang memuat platform...</p>
-        </div>
         <div id="platform-list" class="platform-grid">
           <!-- tombol platform akan di-render via JS -->
         </div>
@@ -1275,7 +1275,6 @@
           <button type="button" class="custom-dropdown-toggle service-toggle" id="service-toggle">
             <div class="service-toggle-text">
               <strong id="service-selected-label">Pilih layanan</strong>
-              <small id="service-selected-desc">ID / nama layanan akan tampil di sini</small>
             </div>
             <span class="dropdown-caret"></span>
           </button>

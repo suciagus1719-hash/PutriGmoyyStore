@@ -5,6 +5,7 @@ if (window.__PG_SLIDER_INITED__) {
 (function () {
 const ACCOUNT_KEY = "pg_account";
 const API_BASE = window.API_BASE_URL || "";
+const BRAND_AVATAR_CACHE_KEY = "pg_brand_avatar";
 
 const requestDelay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
@@ -112,6 +113,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const menuBtn = document.getElementById("menu-toggle");
   const navPanel = document.getElementById("topbar-nav");
   const menuList = document.getElementById("menu-list");
+  const brandAvatar = document.getElementById("brand-avatar");
+  const avatarInput = document.getElementById("brand-avatar-input");
+  const avatarTrigger = document.getElementById("brand-avatar-trigger");
   const platformSection = document.getElementById("platform-list");
   const loaderOverlay = document.getElementById("profile-loader");
   const loaderMessage = loaderOverlay?.querySelector("p");
@@ -144,6 +148,35 @@ document.addEventListener("DOMContentLoaded", () => {
   toastClose?.addEventListener("click", () => {
     toastContainer?.classList.add("hidden");
     if (toastTimer) clearTimeout(toastTimer);
+  });
+  const loadStoredAvatar = () => {
+    if (!brandAvatar) return;
+    try {
+      const stored = localStorage.getItem(BRAND_AVATAR_CACHE_KEY);
+      if (stored) brandAvatar.src = stored;
+    } catch (err) {
+      console.warn("Tidak bisa membaca avatar brand:", err);
+    }
+  };
+  loadStoredAvatar();
+  avatarTrigger?.addEventListener("click", () => avatarInput?.click());
+  avatarInput?.addEventListener("change", (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type?.startsWith("image/")) {
+      showToast("Harap pilih file gambar.", "error");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (brandAvatar) brandAvatar.src = reader.result;
+      try {
+        localStorage.setItem(BRAND_AVATAR_CACHE_KEY, reader.result);
+      } catch (err) {
+        console.warn("Gagal menyimpan avatar:", err);
+      }
+    };
+    reader.readAsDataURL(file);
   });
   const OWNER_TOKEN_KEY = "pg_owner_token";
   const BLOCKED_SERVICE_KEYWORDS = ["website traffic", "website social signal"];
