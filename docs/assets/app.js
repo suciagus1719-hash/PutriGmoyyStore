@@ -680,13 +680,22 @@ function renderCategoryList() {
     selectedCategory = filtered[0];
   }
   clearListState(categoryListEl);
+  const iconMeta = platformIcon(selectedPlatform?.id || "other");
   filtered.forEach((name) => {
     const btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "category-chip-btn";
+    btn.className = "dropdown-option";
     if (selectedCategory === name) btn.classList.add("active");
     btn.dataset.category = name;
-    btn.textContent = name;
+    btn.innerHTML = `
+      <span class="dropdown-option-icon" style="background:${iconMeta.color || "#e2e8f0"}">
+        <img src="${iconMeta.url}" alt="${selectedPlatform?.name || "Platform"}" />
+      </span>
+      <div>
+        <strong>${name}</strong>
+        <span>${selectedPlatform?.name || "Platform"}</span>
+      </div>
+    `;
     categoryListEl.appendChild(btn);
   });
   updateCategorySelectedLabel();
@@ -729,10 +738,14 @@ function renderServiceList(options = {}) {
     btn.className = "service-item";
     if (activeId && String(svc.id) === activeId) btn.classList.add("active");
     btn.dataset.serviceId = svc.id;
+    const iconMeta = platformIcon(svc.platformId || selectedPlatform?.id || "other");
     btn.innerHTML = `
+      <span class="service-icon" style="background:${iconMeta.color || "#e2e8f0"}">
+        <img src="${iconMeta.url}" alt="${svc.platformName || selectedPlatform?.name || "Platform"}" />
+      </span>
       <div class="service-meta">
-        <strong>#${svc.id}</strong>
-        <span>${svc.name}</span>
+        <strong>${svc.name || "-"}</strong>
+        <span>#${svc.id}</span>
         <small>Min ${svc.min || 0} - Max ${svc.max || 0}</small>
       </div>
       <div class="service-price">${getServicePriceLabel(svc)}</div>
