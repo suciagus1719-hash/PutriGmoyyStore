@@ -206,6 +206,11 @@ const resellerMessage = document.getElementById("reseller-message");
     return;
   }
 
+  // Tampilkan fallback platform terlebih dahulu agar tidak kosong
+  catalogPlatforms = sortPlatforms(FALLBACK_PLATFORMS);
+  renderPlatformButtons();
+  ensurePlatformSelection();
+
   categoryToggle?.addEventListener("click", (e) => {
     e.stopPropagation();
     toggleDropdownPanel(categoryPanel, categoryDropdown);
