@@ -1,25 +1,14 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = process.env.NODE_TLS_REJECT_UNAUTHORIZED || "0";
 const { randomUUID } = require("crypto");
-const { Pool } = require("pg");
 const { normalizeIdentifier } = require("./accountStore");
+const { getPool } = require("./dbPool");
 
 const TABLE_NAME = process.env.DEPOSIT_TABLE_NAME || "reseller_deposits";
-const CONNECTION_STRING =
-  process.env.POSTGRES_URL_NON_POOLING ||
-  process.env.POSTGRES_URL ||
-  process.env.POSTGRES_PRISMA_URL ||
-  process.env.DATABASE_URL;
+const pool = getPool();
 
-if (!CONNECTION_STRING) {
-  console.warn("[depositStore] POSTGRES_URL belum dikonfigurasi. Riwayat deposit tidak akan tersimpan.");
+if (!pool) {
+  console.warn("[depositStore] Database belum dikonfigurasi. Riwayat deposit tidak akan tersimpan.");
 }
-
-const pool = CONNECTION_STRING
-  ? new Pool({
-      connectionString: CONNECTION_STRING,
-      ssl: { rejectUnauthorized: false },
-    })
-  : null;
 
 let tablePromise = null;
 

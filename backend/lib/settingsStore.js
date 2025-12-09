@@ -1,20 +1,8 @@
-const { Pool } = require("pg");
+const { getPool } = require("./dbPool");
 
 const TABLE_NAME = process.env.SETTINGS_TABLE_NAME || "app_settings";
-const CONNECTION_STRING =
-  process.env.POSTGRES_URL_NON_POOLING ||
-  process.env.POSTGRES_URL ||
-  process.env.POSTGRES_PRISMA_URL ||
-  process.env.DATABASE_URL;
-
 const DEFAULT_MIN_DEPOSIT = Number(process.env.DEFAULT_MIN_DEPOSIT || 10000);
-
-const pool = CONNECTION_STRING
-  ? new Pool({
-      connectionString: CONNECTION_STRING,
-      ssl: { rejectUnauthorized: false },
-    })
-  : null;
+const pool = getPool();
 
 let tablePromise = null;
 

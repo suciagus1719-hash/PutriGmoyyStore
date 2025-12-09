@@ -1,26 +1,15 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
 const { randomUUID } = require("crypto");
-const { Pool } = require("pg");
+const { getPool } = require("./dbPool");
 
 const TABLE_NAME = process.env.ACCOUNT_TABLE_NAME || "resellers";
-const CONNECTION_STRING =
-  process.env.POSTGRES_URL_NON_POOLING ||
-  process.env.POSTGRES_URL ||
-  process.env.POSTGRES_PRISMA_URL ||
-  process.env.DATABASE_URL;
+const pool = getPool();
 
-if (!CONNECTION_STRING) {
+if (!pool) {
   console.warn(
-    "[accountStore] POSTGRES_URL / POSTGRES_URL_NON_POOLING belum diset. Data reseller tidak akan tersimpan."
+    "[accountStore] Database belum dikonfigurasi, data reseller tidak akan tersimpan."
   );
 }
-
-const pool = CONNECTION_STRING
-  ? new Pool({
-      connectionString: CONNECTION_STRING,
-      ssl: { rejectUnauthorized: false },
-    })
-  : null;
 
 let tablePromise = null;
 
