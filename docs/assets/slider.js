@@ -178,8 +178,8 @@ document.addEventListener("DOMContentLoaded", () => {
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5.25v13.5A1.5 1.5 0 006 20.25h5.25"/><path d="M13.5 12h8.25"/><path d="M18.75 8.25L21.75 12l-3 3.75"/></svg>',
   };
   const defaultMenu = [
-    { action: "login", icon: "login", label: "Masuk Reseller" },
-    { action: "register", icon: "register", label: "Daftar Reseller" },
+    { action: "login", icon: "login", label: "Masuk Reseller", hidden: true },
+    { action: "register", icon: "register", label: "Daftar Reseller", hidden: true },
     { action: "track", icon: "search", label: "Cek Status Order" },
     { action: "prices", icon: "price", label: "Daftar Harga" },
     { action: "contact", icon: "phone", label: "Kontak" },
@@ -212,14 +212,15 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!menuList) return;
     const data = menuState === "reseller" ? resellerMenu : defaultMenu;
     menuList.innerHTML = data
-      .map(
-        (item) => `
+      .map((item) => {
+        const hiddenClass = item.hidden ? "hidden" : "";
+        return `
         <li>
-          <button type="button" class="menu-item" data-action="${item.action}">
+          <button type="button" class="menu-item ${hiddenClass}" data-action="${item.action}">
             ${renderMenuIcon(item.icon)} ${item.label}
           </button>
-        </li>`
-      )
+        </li>`;
+      })
       .join("");
   };
   renderMenu();
