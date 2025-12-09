@@ -1248,20 +1248,44 @@
           <span id="platform-info-icon" class="platform-info-icon"></span>
           <span id="platform-info-text"></span>
         </div>
-        <select id="category-select">
+        <select id="category-select" class="sr-only" aria-hidden="true">
           <option value="">Pilih kategori layanan terlebih dahulu.</option>
         </select>
+        <div class="custom-dropdown" id="category-dropdown">
+          <button type="button" class="custom-dropdown-toggle" id="category-toggle">
+            <span id="category-selected-label">Pilih kategori layanan</span>
+            <span class="dropdown-caret"></span>
+          </button>
+          <div class="custom-dropdown-panel hidden" id="category-panel">
+            <div class="dropdown-search">
+              <input type="text" id="category-search-input" placeholder="Cari kategori..." autocomplete="off" />
+            </div>
+            <div id="category-options" class="dropdown-options empty">Pilih platform terlebih dahulu.</div>
+          </div>
+        </div>
       </section>
 
       <!-- Step 3: Layanan -->
       <section class="card">
         <h3>Pilih Layanan</h3>
-        <div class="inline-search">
-          <input type="text" id="service-select-search" placeholder="Cari ID atau nama layanan..." autocomplete="off" />
-        </div>
-        <select id="service-select">
+        <select id="service-select" class="sr-only" aria-hidden="true">
           <option value="">Pilih kategori dulu.</option>
         </select>
+        <div class="custom-dropdown" id="service-dropdown">
+          <button type="button" class="custom-dropdown-toggle service-toggle" id="service-toggle">
+            <div class="service-toggle-text">
+              <strong id="service-selected-label">Pilih layanan</strong>
+              <small id="service-selected-desc">ID / nama layanan akan tampil di sini</small>
+            </div>
+            <span class="dropdown-caret"></span>
+          </button>
+          <div class="custom-dropdown-panel hidden" id="service-panel">
+            <div class="dropdown-search">
+              <input type="text" id="service-search-input" placeholder="Cari ID atau nama layanan..." autocomplete="off" />
+            </div>
+            <div id="service-options" class="dropdown-options empty">Pilih kategori terlebih dahulu.</div>
+          </div>
+        </div>
 
         <div id="service-detail" class="service-detail hidden">
           <p class="detail-row"><strong>Harga / 100</strong><span id="service-price"></span></p>

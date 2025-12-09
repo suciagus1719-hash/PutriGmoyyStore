@@ -158,8 +158,19 @@ function initOrderApp() {
 const platformList = document.getElementById("platform-list");
 const categorySelect = document.getElementById("category-select");
 const serviceSelect = document.getElementById("service-select");
-const serviceSelectSearchInput = document.getElementById("service-select-search");
-const serviceSelectSearchInput = document.getElementById("service-select-search");
+const categoryDropdown = document.getElementById("category-dropdown");
+const categoryToggle = document.getElementById("category-toggle");
+const categoryPanel = document.getElementById("category-panel");
+const categoryOptions = document.getElementById("category-options");
+const categorySearchInput = document.getElementById("category-search-input");
+const categorySelectedLabel = document.getElementById("category-selected-label");
+const serviceDropdown = document.getElementById("service-dropdown");
+const serviceToggle = document.getElementById("service-toggle");
+const servicePanel = document.getElementById("service-panel");
+const serviceOptions = document.getElementById("service-options");
+const serviceSearchInput = document.getElementById("service-search-input");
+const serviceSelectedLabel = document.getElementById("service-selected-label");
+const serviceSelectedDesc = document.getElementById("service-selected-desc");
 const serviceDetail = document.getElementById("service-detail");
 const servicePrice = document.getElementById("service-price");
 const serviceMin = document.getElementById("service-min");
@@ -198,6 +209,40 @@ const resellerMessage = document.getElementById("reseller-message");
     console.warn("Elemen utama platform tidak ditemukan, melewati initOrderApp.");
     return;
   }
+
+  const closeCategoryPanel = () => categoryPanel?.classList.add("hidden");
+  const closeServicePanel = () => servicePanel?.classList.add("hidden");
+
+  categoryToggle?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    categoryPanel?.classList.toggle("hidden");
+    if (!categoryPanel?.classList.contains("hidden")) {
+      categorySearchInput?.focus();
+    }
+  });
+
+  serviceToggle?.addEventListener("click", (e) => {
+    e.stopPropagation();
+    servicePanel?.classList.toggle("hidden");
+    if (!servicePanel?.classList.contains("hidden")) {
+      serviceSearchInput?.focus();
+    }
+  });
+
+  document.addEventListener("click", (e) => {
+    if (categoryPanel && !categoryPanel.classList.contains("hidden") && !categoryDropdown?.contains(e.target)) {
+      closeCategoryPanel();
+    }
+    if (servicePanel && !servicePanel.classList.contains("hidden") && !serviceDropdown?.contains(e.target)) {
+      closeServicePanel();
+    }
+  });
+
+  updateCategorySelectedLabel();
+  updateServiceSelectedLabel(null);
+  updateCategorySelectedLabel();
+  renderCategoryOptions();
+  renderServiceOptions();
 
 
 const createInputStub = () => ({
@@ -242,7 +287,9 @@ function notifyCatalogUpdate() {
 let selectedPlatform = null;
 let selectedCategory = null;
 let selectedService = null;
+let categorySearchTerm = "";
 let serviceSearchTerm = "";
+let currentCategoryOptions = [];
 let currentServiceOptions = [];
 let selectedPricePer100 = 0;
 let commentModeActive = false;
@@ -269,6 +316,24 @@ const normalizeRequestError = (err) => {
   }
   return err;
 };
+
+function updateCategorySelectedLabel() {
+  if (categorySelectedLabel) {
+    categorySelectedLabel.textContent = selectedCategory || "Pilih kategori layanan";
+  }
+}
+
+function updateServiceSelectedLabel(service = null) {
+  if (!service) {
+    if (serviceSelectedLabel) serviceSelectedLabel.textContent = "Pilih layanan";
+    if (serviceSelectedDesc) serviceSelectedDesc.textContent = "ID / nama layanan akan tampil di sini";
+    return;
+  }
+  if (serviceSelectedLabel) serviceSelectedLabel.textContent = service.name || `#${service.id || "-"}`;
+  if (serviceSelectedDesc) {
+    serviceSelectedDesc.textContent = `#${service.id || "-"} · Min ${service.min || 0} - Max ${service.max || 0}`;
+  }
+}
 
 async function requestJson(path, options = {}, attempts = 2) {
   try {
@@ -496,6 +561,18 @@ function getServicesForCategory(platformId, categoryName) {
     .sort((a, b) => (a.sortPrice || 0) - (b.sortPrice || 0));
 }
 
+function clearServiceSelection() {
+  selectedService = null;
+  if (serviceSelect) serviceSelect.value = "";
+  updateServiceSelectedLabel(null);
+  serviceDetail.classList.add("hidden");
+  if (serviceDescriptionRow) serviceDescriptionRow.classList.add("hidden");
+  if (serviceNoteText) serviceNoteText.textContent = "";
+  selectedPricePer100 = 0;
+  updateTotalPrice();
+  renderServiceOptions();
+}
+
 function selectPlatform(platform, options = {}) {
   if (!platform) return;
   const preserve = Boolean(options.preserveSelection);
@@ -520,6 +597,11 @@ function selectPlatform(platform, options = {}) {
   flashCategoryAmbient();
 
   const categories = getCategoriesForPlatform(platform.id);
+  currentCategoryOptions = categories.map((name) => ({
+    value: name,
+    label: name,
+  }));
+  categorySearchTerm = "";
   categorySelect.innerHTML = `<option value="">${
     categories.length ? "Pilih kategori layanan" : "Kategori tidak tersedia"
   }</option>`;
@@ -539,7 +621,9 @@ function selectPlatform(platform, options = {}) {
     buildServiceOptions(previousServiceId);
   } else {
     selectedCategory = null;
-    selectedService = null;
+    currentServiceOptions = [];
+    updateCategorySelectedLabel();
+    updateServiceSelectedLabel(null);
     serviceSelect.innerHTML = `<option value="">Pilih kategori dulu.</option>`;
     serviceDetail.classList.add("hidden");
     if (serviceDescriptionRow) serviceDescriptionRow.classList.add("hidden");
@@ -547,6 +631,8 @@ function selectPlatform(platform, options = {}) {
     selectedPricePer100 = 0;
     updateTotalPrice();
   }
+  renderCategoryOptions();
+  renderServiceOptions();
 
   const icon = platformIcon(platform.id);
   platformInfo.classList.remove("hidden");
@@ -555,46 +641,94 @@ function selectPlatform(platform, options = {}) {
   platformInfoText.textContent = platform.name;
 }
 
+function renderCategoryOptions() {
+  if (!categoryOptions) return;
+  if (!selectedPlatform) {
+    categoryOptions.classList.add("empty");
+    categoryOptions.textContent = "Pilih platform terlebih dahulu.";
+    return;
+  }
+  if (!currentCategoryOptions.length) {
+    categoryOptions.classList.add("empty");
+    categoryOptions.textContent = "Kategori belum tersedia.";
+    return;
+  }
+  const term = (categorySearchTerm || "").toLowerCase();
+  const filtered = term
+    ? currentCategoryOptions.filter((item) => item.label.toLowerCase().includes(term))
+    : currentCategoryOptions;
+  if (!filtered.length) {
+    categoryOptions.classList.add("empty");
+    categoryOptions.textContent = "Kategori tidak ditemukan.";
+    return;
+  }
+  categoryOptions.classList.remove("empty");
+  categoryOptions.innerHTML = filtered
+    .map((item) => {
+      const activeClass = selectedCategory === item.value ? "active" : "";
+      return `
+        <button type="button" class="dropdown-option-item ${activeClass}" data-category-option="${item.value}">
+          <strong>${item.label}</strong>
+          <span>${selectedPlatform?.name || "-"}</span>
+        </button>
+      `;
+    })
+    .join("");
+}
+
 categorySelect.addEventListener("change", (e) => {
   selectedCategory = e.target.value || null;
-  selectedService = null;
-  selectedPricePer100 = 0;
-  updateTotalPrice();
-  serviceDetail.classList.add("hidden");
-  if (serviceDescriptionRow) serviceDescriptionRow.classList.add("hidden");
-  if (serviceNoteText) serviceNoteText.textContent = "";
+  clearServiceSelection();
 
   if (!selectedCategory) {
     serviceSelect.innerHTML = `<option value="">Pilih kategori dulu.</option>`;
+    currentServiceOptions = [];
+    renderServiceOptions();
     return;
   }
 
+  categorySearchTerm = "";
+  if (categorySearchInput) categorySearchInput.value = "";
   buildServiceOptions();
+  updateCategorySelectedLabel();
+});
+
+categoryOptions?.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-category-option]");
+  if (!btn) return;
+  const value = btn.dataset.categoryOption;
+  if (!value) return;
+  categorySearchTerm = "";
+  categorySearchInput && (categorySearchInput.value = "");
+  categorySelect.value = value;
+  categorySelect.dispatchEvent(new Event("change"));
+  closeCategoryPanel();
+});
+
+categorySearchInput?.addEventListener("input", (e) => {
+  categorySearchTerm = (e.target.value || "").trim().toLowerCase();
+  renderCategoryOptions();
 });
 
 function buildServiceOptions(preserveServiceId = null) {
   if (!selectedPlatform || !selectedCategory) {
     serviceSelect.innerHTML = `<option value="">Pilih kategori dulu.</option>`;
+    currentServiceOptions = [];
+    renderServiceOptions();
     return;
   }
 
   const data = getServicesForCategory(selectedPlatform.id, selectedCategory);
-  let filtered = data;
-  const term = serviceSearchTerm ? serviceSearchTerm.toLowerCase() : "";
-  if (term) {
-    filtered = data.filter((svc) => {
-      const haystack = `${svc.id} ${svc.name || ""} ${svc.description || ""}`.toLowerCase();
-      return haystack.includes(term);
-    });
-  }
-  if (!filtered.length) {
+  currentServiceOptions = data;
+  if (!data.length) {
     serviceSelect.innerHTML = `<option value="">Layanan tidak tersedia.</option>`;
+    renderServiceOptions();
     return;
   }
 
   serviceSelect.innerHTML = `<option value="">Pilih layanan</option>`;
   let matchedId = null;
-  filtered.forEach((svc) => {
+  data.forEach((svc) => {
     const opt = document.createElement("option");
     const basePrice = getBasePricePer100(svc);
     const margin = isResellerActive() ? RESELLER_MARGIN : PUBLIC_PROFIT_MARGIN;
@@ -615,13 +749,10 @@ function buildServiceOptions(preserveServiceId = null) {
     serviceSelect.value = "";
     applyServiceSelection("");
   }
+  serviceSearchTerm = "";
+  if (serviceSearchInput) serviceSearchInput.value = "";
+  renderServiceOptions({ preserveServiceId: preserveServiceId || serviceSelect.value || null });
 }
-
-serviceSelectSearchInput?.addEventListener("input", (e) => {
-  serviceSearchTerm = (e.target.value || "").trim().toLowerCase();
-  const preserveId = selectedService ? String(selectedService.id) : null;
-  buildServiceOptions(preserveId);
-});
 
 function refreshServicePricing() {
   if (!selectedPlatform || !selectedCategory) return;
@@ -631,6 +762,58 @@ function refreshServicePricing() {
     applyServiceSelection(current, { silent: true });
   }
 }
+
+function renderServiceOptions({ preserveServiceId = null } = {}) {
+  if (!serviceOptions) return;
+  if (!selectedCategory) {
+    serviceOptions.classList.add("empty");
+    serviceOptions.textContent = "Pilih kategori terlebih dahulu.";
+    return;
+  }
+  if (!currentServiceOptions.length) {
+    serviceOptions.classList.add("empty");
+    serviceOptions.textContent = "Layanan tidak tersedia.";
+    return;
+  }
+  const term = (serviceSearchTerm || "").toLowerCase();
+  const filtered = term
+    ? currentServiceOptions.filter((svc) => {
+        const haystack = `${svc.id} ${svc.name || ""} ${svc.description || ""}`.toLowerCase();
+        return haystack.includes(term);
+      })
+    : currentServiceOptions;
+  if (!filtered.length) {
+    serviceOptions.classList.add("empty");
+    serviceOptions.textContent = "Layanan tidak ditemukan.";
+    return;
+  }
+  serviceOptions.classList.remove("empty");
+  serviceOptions.innerHTML = filtered
+    .map((svc) => {
+      const isActive = (preserveServiceId && String(preserveServiceId) === String(svc.id)) || selectedService?.id === svc.id;
+      return `
+        <button type="button" class="dropdown-option-item ${isActive ? "active" : ""}" data-service-option="${svc.id}">
+          <strong>${svc.name || "-"}</strong>
+          <span>#${svc.id} &middot; Min ${svc.min || 0} - Max ${svc.max || 0}</span>
+        </button>
+      `;
+    })
+    .join("");
+}
+
+serviceOptions?.addEventListener("click", (e) => {
+  const btn = e.target.closest("[data-service-option]");
+  if (!btn) return;
+  const value = btn.dataset.serviceOption;
+  if (!value) return;
+  serviceSelect.value = value;
+  serviceSelect.dispatchEvent(new Event("change"));
+});
+
+serviceSearchInput?.addEventListener("input", (e) => {
+  serviceSearchTerm = (e.target.value || "").trim().toLowerCase();
+  renderServiceOptions({ preserveServiceId: selectedService ? selectedService.id : null });
+});
 
 function applyServiceSelection(id, options = {}) {
   const silent = Boolean(options.silent);
@@ -680,6 +863,9 @@ function applyServiceSelection(id, options = {}) {
   } else if (quantityField?.removeAttribute) {
     quantityField.removeAttribute("max");
   }
+  updateServiceSelectedLabel(svc);
+  closeServicePanel();
+  renderServiceOptions({ preserveServiceId: svc.id });
 }
 
 serviceSelect.addEventListener("change", (e) => {
