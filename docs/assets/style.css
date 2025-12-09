@@ -2425,28 +2425,35 @@ body {
 
 .category-list {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  min-height: 52px;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 140px;
+  max-height: 280px;
+  padding: 6px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #fff;
+  overflow-y: auto;
 }
 
 .category-list.empty,
 .service-list.empty {
-  display: block;
-  border: 1px dashed #e2e8f0;
-  border-radius: 14px;
+  border-style: dashed;
   background: #f8fafc;
   padding: 16px;
+  overflow: hidden;
+  border: 1px dashed #e2e8f0;
   color: #94a3b8;
   font-size: 14px;
   text-align: center;
   min-height: 64px;
+  display: block;
 }
 
 .category-chip-btn {
   border: 1px solid #e2e8f0;
   border-radius: 999px;
-  padding: 8px 14px;
+  padding: 10px 14px;
   background: #fff;
   font-size: 14px;
   color: #0f172a;
@@ -2471,6 +2478,12 @@ body {
   flex-direction: column;
   gap: 12px;
   margin-top: 12px;
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 4px;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  background: #fff;
 }
 
 .service-item {

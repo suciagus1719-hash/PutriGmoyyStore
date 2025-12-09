@@ -257,7 +257,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (action === "status") return openStatusPage();
       if (action === "owner") return openOwnerPage();
       if (action === "contact") return switchPage("contact");
-      if (action === "guide") return showInfoMessage("Cara order");
+      if (action === "guide") return openGuidePage();
       if (action === "logout") return setLoggedOut();
       showInfoMessage("Menu");
     });
@@ -2655,6 +2655,10 @@ let historyData = [];
 
   const openTargetPage = () => {
     switchPage("target");
+  };
+
+  const openGuidePage = () => {
+    switchPage("guide");
   };
 
   const openPricesPage = () => {
