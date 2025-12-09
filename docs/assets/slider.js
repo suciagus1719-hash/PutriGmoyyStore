@@ -73,13 +73,14 @@ function apiDelete(path, body, attempts = 1) {
   );
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function initSliderApp() {
   const slides = Array.from(document.querySelectorAll(".hero-slide"));
   const dots = Array.from(document.querySelectorAll(".hero-dot"));
 
   if (slides.length) {
     let current = 0;
-    let timer;
+    let autoTimer;
+    const autoplayDelay = 3000;
 
     const setActive = (index) => {
       slides[current]?.classList.remove("active");
@@ -90,24 +91,24 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     const nextSlide = () => setActive((current + 1) % slides.length);
-    const startAuto = () => {
-      stopAuto();
-      timer = setInterval(nextSlide, 3000);
-    };
-    const stopAuto = () => {
-      if (timer) clearInterval(timer);
+    const scheduleNext = () => {
+      if (autoTimer) clearTimeout(autoTimer);
+      autoTimer = setTimeout(() => {
+        nextSlide();
+        scheduleNext();
+      }, autoplayDelay);
     };
 
     dots.forEach((dot, index) => {
       dot.addEventListener("click", () => {
-        stopAuto();
+        if (autoTimer) clearTimeout(autoTimer);
         setActive(index);
-        startAuto();
+        scheduleNext();
       });
     });
 
     setActive(0);
-    startAuto();
+    scheduleNext();
   }
 
   const menuBtn = document.getElementById("menu-toggle");
@@ -2984,7 +2985,13 @@ let historyData = [];
   loadHiddenServices();
   loadAnnouncement();
   loadAccount();
-});
+}
+
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initSliderApp);
+} else {
+  initSliderApp();
+}
 })();
 }
 
