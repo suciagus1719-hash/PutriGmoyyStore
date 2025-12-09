@@ -1287,19 +1287,38 @@
           <span id="platform-info-icon" class="platform-info-icon"></span>
           <span id="platform-info-text"></span>
         </div>
-        <div class="inline-search">
-          <input type="text" id="category-search-input" placeholder="Cari kategori...">
+        <div class="dropdown" id="category-dropdown">
+          <button type="button" class="dropdown-toggle" id="category-toggle">
+            <span id="category-selected-label">Pilih salah satu</span>
+            <span class="dropdown-caret"></span>
+          </button>
+          <div class="dropdown-panel hidden" id="category-panel">
+            <div class="inline-search">
+              <input type="text" id="category-search-input" placeholder="Cari kategori..." autocomplete="off">
+            </div>
+            <div id="category-list" class="category-list empty">Pilih platform terlebih dahulu.</div>
+          </div>
         </div>
-        <div id="category-list" class="category-list empty">Pilih platform terlebih dahulu.</div>
       </section>
 
       <!-- Step 3: Layanan -->
       <section class="card">
         <h3>Pilih Layanan</h3>
-        <div class="inline-search">
-          <input type="text" id="service-search-input" placeholder="Cari ID atau nama layanan...">
+        <div class="dropdown" id="service-dropdown">
+          <button type="button" class="dropdown-toggle dropdown-service" id="service-toggle">
+            <div>
+              <strong id="service-selected-label">Pilih layanan</strong>
+              <small id="service-selected-desc">ID / nama layanan akan tampil di sini</small>
+            </div>
+            <span class="dropdown-caret"></span>
+          </button>
+          <div class="dropdown-panel hidden" id="service-panel">
+            <div class="inline-search">
+              <input type="text" id="service-search-input" placeholder="Cari ID atau nama layanan..." autocomplete="off">
+            </div>
+            <div id="service-list" class="service-list empty">Pilih kategori terlebih dahulu.</div>
+          </div>
         </div>
-        <div id="service-list" class="service-list empty">Pilih kategori terlebih dahulu.</div>
 
         <div id="service-detail" class="service-detail hidden">
           <p class="detail-row"><strong>Harga / 100</strong><span id="service-price"></span></p>
