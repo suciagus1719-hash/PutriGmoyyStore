@@ -157,18 +157,8 @@ function writeCatalogCache(platforms = [], services = []) {
 function initOrderApp() {
 // DOM
 const platformList = document.getElementById("platform-list");
-const categoryListEl = document.getElementById("category-list");
-const categorySearchInput = document.getElementById("category-search-input");
-const categoryDropdown = document.getElementById("category-dropdown");
-const categoryToggle = document.getElementById("category-toggle");
-const categoryPanel = document.getElementById("category-panel");
-const categorySelectedLabel = document.getElementById("category-selected-label");
-const serviceListEl = document.getElementById("service-list");
-const serviceSearchInput = document.getElementById("service-search-input");
-const serviceDropdown = document.getElementById("service-dropdown");
-const serviceToggle = document.getElementById("service-toggle");
-const servicePanel = document.getElementById("service-panel");
-const serviceSelectedLabel = document.getElementById("service-selected-label");
+const categorySelect = document.getElementById("category-select");
+const serviceSelect = document.getElementById("service-select");
 const serviceSelectedDesc = document.getElementById("service-selected-desc");
 const serviceDetail = document.getElementById("service-detail");
 const servicePrice = document.getElementById("service-price");
@@ -555,17 +545,7 @@ function getServicesForCategory(platformId, categoryName) {
     .sort((a, b) => (a.sortPrice || 0) - (b.sortPrice || 0));
 }
 
-function setListEmptyState(el, message) {
-  if (!el) return;
-  el.classList.add("empty");
-  el.textContent = message;
-}
 
-function clearListState(el) {
-  if (!el) return;
-  el.classList.remove("empty");
-  el.innerHTML = "";
-}
 
 let openedDropdownPanel = null;
 const openDropdownPanel = (panel, container) => {
