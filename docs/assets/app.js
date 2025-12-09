@@ -102,6 +102,7 @@ const PUBLIC_PROFIT_MARGIN = 0.4;
 const RESELLER_MARGIN = 0.2;
 const headerAmbientLayer = document.querySelector(".topbar-ambient");
 const categoryAmbientLayer = document.querySelector(".category-ambient");
+let platformLoaderEl = null;
 
 function animatePlatformButton(button) {
   if (!button) return;
@@ -195,11 +196,7 @@ const resellerUsername = document.getElementById("reseller-username");
 const resellerPassword = document.getElementById("reseller-password");
 const resellerButton = document.getElementById("reseller-button");
 const resellerMessage = document.getElementById("reseller-message");
-  let platformLoader = document.getElementById("platform-loader");
-  if (platformLoader) {
-    platformLoader.remove();
-    platformLoader = null;
-  }
+  platformLoaderEl = document.getElementById("platform-loader");
   const paymentLoader = document.getElementById("payment-loader");
   const platformInfo = document.getElementById("platform-info");
   const platformInfoIcon = document.getElementById("platform-info-icon");
@@ -382,6 +379,17 @@ function serviceRequiresCustomComments(service) {
   const text = `${service.name || ""} ${service.description || ""}`.toLowerCase();
   if (!COMMENT_TERMS.some((term) => text.includes(term))) return false;
   return COMMENT_MODE_TERMS.some((term) => text.includes(term));
+}
+
+function showPlatformLoader(message = "Sedang memuat platform...") {
+  if (!platformLoaderEl) return;
+  platformLoaderEl.classList.remove("hidden");
+  const msg = platformLoaderEl.querySelector("p");
+  if (msg) msg.textContent = message;
+}
+
+function hidePlatformLoader() {
+  if (platformLoaderEl) platformLoaderEl.classList.add("hidden");
 }
 
 function parseCustomComments(value = "") {
@@ -986,19 +994,7 @@ payButtonEl.addEventListener("click", async () => {
   }
 });
 
-
 loadCatalog();
-
-function showPlatformLoader(message = "Sedang memuat platform...") {
-  if (!platformLoader) return;
-  platformLoader.classList.remove("hidden");
-  const msg = platformLoader.querySelector("p");
-  if (msg) msg.textContent = message;
-}
-
-function hidePlatformLoader() {
-  if (platformLoader) platformLoader.classList.add("hidden");
-}
 }
 
 if (document.readyState === "loading") {
