@@ -206,7 +206,11 @@ const payButtonEl = payButton || createButtonStub();
 const errorMessageEl = errorMessage || createMessageStub();
 
 function notifyCatalogUpdate() {
-  window.dispatchEvent(new CustomEvent("catalog:update", { detail: { services: catalogServices } }));
+  const decorated = catalogServices.map((svc) => ({
+    ...svc,
+    publicPrice: getPublicPricePer100(svc),
+  }));
+  window.dispatchEvent(new CustomEvent("catalog:update", { detail: { services: decorated } }));
 }
 
 let selectedPlatform = null;
@@ -305,6 +309,12 @@ function getBasePricePer100(service) {
   if (service.pricePer100) return Number(service.pricePer100);
   if (service.rate) return Number(service.rate) / 10;
   return 0;
+}
+
+function getPublicPricePer100(service) {
+  const base = getBasePricePer100(service);
+  if (!base) return 0;
+  return Math.round(base * (1 + PUBLIC_PROFIT_MARGIN));
 }
 
 const COMMENT_TERMS = ["comment", "comments", "komentar", "komen"];

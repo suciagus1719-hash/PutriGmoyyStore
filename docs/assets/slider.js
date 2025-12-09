@@ -1433,7 +1433,14 @@ const loadHiddenServices = async (force = false) => {
     } else {
       priceTableBody.innerHTML = rows
         .map((svc, idx) => {
-          const priceValue = svc.pricePer100 ? svc.pricePer100 : svc.rate ? (svc.rate / 10) : 0;
+          const priceValue =
+            svc.publicPrice != null
+              ? Number(svc.publicPrice)
+              : svc.pricePer100
+              ? Number(svc.pricePer100)
+              : svc.rate
+              ? Number(svc.rate) / 10
+              : 0;
           return `<tr>
             <td>${start + idx + 1}</td>
             <td>${svc.id}</td>
