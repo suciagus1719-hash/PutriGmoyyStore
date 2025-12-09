@@ -126,6 +126,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const toastContainer = document.getElementById("global-toast");
   const toastMessageEl = document.getElementById("toast-message");
   const toastClose = document.getElementById("toast-close");
+  const MONITOR_FETCH_LIMIT = Math.max(50, Number(window.MONITOR_FETCH_LIMIT || 120));
   let toastTimer = null;
   const showToast = (message = "", type = "success") => {
     if (!toastContainer || !toastMessageEl) {
@@ -181,6 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
     { action: "login", icon: "login", label: "Masuk Reseller", hidden: true },
     { action: "register", icon: "register", label: "Daftar Reseller", hidden: true },
     { action: "track", icon: "search", label: "Cek Status Order" },
+    { action: "monitor", icon: "monitor", label: "Monitoring Sosmed" },
     { action: "prices", icon: "price", label: "Daftar Harga" },
     { action: "contact", icon: "phone", label: "Kontak" },
     { action: "guide", icon: "guide", label: "Cara Order" },
@@ -1528,12 +1530,15 @@ const loadHiddenServices = async (force = false) => {
       monitorTableBody.innerHTML = `<tr><td colspan="9">Memuat data...</td></tr>`;
       const params = new URLSearchParams({
         page: 1,
-        limit: 100,
+        limit: MONITOR_FETCH_LIMIT,
         scope: "all",
       });
       const data = await apiGet(`/api/orders?${params.toString()}`);
       monitorData = Array.isArray(data.rows) ? data.rows : [];
-      monitorState.page = 1;
+      monitorState = {
+        ...monitorState,
+        page: 1,
+      };
       rebuildMonitorFilters();
       renderMonitorTable();
     } catch (e) {

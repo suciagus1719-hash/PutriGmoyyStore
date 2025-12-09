@@ -1,21 +1,23 @@
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = process.env.NODE_TLS_REJECT_UNAUTHORIZED || "0";
-const { randomUUID } = require("crypto");
 const { getPool } = require("./dbPool");
 const { normalizeIdentifier } = require("./accountStore");
 
 const TABLE_NAME = process.env.ORDER_TABLE_NAME || "orders";
-const pool = getPool();
+const ORDER_HISTORY_MODE = (process.env.ORDER_HISTORY_MODE || "memory").toLowerCase();
+const MEMORY_LIMIT = Math.max(5, Number(process.env.ORDER_HISTORY_MEMORY_LIMIT || 20));
 
-if (!pool) {
-  console.warn("[orderStore] Database orders belum siap.");
+const pool = getPool();
+const useDatabaseStore = ORDER_HISTORY_MODE === "database" && Boolean(pool);
+if (ORDER_HISTORY_MODE === "database" && !pool) {
+  console.warn("[orderStore] ORDER_HISTORY_MODE=database tetapi koneksi DB tidak tersedia, fallback ke memory.");
+}
+if (!useDatabaseStore) {
+  console.info("[orderStore] Mode penyimpanan order menggunakan memory untuk menghemat koneksi database.");
 }
 
 let tablePromise = null;
-
 async function ensureTable() {
-  if (!pool) {
-    throw new Error("Database orders belum siap");
-  }
+  if (!useDatabaseStore) return;
   if (tablePromise) return tablePromise;
   tablePromise = (async () => {
     const query = `
@@ -52,6 +54,8 @@ async function ensureTable() {
   return tablePromise;
 }
 
+const memoryOrders = [];
+
 function mapRow(row) {
   if (!row) return null;
   return {
@@ -83,7 +87,7 @@ function mapRow(row) {
 
 function normalizeOrderPayload(order = {}) {
   return {
-    id: order.id || `ORD-${Date.now()}`,
+    id: order.id || order.orderId || `ORD-${Date.now()}`,
     resellerId: order.resellerId || order.reseller_id || null,
     resellerIdentifier: normalizeIdentifier(order.resellerIdentifier || order.reseller_identifier || ""),
     serviceId: order.serviceId || order.service_id || null,
@@ -99,7 +103,7 @@ function normalizeOrderPayload(order = {}) {
     status: order.status || "processing",
     type: order.type || "midtrans",
     paymentType: order.paymentType || order.payment_type || null,
-    createdAt: order.createdAt ? new Date(order.createdAt).toISOString() : null,
+    createdAt: order.createdAt ? new Date(order.createdAt).toISOString() : new Date().toISOString(),
     panelOrderId: order.panelOrderId || order.panel_order_id || null,
     panelStatus: order.panelStatus || order.panel_status || null,
     startCount: order.startCount != null ? Number(order.startCount) : null,
@@ -109,7 +113,58 @@ function normalizeOrderPayload(order = {}) {
   };
 }
 
+function storeInMemory(order) {
+  const normalized = normalizeOrderPayload(order);
+  const idx = memoryOrders.findIndex((item) => item.id === normalized.id);
+  if (idx >= 0) {
+    memoryOrders[idx] = { ...memoryOrders[idx], ...normalized };
+    return memoryOrders[idx];
+  }
+  memoryOrders.unshift(normalized);
+  if (memoryOrders.length > MEMORY_LIMIT) {
+    memoryOrders.length = MEMORY_LIMIT;
+  }
+  return normalized;
+}
+
+function findInMemory(predicate) {
+  return memoryOrders.find(predicate) || null;
+}
+
+function filterMemory({ page = 1, limit = 10, status, search, identifier } = {}) {
+  let rows = [...memoryOrders];
+  if (status && status !== "all") {
+    const s = String(status).toLowerCase();
+    rows = rows.filter((item) => String(item.status || "").toLowerCase() === s);
+  }
+  if (identifier) {
+    const normalized = normalizeIdentifier(identifier);
+    rows = rows.filter((item) => normalizeIdentifier(item.resellerIdentifier || "") === normalized);
+  }
+  if (search) {
+    const needle = String(search || "").toLowerCase();
+    rows = rows.filter((item) => {
+      return (
+        String(item.id || "").toLowerCase().includes(needle) ||
+        String(item.target || "").toLowerCase().includes(needle) ||
+        String(item.serviceId || "").toLowerCase().includes(needle)
+      );
+    });
+  }
+  const total = rows.length;
+  const safeLimit = Math.max(1, Number(limit) || 10);
+  const safePage = Math.max(1, Number(page) || 1);
+  const offset = (safePage - 1) * safeLimit;
+  return {
+    total,
+    rows: rows.slice(offset, offset + safeLimit),
+  };
+}
+
 async function upsertOrder(order) {
+  if (!useDatabaseStore) {
+    return storeInMemory(order);
+  }
   await ensureTable();
   const data = normalizeOrderPayload(order);
   const { rows } = await pool.query(
@@ -155,7 +210,7 @@ async function upsertOrder(order) {
       data.platformName,
       data.target,
       data.quantity,
-      JSON.stringify(data.customComments),
+      JSON.stringify(data.customComments || []),
       data.price,
       JSON.stringify(data.buyer || {}),
       data.status,
@@ -174,18 +229,24 @@ async function upsertOrder(order) {
 }
 
 async function appendOrder(order) {
-  return await upsertOrder(order);
+  return upsertOrder(order);
 }
 
 async function getOrder(id) {
+  if (!useDatabaseStore) {
+    return findInMemory((item) => item.id === id);
+  }
   await ensureTable();
   const { rows } = await pool.query(`SELECT * FROM ${TABLE_NAME} WHERE id = $1 LIMIT 1`, [id]);
   return mapRow(rows[0]);
 }
 
 async function findOrderByPanelId(panelOrderId) {
-  await ensureTable();
   if (!panelOrderId) return null;
+  if (!useDatabaseStore) {
+    return findInMemory((item) => String(item.panelOrderId || "") === String(panelOrderId));
+  }
+  await ensureTable();
   const { rows } = await pool.query(
     `SELECT * FROM ${TABLE_NAME} WHERE panel_order_id = $1 ORDER BY created_at DESC LIMIT 1`,
     [panelOrderId]
@@ -194,8 +255,11 @@ async function findOrderByPanelId(panelOrderId) {
 }
 
 async function findOrderByServiceId(serviceId) {
-  await ensureTable();
   if (!serviceId) return null;
+  if (!useDatabaseStore) {
+    return findInMemory((item) => String(item.serviceId || "") === String(serviceId));
+  }
+  await ensureTable();
   const { rows } = await pool.query(
     `SELECT * FROM ${TABLE_NAME} WHERE service_id = $1 ORDER BY created_at DESC LIMIT 1`,
     [serviceId]
@@ -208,10 +272,14 @@ async function updateOrder(id, patch = {}) {
   if (!existing) return null;
   const updated =
     typeof patch === "function" ? await patch({ ...existing }) : { ...existing, ...patch };
-  return await upsertOrder(updated);
+  return upsertOrder(updated);
 }
 
-async function listOrders({ page = 1, limit = 10, status, search, identifier } = {}) {
+async function listOrders(options = {}) {
+  if (!useDatabaseStore) {
+    return filterMemory(options);
+  }
+  const { page = 1, limit = 10, status, search, identifier } = options;
   await ensureTable();
   const filters = [];
   const values = [];
@@ -248,6 +316,9 @@ async function listOrders({ page = 1, limit = 10, status, search, identifier } =
 }
 
 async function listRecentOrders(limit = 15) {
+  if (!useDatabaseStore) {
+    return memoryOrders.slice(0, Math.max(1, Number(limit) || 15));
+  }
   await ensureTable();
   const { rows } = await pool.query(
     `SELECT * FROM ${TABLE_NAME} ORDER BY created_at DESC LIMIT $1`,
@@ -257,8 +328,23 @@ async function listRecentOrders(limit = 15) {
 }
 
 async function deleteOlderOrders(identifier, days = 30) {
-  await ensureTable();
   if (!identifier) return 0;
+  if (!useDatabaseStore) {
+    const normalized = normalizeIdentifier(identifier);
+    const limitMs = Math.max(1, Number(days) || 30) * 24 * 60 * 60 * 1000;
+    let removed = 0;
+    for (let i = memoryOrders.length - 1; i >= 0; i -= 1) {
+      const item = memoryOrders[i];
+      if (normalizeIdentifier(item.resellerIdentifier || "") !== normalized) continue;
+      const created = item.createdAt ? new Date(item.createdAt).getTime() : null;
+      if (created && Date.now() - created > limitMs) {
+        memoryOrders.splice(i, 1);
+        removed += 1;
+      }
+    }
+    return removed;
+  }
+  await ensureTable();
   const normalized = normalizeIdentifier(identifier);
   if (!normalized) return 0;
   const cutoff = new Date(Date.now() - Math.max(1, Number(days) || 30) * 24 * 60 * 60 * 1000);
