@@ -1023,6 +1023,7 @@ body {
 .hero-slide.hero-billboard {
   padding: 0;
   overflow: hidden;
+  display: block;
 }
 
 .hero-billboard-img {
