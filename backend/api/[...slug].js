@@ -2,6 +2,7 @@ const { URL } = require("url");
 
 const routeHandlers = {
   "catalog": require("../routes/catalog"),
+  "billboards": require("../routes/billboards"),
   "categories": require("../routes/categories"),
   "create-order": require("../routes/create-order"),
   "midtrans-notify": require("../routes/midtrans-notify"),

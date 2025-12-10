@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <title>Putri Gmoyy Sosmed</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="assets/style.css" />
+</head>
+<body>
+  <div class="page">
+    <div class="topbar">
+      <div class="topbar-ambient" aria-hidden="true">
+        <span class="ambient-chip chip-1">
+          <img src="https://img.icons8.com/color/48/linkedin.png" alt="LinkedIn" />
+        </span>
+        <span class="ambient-chip chip-2">
+          <img src="https://img.icons8.com/color/48/google-logo.png" alt="Google" />
+        </span>
+        <span class="ambient-chip chip-3">
+          <img src="https://img.icons8.com/color/48/facebook-new.png" alt="Facebook" />
+        </span>
+        <span class="ambient-chip chip-4">
+          <img src="https://img.icons8.com/color/48/twitter--v1.png" alt="Twitter" />
+        </span>
+        <span class="ambient-chip chip-5">
+          <img src="https://img.icons8.com/color/48/instagram-new.png" alt="Instagram" />
+        </span>
+        <span class="ambient-chip chip-6">
+          <img src="https://img.icons8.com/color/48/youtube-play.png" alt="YouTube" />
+        </span>
+        <span class="ambient-chip chip-7">
+          <img src="https://img.icons8.com/color/48/tiktok.png" alt="TikTok" />
+        </span>
+        <span class="ambient-chip chip-8">
+          <img src="https://img.icons8.com/color/48/telegram-app.png" alt="Telegram" />
+        </span>
+        <span class="ambient-chip chip-9">
+          <img src="https://img.icons8.com/color/48/whatsapp--v1.png" alt="WhatsApp" />
+        </span>
+        <span class="ambient-chip chip-10">
+          <img src="https://img.icons8.com/color/48/pinterest--v1.png" alt="Pinterest" />
+        </span>
+        <span class="ambient-pile"></span>
+      </div>
+      <div class="topbar-logo">
+        <span class="logo-icon">
+          <img id="brand-avatar" src="https://ui-avatars.com/api/?name=PG&background=ac2acf&color=fff" alt="avatar" />
+        </span>
+        <div class="brand-meta">
+          <strong id="brand-title">PUTRI GMOYY STORE</strong>
+          <small id="brand-subtitle">Kebutuhan social media</small>
+        </div>
+        <div class="avatar-upload">
+          <input type="file" id="brand-avatar-input" accept="image/*" hidden />
+          <button type="button" id="brand-avatar-trigger" aria-label="Ubah foto brand">
+            Ubah Foto
+          </button>
+        </div>
+      </div>
+      <div class="balance-pill hidden" id="balance-pill">Saldo: Rp0</div>
+      <div class="coin-pill hidden" id="coin-pill">Koin: 0</div>
+      <div class="topbar-actions">
+        <button class="topbar-icon hidden" id="announcement-btn" aria-label="Pengumuman">
+          <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8a6 6 0 10-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 01-3.46 0"></path>
+          </svg>
+        </button>
+        <button class="link-btn hidden" id="open-login">Masuk</button>
+        <button class="outline-btn hidden" id="open-register">Daftar Reseller</button>
+        <button class="menu-btn" id="menu-toggle" aria-label="Menu">
+          <span></span><span></span><span></span>
+        </button>
+        <div class="topbar-nav" id="topbar-nav">
+          <ul class="menu-list" id="menu-list"></ul>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="profile-loader">
+      <div class="payment-loader-content">
+        <div class="loader-dots">
+          <span></span><span></span><span></span><span></span><span></span>
+        </div>
+        <p>Menyimpan perubahan...</p>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="login-modal">
+      <div class="login-modal">
+        <button class="modal-close" id="close-login" aria-label="Tutup">&times;</button>
+        <div class="login-step login-step-identifier">
+          <p class="login-subtitle">Masuk ke</p>
+          <h2>Reseller Area</h2>
+          <label>
+            Nomor WhatsApp atau Email
+            <input type="text" id="login-identifier" placeholder="contoh: email@putrigmoyy.com" />
+          </label>
+        <div class="login-actions">
+          <button class="next-btn" disabled>Selanjutnya</button>
+          <p class="forgot-link"><a href="#">Lupa kata sandi?</a></p>
+        </div>
+        <p class="login-error hidden" id="login-error">Identifier tidak valid.</p>
+        <div class="divider">
+          <span>Belum jadi reseller?</span>
+        </div>
+        <button class="outline-btn block" id="go-register-from-login">Daftar Reseller</button>
+        <p class="support-text">Butuh bantuan? <a href="https://wa.me/6282322633452" target="_blank" rel="noopener">Hubungi Customer Support</a></p>
+      </div>
+        <div class="login-step login-step-password hidden">
+          <p class="login-subtitle" id="password-step-label">Buat Password</p>
+          <h2 id="password-step-title">Aktifkan Akun</h2>
+          <label>
+            Password
+            <div class="input-with-toggle">
+              <input type="password" id="password-input" placeholder="Minimal 6 karakter" />
+              <button type="button" class="toggle-pass" data-target="password-input">👁</button>
+            </div>
+          </label>
+          <label>
+            Konfirmasi Password
+            <div class="input-with-toggle">
+              <input type="password" id="confirm-password-input" placeholder="Ulangi password" />
+              <button type="button" class="toggle-pass" data-target="confirm-password-input">👁</button>
+            </div>
+          </label>
+          <p class="password-error hidden" id="password-error">Password tidak sama.</p>
+          <button class="primary-btn block" id="create-account-btn" disabled>Buat &amp; Masuk</button>
+        </div>
+        <div class="login-step login-step-forgot hidden">
+          <p class="login-subtitle">Reset Password</p>
+          <h2>Buat Password Baru</h2>
+          <label>
+            Username (tanpa @gmail.com)
+            <input type="text" id="forgot-username" placeholder="contoh: senjaabadi365" />
+          </label>
+          <label>
+            Email / Nomor Terdaftar
+            <input type="text" id="forgot-identifier" placeholder="email atau WhatsApp" />
+          </label>
+          <label>
+            Password Baru
+            <div class="input-with-toggle">
+              <input type="password" id="forgot-password" placeholder="Minimal 6 karakter" />
+              <button type="button" class="toggle-pass" data-target="forgot-password">dY`?</button>
+            </div>
+          </label>
+          <label>
+            Konfirmasi Password Baru
+            <div class="input-with-toggle">
+              <input type="password" id="forgot-password-confirm" placeholder="Ulangi password baru" />
+              <button type="button" class="toggle-pass" data-target="forgot-password-confirm">dY`?</button>
+            </div>
+          </label>
+          <p class="login-error hidden" id="forgot-error">Data tidak valid.</p>
+          <button class="primary-btn block" id="forgot-submit" disabled>Reset Password</button>
+        </div>
+        <div class="login-step login-step-register hidden">
+          <p class="login-subtitle">Daftar Reseller</p>
+          <h2>Buat Akun Baru</h2>
+          <label>
+            Nomor WhatsApp atau Email
+            <input type="text" id="register-identifier" placeholder="contoh: email@putrigmoyy.com" />
+          </label>
+          <label>
+            Password
+            <div class="input-with-toggle">
+              <input type="password" id="register-password" placeholder="Minimal 6 karakter" />
+              <button type="button" class="toggle-pass" data-target="register-password">👁</button>
+            </div>
+          </label>
+          <label>
+            Konfirmasi Password
+            <div class="input-with-toggle">
+              <input type="password" id="register-confirm" placeholder="Ulangi password" />
+              <button type="button" class="toggle-pass" data-target="register-confirm">👁</button>
+            </div>
+          </label>
+          <p class="login-error hidden" id="register-error">Data tidak valid.</p>
+          <button class="primary-btn block" id="register-submit-btn" disabled>Daftar &amp; Masuk</button>
+        <p class="support-text">Butuh bantuan? <a href="https://wa.me/6282322633452" target="_blank" rel="noopener">Hubungi Customer Support</a></p>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="profile-modal">
+      <div class="modal-card">
+        <button class="modal-close" id="close-profile">&times;</button>
+        <h2>Edit Profil</h2>
+        <label>
+          Foto Profil
+          <div class="avatar-row">
+            <img id="profile-avatar-preview" src="https://ui-avatars.com/api/?name=PG" alt="avatar" />
+            <input type="file" id="profile-avatar" accept="image/*" />
+          </div>
+        </label>
+        <label>
+          Nama Pengguna
+          <input type="text" id="profile-name" />
+        </label>
+        <label>
+          Email
+          <input type="email" id="profile-email" />
+        </label>
+        <label>
+          Nomor WhatsApp
+          <input type="text" id="profile-phone" />
+        </label>
+        <div class="grid-2">
+          <label>
+            Password Baru
+            <input type="password" id="profile-password" placeholder="Opsional" />
+          </label>
+          <label>
+            Konfirmasi Password
+            <input type="password" id="profile-password-confirm" placeholder="Opsional" />
+          </label>
+        </div>
+        <p class="profile-error hidden" id="profile-error">Periksa kembali input kamu.</p>
+        <div class="profile-actions">
+          <button class="outline-btn block" id="profile-cancel">Batal</button>
+          <button class="primary-btn block" id="profile-save">Simpan Perubahan</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="deposit-modal">
+      <div class="modal-card">
+        <button class="modal-close" id="close-deposit">&times;</button>
+        <h2>Deposit Saldo</h2>
+        <p class="modal-desc" id="deposit-hint">Pembayaran via QRIS otomatis saldo masuk ke akunmu. Minimal deposit Rp. 10.000.</p>
+        <label>
+          Nominal
+          <input type="number" id="deposit-amount" min="10000" placeholder="Masukkan nominal" />
+        </label>
+        <p class="profile-error hidden" id="deposit-error">Nominal tidak valid.</p>
+        <button class="primary-btn block" id="deposit-submit">Lanjutkan Pembayaran</button>
+      </div>
+    </div>
+    <div class="page-screen" id="page-target">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+        <section class="card info-card target-section">
+          <div class="target-header">
+            <h3>Format Target Pesanan</h3>
+            <p>Gunakan format target di bawah ini agar pesanan langsung diproses tanpa revisi.</p>
+          </div>
+          <div class="target-grid">
+            <div class="target-card">
+              <div class="target-card-header">
+                <span class="target-icon icon-facebook"></span>
+                <h4>Facebook</h4>
+              </div>
+              <ul>
+                <li><strong>Page Likes / Followers</strong> : link halaman profil (contoh: https://www.facebook.com/pusatpanelsmm/)</li>
+                <li><strong>Post Likes / Comments / Video</strong> : link postingan, gunakan m.facebook.com jika dari mobile</li>
+                <li><strong>Video Views / Live</strong> : link video (klik tanggal postingan & salin alamat)</li>
+                <li><strong>Group Members</strong> : link grup (contoh: https://www.facebook.com/groups/forumadsenseindonesia)</li>
+              </ul>
+            </div>
+            <div class="target-card">
+              <div class="target-card-header">
+                <span class="target-icon icon-instagram"></span>
+                <h4>Instagram</h4>
+              </div>
+              <ul>
+                <li><strong>Followers / Story / Live</strong> : username tanpa @ (contoh: pusatpanelsmm)</li>
+                <li><strong>Likes / Views / Comments / IGTV</strong> : link postingan (contoh: https://www.instagram.com/p/CDIDw7IDVAN/)</li>
+              </ul>
+            </div>
+            <div class="target-card">
+              <div class="target-card-header">
+                <span class="target-icon icon-likee"></span>
+                <h4>Likee</h4>
+              </div>
+              <ul>
+                <li><strong>Followers</strong> : link akun likee (contoh: https://likee.com/@username)</li>
+                <li><strong>Post Likes</strong> : link video likee (contoh: https://likee.com/@user/video/12345)</li>
+              </ul>
+            </div>
+            <div class="target-card">
+              <div class="target-card-header">
+                <span class="target-icon icon-linkedin"></span>
+                <h4>LinkedIn</h4>
+              </div>
+              <ul>
+                <li><strong>Followers</strong> : link akun (contoh: https://www.linkedin.com/in/robbyanbiya/)</li>
+                <li><strong>Likes / Comments</strong> : link postingan</li>
+              </ul>
+            </div>
+            <div class="target-card">
+              <div class="target-card-header">
+                <span class="target-icon icon-pinterest"></span>
+                <h4>Pinterest</h4>
+              </div>
+              <ul>
+                <li><strong>Followers</strong> : link akun (contoh: https://id.pinterest.com/PPSmm/)</li>
+                <li><strong>Board Followers</strong> : link board</li>
+                <li><strong>Likes</strong> : link pin/post</li>
+              </ul>
+            </div>
+            <div class="target-card">
+              <div class="target-card-header">
+                <span class="target-icon icon-soundcloud"></span>
+                <h4>SoundCloud</h4>
+              </div>
+              <ul>
+                <li><strong>Followers</strong> : link akun (contoh: https://soundcloud.com/robbyanbiya)</li>
+                <li><strong>Plays / Likes</strong> : link lagu/konten</li>
+              </ul>
+            </div>
+            <div class="target-card">
+              <div class="target-card-header">
+                <span class="target-icon icon-spotify"></span>
+                <h4>Spotify</h4>
+              </div>
+              <ul>
+                <li><strong>Followers</strong> : link artist/profil</li>
+                <li><strong>Plays / Album / Playlist</strong> : link track, album, atau playlist</li>
+              </ul>
+            </div>
+            <div class="target-card">
+              <div class="target-card-header">
+                <span class="target-icon icon-telegram"></span>
+                <h4>Telegram</h4>
+              </div>
+              <ul>
+                <li><strong>Channel Member</strong> : link channel (contoh: https://t.me/pusatpanelsmm)</li>
+                <li><strong>Post Views</strong> : link postingan di channel (format https://t.me/c/...)</li>
+              </ul>
+            </div>
+            <div class="target-card">
+              <div class="target-card-header">
+                <span class="target-icon icon-tokopedia"></span>
+                <h4>Tokopedia</h4>
+              </div>
+              <ul>
+                <li><strong>Followers</strong> : username atau link toko</li>
+                <li><strong>Product Likes / Wishlist</strong> : link produk</li>
+                <li><strong>Product Sold</strong> : username|password|link produk (khusus layanan tersebut)</li>
+              </ul>
+              <div class="target-card-header sub">
+                <span class="target-icon icon-shopee"></span>
+                <h4>Shopee</h4>
+              </div>
+              <ul>
+                <li><strong>Followers</strong> : username atau link toko</li>
+                <li><strong>Product Likes / Terjual</strong> : link produk (gunakan format layanan)</li>
+                <li><strong>Feed Likes / Comments</strong> : link feed postingan</li>
+              </ul>
+            </div>
+            <div class="target-card">
+              <div class="target-card-header">
+                <span class="target-icon icon-tiktok"></span>
+                <h4>Tiktok</h4>
+              </div>
+              <ul>
+                <li><strong>Followers</strong> : link profil (contoh: https://www.tiktok.com/@username)</li>
+                <li><strong>Views / Likes / Comments / Shares</strong> : link video</li>
+              </ul>
+            </div>
+            <div class="target-card">
+              <div class="target-card-header">
+                <span class="target-icon icon-twitch"></span>
+                <h4>Twitch</h4>
+              </div>
+              <ul>
+                <li><strong>Followers</strong> : link profil (contoh: https://www.twitch.tv/esportsarena)</li>
+              </ul>
+            </div>
+            <div class="target-card">
+              <div class="target-card-header">
+                <span class="target-icon icon-twitter"></span>
+                <h4>Twitter (X)</h4>
+              </div>
+              <ul>
+                <li><strong>Followers / Profile Click</strong> : link profil atau username tanpa @</li>
+                <li><strong>Retweet / Likes / Views / Poll</strong> : link tweet (sertakan nomor button untuk poll)</li>
+              </ul>
+            </div>
+            <div class="target-card">
+              <div class="target-card-header">
+                <span class="target-icon icon-website"></span>
+                <h4>Website Traffic</h4>
+              </div>
+              <ul>
+                <li>Masukkan URL homepage atau artikel (contoh: https://pusatpanelsmm.com/)</li>
+              </ul>
+            </div>
+            <div class="target-card">
+              <div class="target-card-header">
+                <span class="target-icon icon-youtube"></span>
+                <h4>Youtube</h4>
+              </div>
+              <ul>
+                <li><strong>Subscribers</strong> : link channel (channel/ID/username)</li>
+                <li><strong>Watchtime / Views / Likes / Comments</strong> : link video (youtube.com atau youtu.be)</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="page-screen" id="page-reward">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+    <section class="card info-card" id="reward-section">
+      <h3>Menu Hadiah</h3>
+      <p class="modal-desc">Kumpulkan koin dari referral, game, dan tukarkan menjadi saldo akun atau DANA.</p>
+      <div class="reward-stats">
+        <div class="reward-box">
+          <p>Jumlah Koin</p>
+          <strong id="reward-coins">0</strong>
+        </div>
+        <div class="reward-box">
+          <p>Teman Diundang</p>
+          <strong id="reward-referrals">0</strong>
+        </div>
+        <div class="reward-box">
+          <p>Kode Referral</p>
+          <strong id="reward-code">-</strong>
+        </div>
+      </div>
+      <div class="reward-grid">
+        <div class="reward-card">
+          <h4>Undang Teman</h4>
+          <p>1 teman = +1000 koin. Bagikan kode referralmu.</p>
+          <div class="reward-buttons">
+            <button class="outline-btn small" id="reward-copy">Salin Kode</button>
+            <button class="primary-btn small" id="reward-invite">Catat Teman</button>
+          </div>
+        </div>
+        <div class="reward-card">
+          <h4>Mini Game</h4>
+          <p>Tap tombol di bawah untuk mendapatkan +200 koin secara acak.</p>
+          <button class="primary-btn small" id="reward-game">Mainkan Game</button>
+        </div>
+        <div class="reward-card">
+          <h4>Tukar Koin</h4>
+          <label for="reward-redeem-amount">Nominal koin (≥1000)</label>
+          <input type="number" id="reward-redeem-amount" min="1000" placeholder="1000" />
+          <div class="reward-buttons">
+            <button class="primary-btn small" id="reward-redeem-balance">Tukar ke Saldo</button>
+            <button class="outline-btn small" id="reward-redeem-dana">Tukar ke DANA</button>
+          </div>
+        </div>
+      </div>
+      <p class="profile-error hidden" id="reward-error"></p>
+      <p class="reward-note">Catatan: penambahan saldo DANA membutuhkan proses manual admin.</p>
+    </section>
+      </div>
+    </div>
+    <div class="page-screen" id="page-history">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+        <section class="card info-card" id="history-section">
+          <div class="status-header">
+            <h3>Riwayat Deposit</h3>
+            <p id="history-balance">Saldo: Rp0</p>
+          </div>
+          <div class="status-filters">
+            <label>
+              Tampilkan
+              <select id="history-limit">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </label>
+            <label>
+              Status
+              <select id="history-status">
+                <option value="all">Semua</option>
+                <option value="success">Success</option>
+                <option value="processing">Processing</option>
+                <option value="error">Error</option>
+              </select>
+            </label>
+            <label class="status-search">
+              Cari Kode Deposit
+              <input type="text" id="history-search" placeholder="contoh: DEPO-123" />
+            </label>
+            <button class="primary-btn" id="history-filter-btn">Filter</button>
+          </div>
+          <div class="status-table-wrapper">
+            <table class="status-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Kode Deposit</th>
+                  <th>Waktu</th>
+                  <th>Pembayaran</th>
+                  <th>Jumlah Transfer</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="history-table-body">
+                <tr>
+                  <td colspan="7">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="status-footer">
+            <span id="history-total">Total: 0</span>
+            <div id="history-pagination" class="status-pagination"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="page-screen" id="page-status">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+        <section class="card info-card" id="status-section">
+          <div class="status-header">
+            <h3>Status Order Sosmed &amp; Top Up</h3>
+            <p>Klik ikon detail untuk melihat informasi pesanan lengkap.</p>
+          </div>
+          <div class="status-filters">
+            <label>
+              Tampilkan
+              <select id="status-limit">
+                <option value="10">10</option>
+                <option value="20">20</option>
+                <option value="50">50</option>
+              </select>
+            </label>
+            <label>
+              Status
+              <select id="status-filter">
+                <option value="all">Semua</option>
+                <option value="pending_payment">Menunggu Pembayaran</option>
+                <option value="processing">Processing</option>
+                <option value="success">Success</option>
+                <option value="error">Error</option>
+              </select>
+            </label>
+            <label class="status-search">
+              Cari Order ID / ID Layanan / Target
+              <input type="text" id="status-search" placeholder="contoh: GMYY-123 / 77665 / username" />
+            </label>
+            <button class="primary-btn" id="status-filter-btn">Filter</button>
+          </div>
+          <div class="status-table-wrapper">
+            <table class="status-table">
+              <thead>
+                <tr>
+                  <th>ID Order / ID Layanan</th>
+                  <th>Waktu</th>
+                  <th>Layanan</th>
+                  <th>Target</th>
+                  <th>Jumlah</th>
+                  <th>Harga</th>
+                  <th>Status</th>
+                  <th>Detail</th>
+                </tr>
+              </thead>
+              <tbody id="status-table-body">
+                <tr>
+                  <td colspan="8">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="status-footer">
+            <span id="status-total">Total: 0</span>
+            <div id="status-pagination" class="status-pagination"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="page-screen" id="page-track">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+        <section class="card info-card track-card" id="track-card">
+          <div class="status-header">
+            <h3>Cek Status Pesanan</h3>
+            <p>Masukkan ID layanan panel (contoh: 77665) untuk menarik status terbaru secara langsung.</p>
+          </div>
+          <form id="track-form" class="track-form">
+            <label>
+              ID Layanan Panel
+              <input type="text" id="track-service-id" placeholder="contoh: 77665" />
+            </label>
+            <button type="submit" class="primary-btn">Cek Status</button>
+            <p id="track-error" class="error hidden"></p>
+          </form>
+          <div id="track-loader" class="track-loader hidden">
+            <div class="loader-dots">
+              <span></span><span></span><span></span><span></span><span></span>
+            </div>
+            <p>Memuat data dari panel...</p>
+          </div>
+          <div id="track-result" class="track-result hidden">
+            <ul id="track-summary" class="track-summary"></ul>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="page-screen" id="page-prices">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+        <section class="card info-card" id="prices-section">
+          <div class="status-header">
+            <h3>Daftar Harga Layanan Putri Gmoyy</h3>
+            <p>Gunakan filter kategori atau pencarian untuk menemukan layanan yang dibutuhkan.</p>
+          </div>
+          <div class="status-filters">
+            <label>
+              Tampilkan
+              <select id="price-limit">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+            </label>
+            <label>
+              Kategori
+              <select id="price-category">
+                <option value="all">Semua Kategori</option>
+              </select>
+            </label>
+            <label class="status-search">
+              Cari ID / Layanan
+              <input type="text" id="price-search" placeholder="contoh: IG Followers / 12345" />
+            </label>
+            <button class="primary-btn" id="price-filter-btn">Filter</button>
+          </div>
+          <div class="status-table-wrapper">
+            <table class="status-table">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>ID</th>
+                  <th>Kategori</th>
+                  <th>Layanan</th>
+                  <th>Harga / 100</th>
+                  <th>Min</th>
+                  <th>Max</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="price-table-body">
+                <tr>
+                  <td colspan="8">Memuat katalog...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="status-footer">
+            <span id="price-total">Total: 0</span>
+            <div id="price-pagination" class="status-pagination"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="page-screen" id="page-monitor">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+        <section class="card info-card" id="monitor-section">
+          <div class="status-header">
+            <h3>Monitoring Layanan Sosial Media</h3>
+            <p>Panel publik yang menampilkan seluruh transaksi terbaru (publik & reseller) secara real-time.</p>
+          </div>
+          <div class="status-filters">
+            <label>
+              Tampilkan
+              <select id="monitor-limit">
+                <option value="10">10</option>
+                <option value="25">25</option>
+                <option value="50">50</option>
+              </select>
+            </label>
+            <label>
+              Status
+              <select id="monitor-status">
+                <option value="all">Semua</option>
+                <option value="pending">Pending</option>
+                <option value="pending_payment">Menunggu Pembayaran</option>
+                <option value="processing">Processing</option>
+                <option value="success">Success</option>
+                <option value="error">Error</option>
+              </select>
+            </label>
+            <label>
+              Platform
+              <select id="monitor-platform">
+                <option value="all">Semua Platform</option>
+              </select>
+            </label>
+            <label>
+              Kategori
+              <select id="monitor-category" disabled>
+                <option value="all">Pilih platform dulu</option>
+              </select>
+            </label>
+            <label class="status-search">
+              Cari dengan ID Layanan
+              <input type="text" id="monitor-search" placeholder="contoh: 77665" />
+            </label>
+            <button class="primary-btn" id="monitor-filter-btn">Filter</button>
+          </div>
+          <div class="status-table-wrapper">
+            <table class="status-table">
+              <thead>
+                <tr>
+                  <th>Waktu</th>
+                  <th>Platform</th>
+                  <th>Mode</th>
+                  <th>Kategori</th>
+                  <th>Service ID</th>
+                  <th>Layanan</th>
+                  <th>Jumlah</th>
+                  <th>Harga</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="monitor-table-body">
+                <tr>
+                  <td colspan="9">Memuat data...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="status-footer">
+            <span id="monitor-total">Total: 0</span>
+            <div id="monitor-pagination" class="status-pagination"></div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="page-screen" id="page-contact">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+        <section class="card info-card contact-section" id="contact-section">
+          <div class="contact-header">
+            <h3>HUBUNGI PUTRI GMOYY STORE</h3>
+            <p>
+              Silakan pilih saluran kontak resmi kami untuk order, kerjasama, atau laporan kendala. Admin aktif setiap hari.
+            </p>
+          </div>
+          <div class="contact-grid contact-main">
+            <a class="contact-pill primary" href="https://wa.me/6282322633452" target="_blank" rel="noopener">
+              <span class="pill-icon icon-whatsapp"></span>
+              WhatsApp
+            </a>
+            <a class="contact-pill outline" href="https://t.me/+6282322633452" target="_blank" rel="noopener">
+              <span class="pill-icon icon-telegram"></span>
+              Telegram
+            </a>
+            <a class="contact-pill outline" href="mailto:direktur.muhagus@gmail.com">
+              <span class="pill-icon icon-gmail"></span>
+              Email
+            </a>
+            <a class="contact-pill outline" href="https://instagram.com/aca_app_premium" target="_blank" rel="noopener">
+              <span class="pill-icon icon-instagram"></span>
+              Instagram
+            </a>
+            <a class="contact-pill outline" href="https://www.facebook.com/profile.php?id=61579062507516" target="_blank" rel="noopener">
+              <span class="pill-icon icon-facebook"></span>
+              Facebook
+            </a>
+          </div>
+          <div class="contact-section-split">
+            <h4>Grup Store</h4>
+            <div class="contact-grid">
+              <a class="contact-pill primary" href="https://chat.whatsapp.com/Gpl3XMxuiVTGHbyEkaEoz6" target="_blank" rel="noopener">
+                <span class="pill-icon icon-whatsapp"></span>
+                Grup WhatsApp
+              </a>
+              <a class="contact-pill outline" href="https://t.me/ressputrigmoyy" target="_blank" rel="noopener">
+                <span class="pill-icon icon-telegram"></span>
+                Grup Telegram
+              </a>
+            </div>
+          </div>
+          <div class="contact-section-split">
+            <h4>Kontak Admin</h4>
+            <div class="contact-grid">
+              <a class="contact-pill primary" href="https://wa.me/6282322633452" target="_blank" rel="noopener">
+                <span class="pill-icon icon-whatsapp"></span>
+                Admin 1
+              </a>
+              <a class="contact-pill outline" href="https://wa.me/6288242049163" target="_blank" rel="noopener">
+                <span class="pill-icon icon-whatsapp"></span>
+                Admin 2
+              </a>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="page-screen" id="page-owner">
+      <div class="content">
+        <div class="page-back">
+          <button type="button" class="outline-btn page-back-btn" data-target="default">&larr; Kembali ke Order</button>
+        </div>
+        <section class="card info-card owner-card" id="owner-section">
+          <div class="status-header owner-header">
+            <div>
+              <h3>Owner Menu</h3>
+              <p>Panel kontrol untuk memantau profil, transaksi, dan akun reseller Putri Gmoyy Store.</p>
+            </div>
+            <button type="button" class="owner-settings-toggle" id="owner-settings-toggle" aria-expanded="false" aria-controls="owner-settings-menu">
+              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" />
+                <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 18.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09A1.65 1.65 0 0015 4.6a1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.9 0 1.64.73 1.64 1.64v.72c0 .9-.73 1.64-1.64 1.64z" />
+              </svg>
+            </button>
+          </div>
+          <div class="owner-settings-menu" id="owner-settings-menu">
+            <button type="button" class="owner-settings-item" data-setting="hide_services">Hide Layanan</button>
+            <button type="button" class="owner-settings-item" data-setting="show_hidden">Unhide Layanan</button>
+          </div>
+          <div class="owner-summary-grid">
+            <div class="owner-summary-card">
+              <p>Order Hari Ini</p>
+              <strong id="owner-summary-orders">0</strong>
+              <small>Publik &amp; Reseller</small>
+            </div>
+            <div class="owner-summary-card">
+              <p>Transaksi Pending</p>
+              <strong id="owner-summary-pending">0</strong>
+              <small>Menunggu panel</small>
+            </div>
+            <div class="owner-summary-card">
+              <p>Pendapatan Bulan Ini</p>
+              <strong id="owner-summary-revenue">Rp0</strong>
+              <small>Total bersih</small>
+            </div>
+            <div class="owner-summary-card hidden">
+              <p>Reseller Aktif</p>
+              <strong id="owner-summary-reseller">0</strong>
+              <small>Akun terdaftar</small>
+            </div>
+            <div class="owner-summary-card">
+              <p>Transaksi Berhasil</p>
+              <strong id="owner-summary-success">0</strong>
+              <small>Order sukses</small>
+            </div>
+            <div class="owner-summary-card">
+              <p>Transaksi Gagal</p>
+              <strong id="owner-summary-failed">0</strong>
+              <small>Error / refund</small>
+            </div>
+          </div>
+          <div id="owner-profile-card" class="owner-profile-card hidden">
+            <div class="owner-profile-header">
+              <h4>Data Profil Panel</h4>
+            </div>
+            <div class="owner-profile-grid">
+              <div class="owner-profile-primary">
+                <ul class="owner-profile-list">
+                  <li>
+                    <span>Email</span>
+                    <strong id="owner-email">-</strong>
+                  </li>
+                  <li>
+                    <span>Username</span>
+                    <strong id="owner-username">-</strong>
+                  </li>
+                  <li>
+                    <span>Nama Lengkap</span>
+                    <strong id="owner-fullname">-</strong>
+                  </li>
+                  <li>
+                    <span>Saldo</span>
+                    <strong id="owner-balance">-</strong>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div class="owner-admin-panels">
+            <div class="owner-panel-card hidden" id="owner-orders-card">
+              <div class="owner-panel-header">
+                <div class="owner-panel-title">
+                  <h4>Riwayat Order Panel</h4>
+                  <p>Pantau transaksi publik & reseller secara realtime.</p>
+                </div>
+                <div class="owner-panel-actions">
+                  <div class="owner-chip-row">
+                    <span class="owner-chip owner-chip-public">Publik</span>
+                    <span class="owner-chip owner-chip-reseller">Reseller</span>
+                  </div>
+                  <button type="button" class="owner-icon-btn" id="owner-orders-refresh" aria-label="Segarkan order">
+                    <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="23 4 23 10 17 10"></polyline>
+                      <polyline points="1 20 1 14 7 14"></polyline>
+                      <path d="M3.51 9a9 9 0 0114.13-3.36L23 10M1 14l5.37 4.36A9 9 0 0020.49 15"></path>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+              <table class="owner-admin-table">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Pemesan</th>
+                    <th>Layanan</th>
+                    <th>Status</th>
+                    <th>Nominal</th>
+                    <th>Terakhir</th>
+                    <th>Detail</th>
+                  </tr>
+                </thead>
+                <tbody id="owner-orders-body">
+                  <tr>
+                    <td colspan="7">Belum ada data order.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="owner-panel-card hidden" id="owner-reseller-card">
+              <div class="owner-panel-header">
+                <div class="owner-panel-title">
+                  <h4>Data Akun Reseller</h4>
+                  <p>Kendalikan akun reseller, saldo, dan status blokir.</p>
+                </div>
+                <div class="owner-reseller-toolbar">
+                  <div class="owner-chip-row">
+                    <span class="owner-chip owner-chip-total">Jumlah: <strong id="owner-reseller-total">0</strong></span>
+                    <span class="owner-chip owner-chip-public">Aktif: <strong id="owner-reseller-active">0</strong></span>
+                    <span class="owner-chip owner-chip-error">Diblokir: <strong id="owner-reseller-blocked">0</strong></span>
+                  </div>
+                  <div class="owner-toolbar-controls">
+                    <button type="button" class="owner-icon-btn" id="owner-reseller-refresh" aria-label="Segarkan reseller">
+                      <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="23 4 23 10 17 10"></polyline>
+                        <polyline points="1 20 1 14 7 14"></polyline>
+                        <path d="M3.51 9a9 9 0 0114.13-3.36L23 10M1 14l5.37 4.36A9 9 0 0020.49 15"></path>
+                      </svg>
+                    </button>
+                    <input type="text" id="owner-reseller-search" placeholder="Cari email / username / WhatsApp" />
+                  </div>
+                </div>
+              </div>
+              <div class="owner-reseller-table-wrapper">
+                <table class="owner-admin-table compact">
+                  <thead>
+                    <tr>
+                      <th>Reseller</th>
+                      <th>Email</th>
+                      <th>Saldo</th>
+                      <th>Status</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="owner-reseller-body">
+                    <tr>
+                      <td colspan="5">Belum ada data reseller.</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="confirm-modal">
+      <div class="confirm-modal">
+        <p class="confirm-title" id="confirm-title">Nomor Ini Belum Terdaftar</p>
+        <p class="confirm-sub" id="confirm-message">Lanjut daftar dengan nomor ini</p>
+        <strong id="confirm-identifier">0823xxxx</strong>
+        <div class="confirm-actions">
+          <button class="neutral-btn" id="confirm-edit">Ubah</button>
+          <button class="primary-btn" id="confirm-register">Ya, Daftar</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="owner-password-modal">
+      <div class="login-modal owner-password-card">
+        <button class="modal-close" id="owner-password-close" aria-label="Tutup">&times;</button>
+        <p class="login-subtitle">Menu Owner</p>
+        <h2>Masukkan Password</h2>
+        <label>
+          Password Owner
+          <input type="password" id="owner-password-input" placeholder="Masukkan password owner" />
+        </label>
+        <p class="error hidden" id="owner-password-error">Password owner tidak sesuai.</p>
+        <button class="primary-btn block" id="owner-password-submit">Masuk</button>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="owner-reseller-modal">
+      <div class="modal-card owner-reseller-modal">
+        <button class="modal-close" id="owner-reseller-close" aria-label="Tutup">&times;</button>
+        <h3>Kelola Reseller</h3>
+        <p id="owner-reseller-label" class="owner-reseller-label">-</p>
+        <form id="owner-reseller-form">
+          <input type="hidden" id="owner-reseller-id" />
+          <input type="hidden" id="owner-reseller-identifier" />
+          <label>
+            Nama Pengguna
+            <input type="text" id="owner-reseller-name" placeholder="Nama tampilan" />
+          </label>
+          <label>
+            Email
+            <input type="email" id="owner-reseller-email" placeholder="Email pengguna" />
+          </label>
+          <label>
+            Nomor WhatsApp
+            <input type="text" id="owner-reseller-phone" placeholder="08xxxxxxxxxx" />
+          </label>
+          <label>
+            Password Sekarang
+            <input type="text" id="owner-reseller-password-current" readonly class="readonly-input" />
+          </label>
+          <label>
+            Password Baru
+            <input type="password" id="owner-reseller-password" placeholder="Kosongkan jika tidak diganti" />
+          </label>
+          <div class="owner-balance-adjust">
+            <label>
+              Penyesuaian Saldo
+              <div class="balance-controls">
+                <select id="owner-reseller-balance-type">
+                  <option value="add">Tambah (+)</option>
+                  <option value="sub">Kurangi (-)</option>
+                </select>
+                <input type="number" id="owner-reseller-balance-amount" min="0" placeholder="Nominal" />
+              </div>
+            </label>
+          </div>
+          <label>
+            Status Akun
+            <select id="owner-reseller-block">
+              <option value="none">Aktif</option>
+              <option value="temporary">Blokir Sementara</option>
+              <option value="permanent">Blokir Permanen</option>
+            </select>
+          </label>
+          <button type="button" class="danger-btn" id="owner-reseller-delete">Hapus Akun</button>
+          <div class="modal-actions">
+            <button type="button" class="outline-btn" id="owner-reseller-cancel">Batal</button>
+          <button type="submit" class="primary-btn">Simpan Perubahan</button>
+        </div>
+      </form>
+    </div>
+      <div class="announcement-panel hidden" id="announcement-panel">
+        <div class="announcement-header">
+          <strong>Pengumuman Owner</strong>
+          <button type="button" class="announcement-close" id="announcement-close" aria-label="Tutup">&times;</button>
+        </div>
+      <div class="announcement-body" id="announcement-message">
+        Belum ada pengumuman.
+      </div>
+      <div class="toast hidden" id="global-toast">
+        <span id="toast-message">Berhasil</span>
+        <button type="button" class="toast-close" id="toast-close" aria-label="Tutup">&times;</button>
+      </div>
+      <small class="announcement-time hidden" id="announcement-time"></small>
+    </div>
+    </div>
+    <div class="modal-overlay hidden" id="owner-min-deposit-modal">
+      <div class="modal-card owner-reseller-modal">
+        <button class="modal-close" id="owner-min-deposit-close" aria-label="Tutup">&times;</button>
+        <h3>Atur Minimal Deposit</h3>
+        <p>Masukkan minimal deposit untuk menu reseller.</p>
+        <label>
+          Minimal Deposit (Rp)
+          <input type="number" id="owner-min-deposit-input" min="1000" />
+        </label>
+        <p class="profile-error hidden" id="owner-min-deposit-error">Nilai minimal tidak valid.</p>
+        <div class="modal-actions">
+          <button type="button" class="outline-btn" id="owner-min-deposit-cancel">Batal</button>
+          <button type="button" class="primary-btn" id="owner-min-deposit-save">Simpan</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="owner-hide-service-modal">
+      <div class="modal-card owner-reseller-modal">
+        <button class="modal-close" id="owner-hide-service-close" aria-label="Tutup">&times;</button>
+        <h3>Sembunyikan Layanan</h3>
+        <p>Masukkan ID layanan yang ingin disembunyikan dari katalog.</p>
+        <label>
+          ID Layanan
+          <div class="owner-service-search">
+            <input type="text" id="owner-hide-service-input" placeholder="contoh: 77665" />
+            <button type="button" class="owner-icon-btn owner-search-btn" id="owner-hide-service-search" aria-label="Cari layanan">
+              <svg viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="11" cy="11" r="7"></circle>
+                <line x1="16.5" y1="16.5" x2="21" y2="21"></line>
+              </svg>
+            </button>
+          </div>
+        </label>
+        <div class="owner-hide-service-result" id="owner-hide-service-result">
+          Masukkan ID layanan lalu tekan ikon pencarian.
+        </div>
+        <p class="profile-error hidden" id="owner-hide-service-error">Gagal memuat layanan.</p>
+        <div class="modal-actions">
+          <button type="button" class="outline-btn" id="owner-hide-service-cancel">Batal</button>
+          <button type="button" class="primary-btn" id="owner-hide-service-toggle" disabled>Hide Layanan</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="owner-hidden-list-modal">
+      <div class="modal-card owner-reseller-modal">
+        <button class="modal-close" id="owner-hidden-list-close" aria-label="Tutup">&times;</button>
+        <h3>Daftar Layanan Tersembunyi</h3>
+        <p>Layanan di bawah ini tidak tampil di katalog publik.</p>
+        <div class="owner-hidden-list" id="owner-hidden-list">
+          <p>Memuat daftar...</p>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="primary-btn" id="owner-hidden-list-refresh">Segarkan</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="owner-announcement-modal">
+      <div class="modal-card owner-reseller-modal">
+        <button class="modal-close" id="owner-announcement-close" aria-label="Tutup">&times;</button>
+        <h3>Pengumuman Owner</h3>
+        <p>Tulis pesan yang akan tampil di ikon notifikasi untuk semua user.</p>
+        <label>
+          Pesan Pengumuman
+          <textarea id="owner-announcement-input" rows="5" placeholder="Contoh: Maintenance 12.00 - 14.00 WIB"></textarea>
+        </label>
+        <p class="profile-error hidden" id="owner-announcement-error">Pesan tidak boleh kosong.</p>
+        <div class="modal-actions">
+          <button type="button" class="outline-btn" id="owner-announcement-cancel">Batal</button>
+          <button type="button" class="primary-btn" id="owner-announcement-save">Simpan Pengumuman</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="owner-order-modal">
+      <div class="modal-card owner-order-modal">
+        <button class="modal-close" id="owner-order-close" aria-label="Tutup">&times;</button>
+        <p class="login-subtitle">Detail Transaksi</p>
+        <h3 id="owner-order-title">Order ID</h3>
+        <div id="owner-order-detail" class="owner-order-detail">
+          <p>Memuat detail pesanan...</p>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="primary-btn block" id="owner-order-close-btn">Tutup</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-overlay hidden" id="status-order-modal">
+      <div class="modal-card owner-order-modal status-order-modal">
+        <button class="modal-close" id="status-order-close" aria-label="Tutup">&times;</button>
+        <p class="login-subtitle">Detail Status Order</p>
+        <h3 id="status-order-title">Order ID</h3>
+        <div id="status-order-detail" class="owner-order-detail">
+          <p>Memuat detail pesanan...</p>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="primary-btn block" id="status-order-close-btn">Tutup</button>
+        </div>
+      </div>
+    </div>
+    <section class="hero-card">
+      <div class="hero-slider" id="hero-slider">
+        <article class="hero-slide hero-billboard active">
+          <img src="img/billboard-01.jpg" alt="Billboard 1" class="hero-billboard-img" loading="lazy" />
+        </article>
+        <article class="hero-slide hero-billboard">
+          <img src="img/billboard-02.jpg" alt="Billboard 2" class="hero-billboard-img" loading="lazy" />
+        </article>
+        <article class="hero-slide hero-billboard">
+          <img src="img/billboard-03.jpg" alt="Billboard 3" class="hero-billboard-img" loading="lazy" />
+        </article>
+        <article class="hero-slide hero-billboard">
+          <img src="img/billboard-04.jpg" alt="Billboard 4" class="hero-billboard-img" loading="lazy" />
+        </article>
+        <div class="slider-dots" id="hero-dots">
+          <button class="hero-dot active" data-slide="0" aria-label="Slide 1"></button>
+          <button class="hero-dot" data-slide="1" aria-label="Slide 2"></button>
+          <button class="hero-dot" data-slide="2" aria-label="Slide 3"></button>
+          <button class="hero-dot" data-slide="3" aria-label="Slide 4"></button>
+        </div>
+      </div>
+    </section>
+    <div class="page-screen active" id="page-default">
+    <main class="content">
+      <!-- Step 1: Platform -->
+      <section class="card">
+        <h3>Pilih Platform &amp; Layanan</h3>
+        <p class="platform-hint">Klik salah satu logo platform untuk memuat kategori layanan otomatis dari panel.</p>
+        <div id="platform-list" class="platform-grid">
+          <!-- tombol platform akan di-render via JS -->
+        </div>
+      </section>
+
+      <!-- Step 2: Kategori -->
+      <section class="card with-ambient category-card">
+        <div class="category-ambient" aria-hidden="true">
+          <span class="category-chip cat-1">
+            <img src="https://img.icons8.com/color/48/instagram-new.png" alt="Instagram" />
+          </span>
+          <span class="category-chip cat-2">
+            <img src="https://img.icons8.com/color/48/linkedin.png" alt="LinkedIn" />
+          </span>
+          <span class="category-chip cat-3">
+            <img src="https://img.icons8.com/color/48/youtube-play.png" alt="YouTube" />
+          </span>
+          <span class="category-chip cat-4">
+            <img src="https://img.icons8.com/color/48/twitter--v1.png" alt="Twitter" />
+          </span>
+          <span class="category-chip cat-5">
+            <img src="https://img.icons8.com/color/48/telegram-app.png" alt="Telegram" />
+          </span>
+        </div>
+        <h3>Kategori Layanan</h3>
+        <div id="platform-info" class="platform-info hidden">
+          <span id="platform-info-icon" class="platform-info-icon"></span>
+          <span id="platform-info-text"></span>
+        </div>
+        <select id="category-select" class="sr-only" aria-hidden="true">
+          <option value="">Pilih kategori layanan terlebih dahulu.</option>
+        </select>
+        <div class="custom-dropdown" id="category-dropdown">
+          <button type="button" class="custom-dropdown-toggle" id="category-toggle">
+            <span id="category-selected-label">Pilih kategori layanan</span>
+            <span class="dropdown-caret"></span>
+          </button>
+          <div class="custom-dropdown-panel hidden" id="category-panel">
+            <div class="dropdown-search">
+              <input type="text" id="category-search-input" placeholder="Cari kategori..." autocomplete="off" />
+            </div>
+            <div id="category-options" class="dropdown-options empty">Pilih platform terlebih dahulu.</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 3: Layanan -->
+      <section class="card">
+        <h3>Pilih Layanan</h3>
+        <select id="service-select" class="sr-only" aria-hidden="true">
+          <option value="">Pilih kategori dulu.</option>
+        </select>
+        <div class="custom-dropdown" id="service-dropdown">
+          <button type="button" class="custom-dropdown-toggle service-toggle" id="service-toggle">
+            <div class="service-toggle-text">
+              <strong id="service-selected-label">Pilih layanan</strong>
+            </div>
+            <span class="dropdown-caret"></span>
+          </button>
+          <div class="custom-dropdown-panel hidden" id="service-panel">
+            <div class="dropdown-search">
+              <input type="text" id="service-search-input" placeholder="Cari ID atau nama layanan..." autocomplete="off" />
+            </div>
+            <div id="service-options" class="dropdown-options empty">Pilih kategori terlebih dahulu.</div>
+          </div>
+        </div>
+
+        <div id="service-detail" class="service-detail hidden">
+          <p class="detail-row"><strong>Harga / 100</strong><span id="service-price"></span></p>
+          <p class="detail-row"><strong>Minimal</strong><span id="service-min"></span></p>
+          <p class="detail-row"><strong>Maksimal</strong><span id="service-max"></span></p>
+          <div id="service-description-row" class="detail-row description hidden">
+            <strong>Deskripsi Layanan</strong>
+            <p id="service-note-text"></p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 4: Target & Jumlah -->
+      <section class="card">
+        <h3>Data Pesanan</h3>
+        <label>
+          Target (URL/Username)
+          <input type="text" id="target-input" placeholder="Masukkan link/username target" />
+        </label>
+        <label>
+          Jumlah
+          <input type="number" id="quantity-input" min="0" placeholder="Jumlah" />
+          <small id="quantity-hint" class="field-hint hidden">Jumlah otomatis mengikuti banyaknya komentar yang kamu tulis.</small>
+        </label>
+        <label id="comment-block" class="hidden">
+          Komentar Kustom
+          <textarea id="comments-input" rows="6" placeholder="Masukkan daftar komentar, pisahkan setiap baris." spellcheck="false"></textarea>
+          <small class="field-hint">Gunakan enter untuk memisahkan komentar. Jumlah komentar menentukan total order.</small>
+        </label>
+        <label>
+          Email Notifikasi
+          <input type="email" id="order-email" placeholder="Masukkan email penerima notifikasi" />
+        </label>
+        <label class="total-box">
+          Total Harga
+          <input type="text" id="total-price" value="Rp0" readonly />
+        </label>
+      </section>
+
+      <!-- Button -->
+      <section class="card">
+        <button id="pay-button" class="pay-button">Lanjutkan Pembayaran</button>
+        <p id="error-message" class="error"></p>
+      </section>
+
+      <div id="payment-loader" class="payment-overlay hidden">
+        <div class="payment-loader-content">
+          <div class="loader-dots">
+            <span></span><span></span><span></span><span></span><span></span>
+          </div>
+          <p>Menyiapkan pembayaran...</p>
+        </div>
+      </div>
+    </main>
+    </div>
+    <footer class="site-footer">
+      <p>© 2025 Putri Gmoyy Store</p>
+      <div class="footer-links">
+        <a href="#">Channel Pembayaran</a>
+        <a href="#">Kebijakan Privasi</a>
+        <a href="#">Syarat &amp; Ketentuan</a>
+        <a href="#">Blog</a>
+        <a href="#">Menjadi Reseller</a>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    window.API_BASE_URL = window.API_BASE_URL || "https://putri-gmoyy-store.vercel.app";
+  </script>
+  <script src="assets/slider.js" defer></script>
+  <script src="assets/app.js" defer></script>
+</body>
+</html>
+
+
+
+
