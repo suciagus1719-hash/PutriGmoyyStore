@@ -260,15 +260,25 @@ function initSliderApp() {
   renderMenu();
   const closeNav = () => {
     if (!navPanel) return;
-        closeNav();
-    navPanel.style.display = "none";
+    navPanel.classList.remove("open");
+    navPanel.style.removeProperty("display");
   };
 
   if (menuBtn && navPanel) {
     menuBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       const opened = navPanel.classList.toggle("open");
-      navPanel.style.display = opened ? "flex" : "none";
+      if (!opened) {
+        closeNav();
+        return;
+      }
+      const count = navPanel.children.length;
+      if (count <= 3) {
+        navPanel.style.display = "flex";
+      } else {
+        navPanel.style.display = "grid";
+        navPanel.style.gridTemplateColumns = "repeat(3, minmax(0, 1fr))";
+      }
     });
     navPanel.addEventListener("click", (e) => e.stopPropagation());
     document.addEventListener("click", closeNav);
