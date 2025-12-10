@@ -238,6 +238,8 @@ function initSliderApp() {
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 18.75l4.5-6 3 3 5.25-7.5L21 13.5"/><path d="M3 5.25v15.5H21"/></svg>',
     status:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8.25 4.5h8.25L20.25 8v11.25H8.25z"/><path d="M8.25 9.75H18"/><path d="M8.25 14.25h6.75"/><path d="M8.25 18.75h4.5"/></svg>',
+    terms:
+      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7.5 3.75h9L18.75 6v13.5a0.75 0.75 0 01-0.75 0.75H6a0.75 0.75 0 01-0.75-0.75V4.5A0.75 0.75 0 006 3.75z"/><path d="M9 7.5h6"/><path d="M9 11.25h6"/><path d="M9 15h3"/></svg>',
     logout:
       '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4.5 5.25v13.5A1.5 1.5 0 006 20.25h5.25"/><path d="M13.5 12h8.25"/><path d="M18.75 8.25L21.75 12l-3 3.75"/></svg>',
   };
@@ -247,6 +249,7 @@ function initSliderApp() {
     { action: "track", icon: "search", label: "Cek Status Order" },
     { action: "monitor", icon: "monitor", label: "Monitoring Sosmed" },
     { action: "prices", icon: "price", label: "Daftar Harga" },
+    { action: "terms", icon: "terms", label: "Syarat & Ketentuan" },
     { action: "contact", icon: "phone", label: "Kontak" },
     { action: "guide", icon: "guide", label: "Cara Order" },
     { action: "target", icon: "target", label: "Target Pesanan" },
@@ -262,6 +265,7 @@ function initSliderApp() {
     { action: "reward", icon: "gift", label: "Menu Hadiah" },
     { action: "prices", icon: "price", label: "Daftar Harga" },
     { action: "target", icon: "target", label: "Target Pesanan" },
+    { action: "terms", icon: "terms", label: "Syarat & Ketentuan" },
     { action: "status", icon: "status", label: "Status Order" },
     { action: "contact", icon: "phone", label: "Kontak" },
     { action: "logout", icon: "logout", label: "Logout" },
@@ -316,6 +320,7 @@ function initSliderApp() {
       if (action === "reward") return openRewardSection();
       if (action === "prices") return openPricesPage();
       if (action === "target") return openTargetPage();
+      if (action === "terms") return openTermsPage();
       if (action === "status") return openStatusPage();
       if (action === "owner") return openOwnerPage();
       if (action === "contact") return switchPage("contact");
@@ -2746,6 +2751,10 @@ let historyData = [];
 
   const openGuidePage = () => {
     switchPage("guide");
+  };
+
+  const openTermsPage = () => {
+    switchPage("terms");
   };
 
   const openPricesPage = () => {
