@@ -133,6 +133,7 @@
       </div>
       <ul class="receipt-list">
         <li><span>Order ID</span><span id="order-id">-</span></li>
+        <li><span>ID Status</span><span id="status-id">-</span></li>
         <li><span>ID Layanan</span><span id="service-id">-</span></li>
         <li><span>Kategori</span><span id="category-name">-</span></li>
         <li><span>Nama Layanan</span><span id="service-name">-</span></li>
@@ -151,15 +152,19 @@
     </div>
 
     <script>
+      window.API_BASE_URL = window.API_BASE_URL || "https://putri-gmoyy-store.vercel.app";
+      const API_BASE = window.API_BASE_URL.replace(/\/$/, "");
       const params = new URLSearchParams(window.location.search);
-      const getValue = (keys, fallback = "-") => {
+      const statusPill = document.getElementById("status-pill");
+
+      function getValue(keys, fallback = "-") {
         if (!Array.isArray(keys)) keys = [keys];
         for (const key of keys) {
           const val = params.get(key);
           if (val) return decodeURIComponent(val);
         }
         return fallback;
-      };
+      }
 
       const status = getValue(["transaction_status", "status"], "-");
       const orderId = getValue(["order_id", "orderId"], "-");
@@ -169,44 +174,42 @@
         getValue(["transaction_time", "transactionTime"], null) ||
         getValue("request_time", null);
 
-      document.getElementById("order-id").textContent = orderId;
-      document.getElementById("service-id").textContent = getValue("service_id");
-      document.getElementById("category-name").textContent = getValue("category");
-      document.getElementById("service-name").textContent = getValue("service_name");
-      document.getElementById("target-value").textContent = getValue("target");
-      document.getElementById("quantity-value").textContent = getValue("quantity");
-      document.getElementById("status").textContent = formatStatus(status);
-      document.getElementById("payment-type").textContent = paymentType || "-";
-      document.getElementById("transaction-time").textContent = formatDate(transactionTimeRaw);
-      document.getElementById("gross-amount").textContent = grossAmount
-        ? `Rp ${Number(grossAmount).toLocaleString("id-ID")}`
-        : "-";
-
-      const pill = document.getElementById("status-pill");
-      const pillText = pill.querySelector("span");
-      const statusLower = status.toLowerCase();
-      pill.classList.remove("success", "failed", "pending");
-      if (["settlement", "capture"].includes(statusLower)) {
-        pill.classList.add("success");
-        pillText.textContent = "Pembayaran berhasil";
-      } else if (["pending"].includes(statusLower)) {
-        pill.classList.add("pending");
-        pillText.textContent = "Menunggu pembayaran";
+      setText("order-id", orderId);
+      setText("service-id", getValue("service_id"));
+      setText("category-name", getValue("category"));
+      setText("service-name", getValue("service_name"));
+      setText("target-value", getValue("target"));
+      setText("quantity-value", getValue("quantity"));
+      setText("status", formatStatus(status));
+      setText("payment-type", paymentType || "-");
+      setText("transaction-time", formatDate(transactionTimeRaw));
+      if (grossAmount) {
+        setText("gross-amount", `Rp ${Number(grossAmount).toLocaleString("id-ID")}`);
       } else {
-        pill.classList.add("failed");
-        pillText.textContent = "Pembayaran gagal / dibatalkan";
+        setText("gross-amount", "-");
       }
+
+      applyStatusToPill(status);
 
       function formatStatus(value) {
         const map = {
-          settlement: "Pembayaran berhasil",
-          capture: "Pembayaran berhasil",
-          pending: "Menunggu pembayaran",
-          expire: "Pembayaran kedaluwarsa",
-          cancel: "Pembayaran dibatalkan",
-          deny: "Pembayaran ditolak",
+          settlement: "Pembayaran Berhasil",
+          capture: "Pembayaran Berhasil",
+          pending: "Menunggu Pembayaran",
+          pending_payment: "Menunggu Pembayaran",
+          processing: "Sedang Diproses",
+          success: "Berhasil",
+          complete: "Selesai",
+          done: "Selesai",
+          partial: "Partial",
+          expire: "Pembayaran Kedaluwarsa",
+          cancel: "Pembayaran Dibatalkan",
+          cancelled: "Pembayaran Dibatalkan",
+          deny: "Pembayaran Ditolak",
+          error: "Gagal",
         };
-        return map[value?.toLowerCase()] || value || "-";
+        const key = String(value || "").toLowerCase();
+        return map[key] || value || "-";
       }
 
       function formatDate(val) {
@@ -218,6 +221,89 @@
           timeStyle: "medium",
         });
       }
+
+      function setText(id, value) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = value == null || value === "" ? "-" : value;
+      }
+
+      function applyStatusToPill(rawStatus) {
+        if (!statusPill) return;
+        const pillText = statusPill.querySelector("span");
+        const normalized = String(rawStatus || "").toLowerCase();
+        statusPill.classList.remove("success", "failed", "pending");
+        if (["settlement", "capture", "success", "complete", "done"].includes(normalized)) {
+          statusPill.classList.add("success");
+          pillText && (pillText.textContent = "Pembayaran berhasil");
+        } else if (["pending", "processing", "pending_payment"].includes(normalized)) {
+          statusPill.classList.add("pending");
+          pillText && (pillText.textContent = "Menunggu pembayaran");
+        } else if (normalized) {
+          statusPill.classList.add("failed");
+          pillText && (pillText.textContent = "Pembayaran gagal / dibatalkan");
+        } else {
+          pillText && (pillText.textContent = "Menunggu status...");
+        }
+      }
+
+      async function hydrateOrderDetails() {
+        if (!orderId || orderId === "-") return;
+        try {
+          const query = new URLSearchParams({
+            scope: "all",
+            limit: "1",
+            q: orderId,
+          });
+          const endpoint =
+            API_BASE && API_BASE.length
+              ? `${API_BASE}/api/orders?${query.toString()}`
+              : `/api/orders?${query.toString()}`;
+          const response = await fetch(endpoint);
+          if (!response.ok) return;
+          const payload = await response.json();
+          const rows = Array.isArray(payload.rows) ? payload.rows : [];
+          if (!rows.length) return;
+          const normalized = String(orderId).toLowerCase();
+          const match =
+            rows.find((row) => String(row.id || "").toLowerCase() === normalized) || rows[0];
+          if (!match) return;
+          setText("status-id", match.panelOrderId || match.panel_order_id || "-");
+          if (match.serviceId || match.service_id) {
+            setText("service-id", match.serviceId || match.service_id);
+          }
+          if (match.category || match.categoryName) {
+            setText("category-name", match.category || match.categoryName);
+          }
+          if (match.serviceName || match.service_name) {
+            setText("service-name", match.serviceName || match.service_name);
+          }
+          if (match.target) {
+            setText("target-value", match.target);
+          }
+          if (match.quantity != null) {
+            setText("quantity-value", match.quantity);
+          }
+          if (match.price) {
+            setText("gross-amount", `Rp ${Number(match.price).toLocaleString("id-ID")}`);
+          }
+          if (match.createdAt) {
+            setText("transaction-time", formatDate(match.createdAt));
+          }
+          if (match.paymentType) {
+            setText("payment-type", match.paymentType);
+          }
+          const latestStatus = match.panelStatus || match.status;
+          if (latestStatus) {
+            setText("status", formatStatus(latestStatus));
+            applyStatusToPill(latestStatus);
+          }
+        } catch (err) {
+          console.warn("Gagal memuat detail order:", err);
+        }
+      }
+
+      hydrateOrderDetails();
     </script>
   </body>
 </html>

@@ -1218,38 +1218,64 @@ const loadHiddenServices = async (force = false) => {
   const renderTrackResult = (payload = {}) => {
     if (!trackResult || !trackSummary) return;
     const order = payload.order || {};
-    const panel = payload.panel || null;
+    const panel = payload.panel || {};
+    const queryInfo = payload.query || {};
     const panelId =
       payload.panelId ||
-      payload.query?.serviceId ||
+      queryInfo?.serviceId ||
       order.panelOrderId ||
       order.serviceId ||
       order.id ||
       "-";
-    const panelStatus = formatTrackStatus(panel?.status || order.panelStatus || order.status);
+    const panelStatus = formatTrackStatus(panel.status || order.panelStatus || order.status);
     const systemStatus = order.status ? formatTrackStatus(order.status) : null;
-    const rows = [
-      { label: "ID Layanan Panel", value: panelId || "-" },
-    ];
+    const serviceName =
+      order.serviceName ||
+      panel.service_name ||
+      panel.serviceName ||
+      panel.service ||
+      "-";
+    const targetValue =
+      order.target ||
+      panel.target ||
+      panel.link ||
+      panel.username ||
+      queryInfo?.target ||
+      "-";
+    const quantityValue =
+      order.quantity ??
+      panel.quantity ??
+      panel.qty ??
+      panel.count ??
+      panel.total ??
+      queryInfo?.quantity ??
+      null;
+    const orderTime =
+      order.createdAt ||
+      panel.created_at ||
+      panel.updated_at ||
+      panel.time ||
+      panel.date ||
+      null;
+    const formattedTime = orderTime ? new Date(orderTime).toLocaleString("id-ID") : "-";
+    const rows = [{ label: "ID Status", value: panelId || "-" }];
     if (order.id) {
-      rows.push({ label: "Order ID Sistem", value: order.id });
+      rows.push({ label: "Order ID", value: order.id });
     }
-    rows.push({ label: "Status Panel", value: panelStatus || "-" });
+    rows.push({ label: "Status", value: panelStatus || "-" });
     if (systemStatus && systemStatus !== panelStatus) {
       rows.push({ label: "Status Sistem", value: systemStatus });
     }
-    if (order.serviceName) rows.push({ label: "Layanan", value: order.serviceName });
-    if (order.target) rows.push({ label: "Target", value: order.target });
-    if (order.quantity != null) rows.push({ label: "Jumlah", value: order.quantity });
-    if (order.createdAt) {
-      rows.push({
-        label: "Waktu Order",
-        value: new Date(order.createdAt).toLocaleString("id-ID"),
-      });
-    }
-    if (panel?.start_count != null) rows.push({ label: "Start Count", value: panel.start_count });
-    if (panel?.remains != null) rows.push({ label: "Sisa (Remains)", value: panel.remains });
-    if (panel?.charge != null) rows.push({ label: "Biaya Panel", value: formatStatusCurrency(panel.charge) });
+    rows.push({ label: "Nama Layanan", value: serviceName || "-" });
+    rows.push({ label: "Target", value: targetValue || "-" });
+    rows.push({
+      label: "Jumlah",
+      value: quantityValue != null && quantityValue !== "" ? quantityValue : "-",
+    });
+    rows.push({ label: "Tanggal & Waktu", value: formattedTime });
+    if (panel.start_count != null) rows.push({ label: "Start Count", value: panel.start_count });
+    if (panel.remains != null) rows.push({ label: "Sisa (Remains)", value: panel.remains });
+    if (panel.charge != null) rows.push({ label: "Biaya Panel", value: formatStatusCurrency(panel.charge) });
     trackSummary.innerHTML = rows
       .map(
         (row) => `
@@ -2530,7 +2556,7 @@ let historyData = [];
     if (!trackServiceInput) return;
     const serviceId = trackServiceInput.value.trim();
     if (!serviceId) {
-      trackError && (trackError.textContent = "Masukkan ID layanan panel terlebih dahulu.");
+      trackError && (trackError.textContent = "Masukkan ID status terlebih dahulu.");
       trackError?.classList.remove("hidden");
       resetTrackResult();
       return;
@@ -2542,7 +2568,7 @@ let historyData = [];
       const data = await apiPost("/api/order-track", { serviceId });
       renderTrackResult(data);
     } catch (err) {
-      trackError && (trackError.textContent = err.message || "Layanan tidak ditemukan di panel.");
+      trackError && (trackError.textContent = err.message || "Status tidak ditemukan.");
       trackError?.classList.remove("hidden");
       trackResult?.classList.add("hidden");
     } finally {
