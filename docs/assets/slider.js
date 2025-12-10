@@ -76,33 +76,64 @@ function apiDelete(path, body, attempts = 1) {
 function initSliderApp() {
   const slides = Array.from(document.querySelectorAll(".hero-slide"));
   const dots = Array.from(document.querySelectorAll(".hero-dot"));
+  const heroSliderEl = document.getElementById("hero-slider");
 
   if (slides.length) {
     let current = 0;
     let autoTimer = null;
-    const autoplayDelay = 3000;
+    const autoplayDelay = 4000;
 
     const setActive = (index) => {
+      const total = slides.length;
+      if (!total) return;
       slides[current]?.classList.remove("active");
       dots[current]?.classList.remove("active");
-      current = index;
+      current = (index + total) % total;
       slides[current]?.classList.add("active");
       dots[current]?.classList.add("active");
     };
 
-    const nextSlide = () => setActive((current + 1) % slides.length);
     const startAuto = () => {
       if (autoTimer) clearInterval(autoTimer);
-      autoTimer = setInterval(() => nextSlide(), autoplayDelay);
+      autoTimer = setInterval(() => setActive(current + 1), autoplayDelay);
+    };
+
+    const stopAuto = () => {
+      if (autoTimer) clearInterval(autoTimer);
+      autoTimer = null;
     };
 
     dots.forEach((dot, index) => {
       dot.addEventListener("click", () => {
-        if (autoTimer) clearInterval(autoTimer);
+        stopAuto();
         setActive(index);
         startAuto();
       });
     });
+
+    heroSliderEl?.addEventListener("mouseenter", stopAuto);
+    heroSliderEl?.addEventListener("mouseleave", startAuto);
+
+    let swipeStartX = 0;
+    heroSliderEl?.addEventListener(
+      "touchstart",
+      (event) => {
+        swipeStartX = event.touches[0].clientX;
+        stopAuto();
+      },
+      { passive: true }
+    );
+    heroSliderEl?.addEventListener(
+      "touchend",
+      (event) => {
+        const deltaX = event.changedTouches[0].clientX - swipeStartX;
+        if (Math.abs(deltaX) > 40) {
+          setActive(current + (deltaX < 0 ? 1 : -1));
+        }
+        startAuto();
+      },
+      { passive: true }
+    );
 
     setActive(0);
     startAuto();
@@ -258,18 +289,13 @@ function initSliderApp() {
       .join("");
   };
   renderMenu();
-  const closeNav = () => {
-    if (!navPanel) return;
-    navPanel.classList.remove("open");
-  };
-
   if (menuBtn && navPanel) {
     menuBtn.addEventListener("click", (e) => {
       e.stopPropagation();
       navPanel.classList.toggle("open");
     });
     navPanel.addEventListener("click", (e) => e.stopPropagation());
-    document.addEventListener("click", closeNav);
+    document.addEventListener("click", () => navPanel.classList.remove("open"));
   }
   const showInfoMessage = (label) => {
     showToast(`${label} segera tersedia. Admin akan mengumumkan jika sudah aktif.`, "info");
@@ -2570,7 +2596,7 @@ let historyData = [];
       const target = document.getElementById(btn.dataset.target || "");
       if (!target) return;
       target.type = target.type === "password" ? "text" : "password";
-      btn.textContent = target.type === "password" ? "=ƒæü" : "=ƒÖê";
+      btn.textContent = target.type === "password" ? "≡ƒæü" : "≡ƒÖê";
     });
   });
 
@@ -2996,6 +3022,7 @@ if (document.readyState === "loading") {
 }
 })();
 }
+
 
 
 
