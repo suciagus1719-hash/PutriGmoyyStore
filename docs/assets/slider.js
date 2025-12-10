@@ -260,7 +260,7 @@ function initSliderApp() {
   renderMenu();
   const closeNav = () => {
     if (!navPanel) return;
-        closeNav();
+    navPanel.classList.remove("open");
   };
 
   if (menuBtn && navPanel) {
