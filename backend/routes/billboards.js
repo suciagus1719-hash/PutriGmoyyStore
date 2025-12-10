@@ -1,7 +1,7 @@
 const { list } = require("@vercel/blob");
 
 const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || "";
-const BILLBOARD_PREFIX = (process.env.BILLBOARD_BLOB_PREFIX || "billboards/").trim() || "billboards/";
+const BILLBOARD_PREFIX = (process.env.BILLBOARD_BLOB_PREFIX || "billboard/").trim() || "billboard/";
 const BILLBOARD_LIMIT = Number(process.env.BILLBOARD_BLOB_LIMIT || 8);
 const RAW_ALLOWED_ORIGINS =
   process.env.CORS_ALLOW_ORIGIN ||
