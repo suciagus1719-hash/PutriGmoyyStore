@@ -72,41 +72,68 @@ function apiDelete(path, body, attempts = 1) {
     attempts
   );
 }
-<<<<<<< ours
 
-=======
 
->>>>>>> theirs
 function initSliderApp() {
   const slides = Array.from(document.querySelectorAll(".hero-slide"));
   const dots = Array.from(document.querySelectorAll(".hero-dot"));
+  const heroSliderEl = document.getElementById("hero-slider");
 
   if (slides.length) {
     let current = 0;
     let autoTimer = null;
-    const autoplayDelay = 3000;
+    const autoplayDelay = 4000;
 
     const setActive = (index) => {
+      const total = slides.length;
+      if (!total) return;
       slides[current]?.classList.remove("active");
       dots[current]?.classList.remove("active");
-      current = index;
+      current = (index + total) % total;
       slides[current]?.classList.add("active");
       dots[current]?.classList.add("active");
     };
 
-    const nextSlide = () => setActive((current + 1) % slides.length);
     const startAuto = () => {
       if (autoTimer) clearInterval(autoTimer);
-      autoTimer = setInterval(() => nextSlide(), autoplayDelay);
+      autoTimer = setInterval(() => setActive(current + 1), autoplayDelay);
+    };
+    const stopAuto = () => {
+      if (autoTimer) clearInterval(autoTimer);
+      autoTimer = null;
     };
 
     dots.forEach((dot, index) => {
       dot.addEventListener("click", () => {
-        if (autoTimer) clearInterval(autoTimer);
+        stopAuto();
         setActive(index);
         startAuto();
       });
     });
+
+    heroSliderEl?.addEventListener("mouseenter", stopAuto);
+    heroSliderEl?.addEventListener("mouseleave", startAuto);
+
+    let swipeStartX = 0;
+    heroSliderEl?.addEventListener(
+      "touchstart",
+      (event) => {
+        swipeStartX = event.touches[0].clientX;
+        stopAuto();
+      },
+      { passive: true }
+    );
+    heroSliderEl?.addEventListener(
+      "touchend",
+      (event) => {
+        const deltaX = event.changedTouches[0].clientX - swipeStartX;
+        if (Math.abs(deltaX) > 40) {
+          setActive(current + (deltaX < 0 ? 1 : -1));
+        }
+        startAuto();
+      },
+      { passive: true }
+    );
 
     setActive(0);
     startAuto();
@@ -261,7 +288,6 @@ function initSliderApp() {
       })
       .join("");
   };
-<<<<<<< ours
   renderMenu();
   if (menuBtn && navPanel) {
     menuBtn.addEventListener("click", (e) => {
@@ -271,7 +297,6 @@ function initSliderApp() {
     navPanel.addEventListener("click", (e) => e.stopPropagation());
     document.addEventListener("click", () => navPanel.classList.remove("open"));
   }
-=======
   renderMenu();
   if (menuBtn && navPanel) {
     menuBtn.addEventListener("click", (e) => {
@@ -281,7 +306,6 @@ function initSliderApp() {
     navPanel.addEventListener("click", (e) => e.stopPropagation());
     document.addEventListener("click", () => navPanel.classList.remove("open"));
   }
->>>>>>> theirs
   const showInfoMessage = (label) => {
     showToast(`${label} segera tersedia. Admin akan mengumumkan jika sudah aktif.`, "info");
   };
@@ -309,17 +333,14 @@ function initSliderApp() {
       showInfoMessage("Menu");
     });
   }
-<<<<<<< ours
 
   const openLogin = document.getElementById("open-login");
   const openRegister = document.getElementById("open-register");
   const goRegisterFromLogin = document.getElementById("go-register-from-login");
-=======
 
   const openLogin = document.getElementById("open-login");
   const openRegister = document.getElementById("open-register");
   const goRegisterFromLogin = document.getElementById("go-register-from-login");
->>>>>>> theirs
   const balancePill = document.getElementById("balance-pill");
   const coinPill = document.getElementById("coin-pill");
   const brandTitle = document.getElementById("brand-title");
@@ -328,7 +349,6 @@ function initSliderApp() {
   const defaultAvatar =
     brandAvatar?.src ||
     "https://ui-avatars.com/api/?name=PG&background=ac2acf&color=fff";
-<<<<<<< ours
 
   const loginModal = document.getElementById("login-modal");
   const closeLogin = document.getElementById("close-login");
@@ -373,7 +393,6 @@ function initSliderApp() {
   const profileSaveBtn = document.getElementById("profile-save");
   const profileCancelBtn = document.getElementById("profile-cancel");
 
-=======
 
   const loginModal = document.getElementById("login-modal");
   const closeLogin = document.getElementById("close-login");
@@ -418,18 +437,14 @@ function initSliderApp() {
   const profileSaveBtn = document.getElementById("profile-save");
   const profileCancelBtn = document.getElementById("profile-cancel");
 
->>>>>>> theirs
   const depositModal = document.getElementById("deposit-modal");
   const depositAmountInput = document.getElementById("deposit-amount");
   const depositError = document.getElementById("deposit-error");
   const depositSubmit = document.getElementById("deposit-submit");
   const closeDeposit = document.getElementById("close-deposit");
   const depositHintText = document.getElementById("deposit-hint");
-<<<<<<< ours
 
-=======
 
->>>>>>> theirs
   const historySection = document.getElementById("history-section");
   const historyList = document.getElementById("history-list");
   const historyBalance = document.getElementById("history-balance");
@@ -1770,7 +1785,6 @@ const loadHiddenServices = async (force = false) => {
   const forgotLink = document.querySelector(".forgot-link a");
 
   const toggleButtons = Array.from(document.querySelectorAll(".toggle-pass"));
-<<<<<<< ours
   let avatarData = "";
   const broadcastAccount = () => {
     window.currentAccount = currentUser ? { ...currentUser } : null;
@@ -1779,7 +1793,6 @@ const loadHiddenServices = async (force = false) => {
     );
   };
 
-=======
   let avatarData = "";
   const broadcastAccount = () => {
     window.currentAccount = currentUser ? { ...currentUser } : null;
@@ -1788,7 +1801,6 @@ const loadHiddenServices = async (force = false) => {
     );
   };
 
->>>>>>> theirs
   let pendingIdentifier = "";
   let currentUser = null;
 let authMode = "login"; // login, register
@@ -1948,11 +1960,8 @@ let historyData = [];
     renderHistoryTable();
   });
 
-<<<<<<< ours
 
-=======
 
->>>>>>> theirs
   const showStep = (step) => {
     identifierStep?.classList.add("hidden");
     passwordStep?.classList.add("hidden");
@@ -1960,17 +1969,14 @@ let historyData = [];
     forgotStep?.classList.add("hidden");
     step?.classList.remove("hidden");
   };
-<<<<<<< ours
 
   const openOverlay = (modal) => modal?.classList.remove("hidden");
   const closeOverlay = (modal) => modal?.classList.add("hidden");
 
-=======
 
   const openOverlay = (modal) => modal?.classList.remove("hidden");
   const closeOverlay = (modal) => modal?.classList.add("hidden");
 
->>>>>>> theirs
   const showIdentifierStep = () => {
     showStep(identifierStep);
     loginError?.classList.add("hidden");
@@ -1982,7 +1988,6 @@ let historyData = [];
     }
     resetForgotForm();
   };
-<<<<<<< ours
 
   const showLoginPasswordStep = (mode) => {
     authMode = mode;
@@ -2004,7 +2009,6 @@ let historyData = [];
     passwordInput?.focus();
   };
 
-=======
 
   const showLoginPasswordStep = (mode) => {
     authMode = mode;
@@ -2026,7 +2030,6 @@ let historyData = [];
     passwordInput?.focus();
   };
 
->>>>>>> theirs
   const showRegisterStep = () => {
     showStep(registerStep);
     registerError?.classList.add("hidden");
@@ -2066,7 +2069,6 @@ let historyData = [];
   [forgotUsernameInput, forgotIdentifierInput, forgotPasswordInput, forgotPasswordConfirmInput].forEach((input) => {
     input?.addEventListener("input", validateForgotForm);
   });
-<<<<<<< ours
 
   const closeLoginModal = () => {
     loginModal?.classList.add("hidden");
@@ -2079,7 +2081,6 @@ let historyData = [];
     return identifier;
   };
 
-=======
 
   const closeLoginModal = () => {
     loginModal?.classList.add("hidden");
@@ -2092,7 +2093,6 @@ let historyData = [];
     return identifier;
   };
 
->>>>>>> theirs
   const setLoggedIn = (user, persist = true) => {
     if (!user) return;
     currentUser = user;
@@ -2135,11 +2135,8 @@ let historyData = [];
     brandAvatar && (brandAvatar.src = defaultAvatar);
     switchPage("default");
   };
-<<<<<<< ours
 
-=======
 
->>>>>>> theirs
   const syncCurrentAccount = async () => {
     if (!currentUser?.identifier) return;
     try {
@@ -2168,11 +2165,8 @@ let historyData = [];
       localStorage.removeItem(ACCOUNT_KEY);
     }
   };
-<<<<<<< ours
 
-=======
 
->>>>>>> theirs
   const handleLoginCheck = async () => {
     if (!loginInput || !nextBtn) return;
     const value = loginInput.value.trim();
@@ -2182,7 +2176,6 @@ let historyData = [];
       loginError?.classList.remove("success");
       nextBtn.disabled = true;
       nextBtn.textContent = "Memeriksa...";
-<<<<<<< ours
       const { exists } = await authPost("/api/reseller?action=check", { identifier: value });
       pendingIdentifier = value;
       if (exists) {
@@ -2194,7 +2187,6 @@ let historyData = [];
         confirmIdentifier.textContent = value;
         confirmModal?.classList.remove("hidden");
       }
-=======
       const { exists } = await authPost("/api/reseller?action=check", { identifier: value });
       pendingIdentifier = value;
       if (exists) {
@@ -2206,7 +2198,6 @@ let historyData = [];
         confirmIdentifier.textContent = value;
         confirmModal?.classList.remove("hidden");
       }
->>>>>>> theirs
     } catch (e) {
       loginError.textContent = e.message;
       loginError.classList.remove("hidden");
@@ -2216,7 +2207,6 @@ let historyData = [];
       nextBtn.disabled = false;
     }
   };
-<<<<<<< ours
 
   if (openLogin && loginModal) {
     openLogin.addEventListener("click", () => {
@@ -2258,7 +2248,6 @@ let historyData = [];
     nextBtn.addEventListener("click", handleLoginCheck);
   }
 
-=======
 
   if (openLogin && loginModal) {
     openLogin.addEventListener("click", () => {
@@ -2300,7 +2289,6 @@ let historyData = [];
     nextBtn.addEventListener("click", handleLoginCheck);
   }
 
->>>>>>> theirs
   if (confirmModal) {
     confirmModal.addEventListener("click", (e) => {
       if (e.target === confirmModal) confirmModal.classList.add("hidden");
@@ -2345,11 +2333,8 @@ let historyData = [];
     });
   }
 
-<<<<<<< ours
 
-=======
 
->>>>>>> theirs
   const handleOwnerPasswordSubmit = () => {
     const value = ownerPasswordInput?.value.trim();
     if (!value) {
@@ -2726,7 +2711,6 @@ let historyData = [];
   });
 
   const validatePasswords = () => {
-<<<<<<< ours
     if (!passwordInput || !confirmPasswordInput || !createAccountBtn || !passwordError) return;
     const pass = passwordInput.value.trim();
     const confirmPass = confirmPasswordInput.value.trim();
@@ -2762,7 +2746,6 @@ let historyData = [];
     }
   };
 
-=======
     if (!passwordInput || !confirmPasswordInput || !createAccountBtn || !passwordError) return;
     const pass = passwordInput.value.trim();
     const confirmPass = confirmPasswordInput.value.trim();
@@ -2798,13 +2781,11 @@ let historyData = [];
     }
   };
 
->>>>>>> theirs
   [registerIdentifierInput, registerPasswordInput, registerConfirmInput].forEach((input) => {
     input?.addEventListener("input", validateRegisterForm);
   });
 
   toggleButtons.forEach((btn) => {
-<<<<<<< ours
     btn.addEventListener("click", () => {
       const target = document.getElementById(btn.dataset.target || "");
       if (!target) return;
@@ -2813,7 +2794,6 @@ let historyData = [];
     });
   });
 
-=======
     btn.addEventListener("click", () => {
       const target = document.getElementById(btn.dataset.target || "");
       if (!target) return;
@@ -2822,7 +2802,6 @@ let historyData = [];
     });
   });
 
->>>>>>> theirs
   const finishLogin = (user) => {
     setLoggedIn(user);
     closeLoginModal();
@@ -2865,7 +2844,6 @@ let historyData = [];
       forgotSubmitBtn.textContent = "Reset Password";
     }
   });
-<<<<<<< ours
 
   const openProfileModal = () => {
     if (!currentUser) return;
@@ -2882,7 +2860,6 @@ let historyData = [];
     openOverlay(profileModal);
   };
 
-=======
 
   const openProfileModal = () => {
     if (!currentUser) return;
@@ -2899,7 +2876,6 @@ let historyData = [];
     openOverlay(profileModal);
   };
 
->>>>>>> theirs
   const openDepositModal = () => {
     ensureMinDeposit();
     if (depositAmountInput) {
@@ -2909,11 +2885,8 @@ let historyData = [];
     depositError?.classList.add("hidden");
     openOverlay(depositModal);
   };
-<<<<<<< ours
 
-=======
 
->>>>>>> theirs
   const openHistoryModal = async () => {
     if (!currentUser) return;
     switchPage("history");
@@ -2989,11 +2962,8 @@ let historyData = [];
       rewardError.classList.remove("hidden");
     }
   };
-<<<<<<< ours
 
-=======
 
->>>>>>> theirs
   const compressImage = (file) =>
     new Promise((resolve, reject) => {
       const img = new Image();
@@ -3047,11 +3017,8 @@ let historyData = [];
       reader.readAsDataURL(file);
     }
   });
-<<<<<<< ours
 
-=======
 
->>>>>>> theirs
   profileSaveBtn?.addEventListener("click", async () => {
     if (!currentUser) return;
     profileError?.classList.add("hidden");
@@ -3068,7 +3035,6 @@ let historyData = [];
         email: profileEmailInput.value.trim(),
         phone: profilePhoneInput.value.trim(),
         avatarUrl: avatarData,
-<<<<<<< ours
       };
       if (profilePasswordInput.value.trim()) {
         payload.newPassword = profilePasswordInput.value.trim();
@@ -3077,7 +3043,6 @@ let historyData = [];
       finishLogin(res.user);
       closeOverlay(profileModal);
     } catch (e) {
-=======
       };
       if (profilePasswordInput.value.trim()) {
         payload.newPassword = profilePasswordInput.value.trim();
@@ -3086,28 +3051,24 @@ let historyData = [];
       finishLogin(res.user);
       closeOverlay(profileModal);
     } catch (e) {
->>>>>>> theirs
       profileError.textContent = e.message;
       profileError.classList.remove("hidden");
     } finally {
       hideLoader();
     }
   });
-<<<<<<< ours
 
   profileCancelBtn?.addEventListener("click", () => {
     closeOverlay(profileModal);
   });
   closeProfile?.addEventListener("click", () => closeOverlay(profileModal));
 
-=======
 
   profileCancelBtn?.addEventListener("click", () => {
     closeOverlay(profileModal);
   });
   closeProfile?.addEventListener("click", () => closeOverlay(profileModal));
 
->>>>>>> theirs
   depositSubmit?.addEventListener("click", async () => {
     if (!currentUser) return;
     const amount = Number(depositAmountInput.value || 0);
@@ -3150,13 +3111,10 @@ let historyData = [];
       depositSubmit.textContent = "Lanjutkan Pembayaran";
     }
   });
-<<<<<<< ours
   closeDeposit?.addEventListener("click", () => closeOverlay(depositModal));
 
-=======
   closeDeposit?.addEventListener("click", () => closeOverlay(depositModal));
 
->>>>>>> theirs
   [profileModal, depositModal].forEach((modal) => {
     modal?.addEventListener("click", (e) => {
       if (e.target === modal) closeOverlay(modal);
@@ -3242,7 +3200,6 @@ let historyData = [];
       rewardError.classList.remove("hidden");
     }
   });
-<<<<<<< ours
 
   if (createAccountBtn) {
     createAccountBtn.addEventListener("click", async () => {
@@ -3289,7 +3246,6 @@ let historyData = [];
     });
   }
 
-=======
 
   if (createAccountBtn) {
     createAccountBtn.addEventListener("click", async () => {
@@ -3336,7 +3292,6 @@ let historyData = [];
     });
   }
 
->>>>>>> theirs
   ensureMinDeposit();
   loadHiddenServices();
   loadAnnouncement();
@@ -3350,7 +3305,6 @@ if (document.readyState === "loading") {
 }
 })();
 }
-<<<<<<< ours
 
 
 
@@ -3361,7 +3315,6 @@ if (document.readyState === "loading") {
 
 
 
-=======
 
 
 
@@ -3372,4 +3325,3 @@ if (document.readyState === "loading") {
 
 
 
->>>>>>> theirs
