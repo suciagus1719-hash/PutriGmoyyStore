@@ -41,7 +41,9 @@ async function fetchPanelServices(attempts = 3) {
   throw lastError || new Error("Tidak berhasil mengambil daftar layanan dari panel.");
 }
 
-async function submitPanelOrder(payload, attempts = 2) {
+const PANEL_ORDER_ATTEMPTS = Math.max(2, Number(process.env.PANEL_ORDER_ATTEMPTS || 4));
+
+async function submitPanelOrder(payload, attempts = PANEL_ORDER_ATTEMPTS) {
   let lastError;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     try {

@@ -6,6 +6,24 @@ const { updateOrder, getOrder } = require("../lib/orderStore");
 const { refundOrder } = require("../lib/refundManager");
 
 const MIDTRANS_SERVER_KEY = process.env.MIDTRANS_SERVER_KEY;
+const PANEL_ORDER_ATTEMPTS = Math.max(3, Number(process.env.PANEL_ORDER_ATTEMPTS || 4));
+const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function dispatchPanelOrder(payload, attempts = PANEL_ORDER_ATTEMPTS) {
+  let lastError;
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    try {
+      return await callPanel(payload);
+    } catch (err) {
+      lastError = err;
+      console.error(`Gagal order ke panel (notif) percobaan ${attempt}/${attempts}`, err);
+      if (attempt < attempts) {
+        await delay(800 * attempt);
+      }
+    }
+  }
+  throw lastError || new Error("Panel tidak merespons");
+}
 
 // Endpoint untuk menerima HTTP notification dari Midtrans
 module.exports = async (req, res) => {
@@ -138,7 +156,7 @@ module.exports = async (req, res) => {
           const commentText = commentsList.join("\n");
           payload.komen = commentText;
         }
-        const panelRes = await callPanel(payload);
+        const panelRes = await dispatchPanelOrder(payload);
         console.log("Order dikirim ke panel:", panelRes);
         const panelData = (panelRes && panelRes.data) || panelRes || {};
         await updateOrder(order_id, {

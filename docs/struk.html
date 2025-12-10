@@ -173,8 +173,22 @@
       const transactionTimeRaw =
         getValue(["transaction_time", "transactionTime"], null) ||
         getValue("request_time", null);
+      const statusIdParam =
+        getValue(["status_id", "panel_id", "panel_order_id", "panelId"], "-") || "-";
+      const pendingStatuses = new Set([
+        "pending",
+        "pending_payment",
+        "waiting_payment",
+        "unpaid",
+        "menunggu pembayaran",
+      ]);
+      const POLL_INTERVAL = 4000;
+      const MAX_POLL_ATTEMPTS = 12;
+      let pollTimer = null;
+      let pollAttempts = 0;
 
       setText("order-id", orderId);
+      setText("status-id", statusIdParam);
       setText("service-id", getValue("service_id"));
       setText("category-name", getValue("category"));
       setText("service-name", getValue("service_name"));
@@ -233,10 +247,10 @@
         const pillText = statusPill.querySelector("span");
         const normalized = String(rawStatus || "").toLowerCase();
         statusPill.classList.remove("success", "failed", "pending");
-        if (["settlement", "capture", "success", "complete", "done"].includes(normalized)) {
+        if (["settlement", "capture", "success", "complete", "done", "processing"].includes(normalized)) {
           statusPill.classList.add("success");
           pillText && (pillText.textContent = "Pembayaran berhasil");
-        } else if (["pending", "processing", "pending_payment"].includes(normalized)) {
+        } else if (["pending", "pending_payment"].includes(normalized)) {
           statusPill.classList.add("pending");
           pillText && (pillText.textContent = "Menunggu pembayaran");
         } else if (normalized) {
@@ -247,63 +261,99 @@
         }
       }
 
-      async function hydrateOrderDetails() {
-        if (!orderId || orderId === "-") return;
+      async function fetchOrderFromApi() {
+        if (!orderId || orderId === "-") return null;
+        const query = new URLSearchParams({
+          scope: "all",
+          limit: "1",
+          q: orderId,
+        });
+        const endpoint =
+          API_BASE && API_BASE.length
+            ? `${API_BASE}/api/orders?${query.toString()}`
+            : `/api/orders?${query.toString()}`;
         try {
-          const query = new URLSearchParams({
-            scope: "all",
-            limit: "1",
-            q: orderId,
-          });
-          const endpoint =
-            API_BASE && API_BASE.length
-              ? `${API_BASE}/api/orders?${query.toString()}`
-              : `/api/orders?${query.toString()}`;
           const response = await fetch(endpoint);
-          if (!response.ok) return;
+          if (!response.ok) return null;
           const payload = await response.json();
           const rows = Array.isArray(payload.rows) ? payload.rows : [];
-          if (!rows.length) return;
+          if (!rows.length) return null;
           const normalized = String(orderId).toLowerCase();
           const match =
             rows.find((row) => String(row.id || "").toLowerCase() === normalized) || rows[0];
-          if (!match) return;
-          setText("status-id", match.panelOrderId || match.panel_order_id || "-");
-          if (match.serviceId || match.service_id) {
-            setText("service-id", match.serviceId || match.service_id);
-          }
-          if (match.category || match.categoryName) {
-            setText("category-name", match.category || match.categoryName);
-          }
-          if (match.serviceName || match.service_name) {
-            setText("service-name", match.serviceName || match.service_name);
-          }
-          if (match.target) {
-            setText("target-value", match.target);
-          }
-          if (match.quantity != null) {
-            setText("quantity-value", match.quantity);
-          }
-          if (match.price) {
-            setText("gross-amount", `Rp ${Number(match.price).toLocaleString("id-ID")}`);
-          }
-          if (match.createdAt) {
-            setText("transaction-time", formatDate(match.createdAt));
-          }
-          if (match.paymentType) {
-            setText("payment-type", match.paymentType);
-          }
-          const latestStatus = match.panelStatus || match.status;
-          if (latestStatus) {
-            setText("status", formatStatus(latestStatus));
-            applyStatusToPill(latestStatus);
-          }
+          return match || null;
         } catch (err) {
           console.warn("Gagal memuat detail order:", err);
+          return null;
         }
       }
 
-      hydrateOrderDetails();
+      function renderOrderDetails(order) {
+        if (!order) return null;
+        setText("status-id", order.panelOrderId || order.panel_order_id || statusIdParam || "-");
+        if (order.serviceId || order.service_id) {
+          setText("service-id", order.serviceId || order.service_id);
+        }
+        if (order.category || order.categoryName) {
+          setText("category-name", order.category || order.categoryName);
+        }
+        if (order.serviceName || order.service_name) {
+          setText("service-name", order.serviceName || order.service_name);
+        }
+        if (order.target) {
+          setText("target-value", order.target);
+        }
+        if (order.quantity != null) {
+          setText("quantity-value", order.quantity);
+        }
+        if (order.price) {
+          setText("gross-amount", `Rp ${Number(order.price).toLocaleString("id-ID")}`);
+        }
+        if (order.createdAt) {
+          setText("transaction-time", formatDate(order.createdAt));
+        }
+        if (order.paymentType) {
+          setText("payment-type", order.paymentType);
+        }
+        const latestStatus = order.panelStatus || order.status;
+        if (latestStatus) {
+          setText("status", formatStatus(latestStatus));
+          applyStatusToPill(latestStatus);
+        }
+        return latestStatus || null;
+      }
+
+      async function hydrateOrderDetails() {
+        const order = await fetchOrderFromApi();
+        if (!order) return null;
+        return renderOrderDetails(order);
+      }
+
+      function startOrderPolling() {
+        if (!orderId || orderId === "-") return;
+        if (pollTimer) clearTimeout(pollTimer);
+        pollAttempts = 0;
+        const runner = async () => {
+          const latestStatus = await hydrateOrderDetails();
+          pollAttempts += 1;
+          const normalized = String(latestStatus || "").toLowerCase();
+          if (normalized && !pendingStatuses.has(normalized)) {
+            return;
+          }
+          if (pollAttempts >= MAX_POLL_ATTEMPTS) {
+            return;
+          }
+          pollTimer = setTimeout(runner, POLL_INTERVAL);
+        };
+        pollTimer = setTimeout(runner, POLL_INTERVAL);
+      }
+
+      hydrateOrderDetails().then((latestStatus) => {
+        const normalized = String(latestStatus || "").toLowerCase();
+        if (!normalized || pendingStatuses.has(normalized)) {
+          startOrderPolling();
+        }
+      });
     </script>
   </body>
 </html>
