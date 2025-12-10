@@ -1,12 +1,5 @@
 const { list } = require("@vercel/blob");
 
-const FALLBACK_IMAGES = [
-  { url: "/img/billboard-01.jpg", alt: "Billboard 1" },
-  { url: "/img/billboard-02.jpg", alt: "Billboard 2" },
-  { url: "/img/billboard-03.jpg", alt: "Billboard 3" },
-  { url: "/img/billboard-04.jpg", alt: "Billboard 4" },
-];
-
 const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || "";
 const BILLBOARD_PREFIX = process.env.BILLBOARD_BLOB_PREFIX || "billboards/";
 const BILLBOARD_LIMIT = Number(process.env.BILLBOARD_BLOB_LIMIT || 8);
@@ -63,10 +56,7 @@ module.exports = async (req, res) => {
   }
 
   try {
-    let images = await fetchFromBlob();
-    if (!images.length) {
-      images = FALLBACK_IMAGES;
-    }
+    const images = await fetchFromBlob();
     res.setHeader("Cache-Control", "public, max-age=60");
     return send(res, 200, { images });
   } catch (err) {

@@ -1,25 +1,6 @@
 (function () {
   const API_BASE = window.API_BASE_URL || "";
-  const fallbackBase = (window.API_BASE_URL || "").replace(/\/$/, "");
-  const FALLBACK = [
-    {
-      url: fallbackBase ? `${fallbackBase}/img/billboard-01.jpg` : "/img/billboard-01.jpg",
-      alt: "Billboard 1",
-    },
-    {
-      url: fallbackBase ? `${fallbackBase}/img/billboard-02.jpg` : "/img/billboard-02.jpg",
-      alt: "Billboard 2",
-    },
-    {
-      url: fallbackBase ? `${fallbackBase}/img/billboard-03.jpg` : "/img/billboard-03.jpg",
-      alt: "Billboard 3",
-    },
-    {
-      url: fallbackBase ? `${fallbackBase}/img/billboard-04.jpg` : "/img/billboard-04.jpg",
-      alt: "Billboard 4",
-    },
-  ];
-  const AUTOPLAY_MS = 4000;
+  const AUTOPLAY_MS = 3000;
 
   let slider;
   let dotsWrap;
@@ -87,6 +68,15 @@
     slider.innerHTML = "";
     dotsWrap.innerHTML = "";
 
+    if (!images.length) {
+      slider.innerHTML =
+        '<div class="hero-billboard-empty">Billboard belum tersedia.</div>';
+      stopAuto();
+      slides = [];
+      dots = [];
+      return;
+    }
+
     images.forEach((img, idx) => {
       const article = document.createElement("article");
       article.className = `hero-slide hero-billboard${idx === 0 ? " active" : ""}`;
@@ -109,11 +99,11 @@
     try {
       const res = await fetch(`${API_BASE}/api/billboards`, { cache: "no-store" });
       const data = await res.json().catch(() => ({}));
-      if (!res.ok || !Array.isArray(data.images) || !data.images.length) return FALLBACK;
+      if (!res.ok || !Array.isArray(data.images)) return [];
       return data.images;
     } catch (err) {
       console.error("fetchBillboards error:", err);
-      return FALLBACK;
+      return [];
     }
   };
 
@@ -124,6 +114,7 @@
 
     const images = await fetchBillboards();
     buildSlides(images);
+    if (!slides.length) return;
     attachInteractions();
     startAuto();
   };
