@@ -10,11 +10,20 @@ const FALLBACK_IMAGES = [
 const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || "";
 const BILLBOARD_PREFIX = process.env.BILLBOARD_BLOB_PREFIX || "billboards/";
 const BILLBOARD_LIMIT = Number(process.env.BILLBOARD_BLOB_LIMIT || 8);
+const CORS_ALLOW_ORIGIN =
+  process.env.CORS_ALLOW_ORIGIN ||
+  "https://putri-gmoyy-store.vercel.app";
 
 function send(res, status, payload) {
   res.statusCode = status;
   res.setHeader("Content-Type", "application/json");
   res.end(JSON.stringify(payload));
+}
+
+function applyCors(res) {
+  res.setHeader("Access-Control-Allow-Origin", CORS_ALLOW_ORIGIN);
+  res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
 
 async function fetchFromBlob() {
@@ -42,6 +51,12 @@ async function fetchFromBlob() {
 }
 
 module.exports = async (req, res) => {
+  applyCors(res);
+  if (req.method === "OPTIONS") {
+    res.statusCode = 204;
+    res.end();
+    return;
+  }
   if (req.method !== "GET") {
     res.setHeader("Allow", "GET");
     return send(res, 405, { error: "Metode tidak diizinkan" });
