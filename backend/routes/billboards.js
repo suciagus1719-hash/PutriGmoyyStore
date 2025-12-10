@@ -3,9 +3,12 @@ const { list } = require("@vercel/blob");
 const BLOB_TOKEN = process.env.BLOB_READ_WRITE_TOKEN || "";
 const BILLBOARD_PREFIX = process.env.BILLBOARD_BLOB_PREFIX || "billboards/";
 const BILLBOARD_LIMIT = Number(process.env.BILLBOARD_BLOB_LIMIT || 8);
-const CORS_ALLOW_ORIGIN =
+const RAW_ALLOWED_ORIGINS =
   process.env.CORS_ALLOW_ORIGIN ||
   "https://putri-gmoyy-store.vercel.app";
+const ALLOWED_ORIGINS = RAW_ALLOWED_ORIGINS.split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
 function send(res, status, payload) {
   res.statusCode = status;
@@ -13,8 +16,20 @@ function send(res, status, payload) {
   res.end(JSON.stringify(payload));
 }
 
-function applyCors(res) {
-  res.setHeader("Access-Control-Allow-Origin", CORS_ALLOW_ORIGIN);
+function applyCors(req, res) {
+  const origin = req.headers.origin || "";
+  const allowsWildcard = ALLOWED_ORIGINS.includes("*");
+  if (allowsWildcard) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+  } else {
+    const matched =
+      (origin && ALLOWED_ORIGINS.find((allowed) => allowed === origin)) ||
+      ALLOWED_ORIGINS[0] ||
+      origin ||
+      "*";
+    res.setHeader("Access-Control-Allow-Origin", matched);
+    res.setHeader("Vary", "Origin");
+  }
   res.setHeader("Access-Control-Allow-Methods", "GET,OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 }
@@ -44,7 +59,7 @@ async function fetchFromBlob() {
 }
 
 module.exports = async (req, res) => {
-  applyCors(res);
+  applyCors(req, res);
   if (req.method === "OPTIONS") {
     res.statusCode = 204;
     res.end();
