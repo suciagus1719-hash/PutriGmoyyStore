@@ -1,6 +1,6 @@
 (function () {
   const API_BASE = window.API_BASE_URL || "";
-  const AUTOPLAY_MS = 3000;
+  const AUTOPLAY_MS = 3500;
 
   let slider;
   let dotsWrap;
