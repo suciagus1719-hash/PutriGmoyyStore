@@ -142,6 +142,7 @@ function initSliderApp() {
   const menuBtn = document.getElementById("menu-toggle");
   const navPanel = document.getElementById("topbar-nav");
   const menuList = document.getElementById("menu-list");
+  const brandAvatarEl = document.getElementById("brand-avatar");
   const avatarInput = document.getElementById("brand-avatar-input");
   const avatarTrigger = document.getElementById("brand-avatar-trigger");
   const platformSection = document.getElementById("platform-list");
