@@ -73,34 +73,6 @@ function apiDelete(path, body, attempts = 1) {
   );
 }
 
-async function hydrateBillboards() {
-  const slider = document.getElementById("hero-slider");
-  const dotsWrap = document.getElementById("hero-dots");
-  if (!slider || !dotsWrap) return;
-  try {
-    const res = await fetch(`${API_BASE}/api/billboards`, { cache: "no-store" });
-    const data = await res.json().catch(() => ({}));
-    if (!res.ok || !Array.isArray(data.images) || !data.images.length) return;
-    slider.innerHTML = "";
-    dotsWrap.innerHTML = "";
-    data.images.slice(0, 10).forEach((img, idx) => {
-      if (!img || !img.url) return;
-      const article = document.createElement("article");
-      article.className = `hero-slide hero-billboard${idx === 0 ? " active" : ""}`;
-      article.innerHTML = `<img src="${img.url}" alt="${img.alt || `Billboard ${idx + 1}`}" class="hero-billboard-img" loading="lazy" />`;
-      slider.appendChild(article);
-
-      const dot = document.createElement("button");
-      dot.className = `hero-dot${idx === 0 ? " active" : ""}`;
-      dot.dataset.slide = idx;
-      dot.setAttribute("aria-label", `Slide ${idx + 1}`);
-      dotsWrap.appendChild(dot);
-    });
-  } catch (err) {
-    console.error("Gagal memuat billboard blob:", err);
-  }
-}
-
 function initSliderApp() {
   const slides = Array.from(document.querySelectorAll(".hero-slide"));
   const dots = Array.from(document.querySelectorAll(".hero-dot"));
@@ -3043,16 +3015,10 @@ let historyData = [];
   loadAccount();
 }
 
-function bootSlider() {
-  Promise.resolve(hydrateBillboards())
-    .catch((err) => console.error("hydrateBillboards error:", err))
-    .finally(() => initSliderApp());
-}
-
 if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", bootSlider);
+  document.addEventListener("DOMContentLoaded", initSliderApp);
 } else {
-  bootSlider();
+  initSliderApp();
 }
 })();
 }
