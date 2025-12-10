@@ -1,4 +1,4 @@
-if (window.__PG_SLIDER_INITED__) {
+ï»¿if (window.__PG_SLIDER_INITED__) {
   console.warn("PG slider script already loaded, skipping duplicate init.");
 } else {
   window.__PG_SLIDER_INITED__ = true;
@@ -258,13 +258,20 @@ function initSliderApp() {
       .join("");
   };
   renderMenu();
+  const closeNav = () => {
+    if (!navPanel) return;
+        closeNav();
+    navPanel.style.display = "none";
+  };
+
   if (menuBtn && navPanel) {
     menuBtn.addEventListener("click", (e) => {
       e.stopPropagation();
-      navPanel.classList.toggle("open");
+      const opened = navPanel.classList.toggle("open");
+      navPanel.style.display = opened ? "flex" : "none";
     });
     navPanel.addEventListener("click", (e) => e.stopPropagation());
-    document.addEventListener("click", () => navPanel.classList.remove("open"));
+    document.addEventListener("click", closeNav);
   }
   const showInfoMessage = (label) => {
     showToast(`${label} segera tersedia. Admin akan mengumumkan jika sudah aktif.`, "info");
@@ -2565,7 +2572,7 @@ let historyData = [];
       const target = document.getElementById(btn.dataset.target || "");
       if (!target) return;
       target.type = target.type === "password" ? "text" : "password";
-      btn.textContent = target.type === "password" ? "=ƒæü" : "=ƒÖê";
+      btn.textContent = target.type === "password" ? "=Æ’Ã¦Ã¼" : "=Æ’Ã–Ãª";
     });
   });
 
