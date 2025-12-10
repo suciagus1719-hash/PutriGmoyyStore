@@ -1,4 +1,4 @@
-﻿if (window.__PG_SLIDER_INITED__) {
+if (window.__PG_SLIDER_INITED__) {
   console.warn("PG slider script already loaded, skipping duplicate init.");
 } else {
   window.__PG_SLIDER_INITED__ = true;
@@ -142,7 +142,6 @@ function initSliderApp() {
   const menuBtn = document.getElementById("menu-toggle");
   const navPanel = document.getElementById("topbar-nav");
   const menuList = document.getElementById("menu-list");
-  const brandAvatar = document.getElementById("brand-avatar");
   const avatarInput = document.getElementById("brand-avatar-input");
   const avatarTrigger = document.getElementById("brand-avatar-trigger");
   const platformSection = document.getElementById("platform-list");
@@ -179,10 +178,10 @@ function initSliderApp() {
     if (toastTimer) clearTimeout(toastTimer);
   });
   const loadStoredAvatar = () => {
-    if (!brandAvatar) return;
+    if (!brandAvatarEl) return;
     try {
       const stored = localStorage.getItem(BRAND_AVATAR_CACHE_KEY);
-      if (stored) brandAvatar.src = stored;
+      if (stored) brandAvatarEl.src = stored;
     } catch (err) {
       console.warn("Tidak bisa membaca avatar brand:", err);
     }
@@ -198,7 +197,7 @@ function initSliderApp() {
     }
     const reader = new FileReader();
     reader.onload = () => {
-      if (brandAvatar) brandAvatar.src = reader.result;
+      if (brandAvatarEl) brandAvatarEl.src = reader.result;
       try {
         localStorage.setItem(BRAND_AVATAR_CACHE_KEY, reader.result);
       } catch (err) {
@@ -332,9 +331,8 @@ function initSliderApp() {
   const coinPill = document.getElementById("coin-pill");
   const brandTitle = document.getElementById("brand-title");
   const brandSubtitle = document.getElementById("brand-subtitle");
-  const brandAvatar = document.getElementById("brand-avatar");
   const defaultAvatar =
-    brandAvatar?.src ||
+    brandAvatarEl?.src ||
     "https://ui-avatars.com/api/?name=PG&background=ac2acf&color=fff";
 
   const loginModal = document.getElementById("login-modal");
@@ -2012,7 +2010,7 @@ let historyData = [];
     const avatarSrc =
       user.avatarUrl ||
       `https://ui-avatars.com/api/?name=${encodeURIComponent(username || "PG")}&background=ac2acf&color=fff`;
-    brandAvatar && (brandAvatar.src = avatarSrc);
+    brandAvatarEl && (brandAvatarEl.src = avatarSrc);
     switchPage("default");
   };
 
@@ -2028,7 +2026,7 @@ let historyData = [];
     broadcastAccount();
     brandTitle && (brandTitle.textContent = "PutriGmoyy");
     brandSubtitle && (brandSubtitle.textContent = "Store");
-    brandAvatar && (brandAvatar.src = defaultAvatar);
+    brandAvatarEl && (brandAvatarEl.src = defaultAvatar);
     switchPage("default");
   };
 
@@ -2596,7 +2594,7 @@ let historyData = [];
       const target = document.getElementById(btn.dataset.target || "");
       if (!target) return;
       target.type = target.type === "password" ? "text" : "password";
-      btn.textContent = target.type === "password" ? "≡ƒæü" : "≡ƒÖê";
+      btn.textContent = target.type === "password" ? "=���" : "=���";
     });
   });
 
@@ -3022,6 +3020,7 @@ if (document.readyState === "loading") {
 }
 })();
 }
+
 
 
 
