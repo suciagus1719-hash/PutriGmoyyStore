@@ -6,7 +6,8 @@ const BILLBOARD_LIMIT = Number(process.env.BILLBOARD_BLOB_LIMIT || 8);
 const RAW_ALLOWED_ORIGINS =
   process.env.CORS_ALLOW_ORIGIN ||
   "https://putri-gmoyy-store.vercel.app";
-const ALLOWED_ORIGINS = RAW_ALLOWED_ORIGINS.split(",")
+const ALLOWED_ORIGINS = RAW_ALLOWED_ORIGINS
+  .split(",")
   .map((origin) => origin.trim())
   .filter(Boolean);
 
@@ -60,6 +61,11 @@ async function fetchFromBlob() {
 
 module.exports = async (req, res) => {
   applyCors(req, res);
+  if (req.method === "OPTIONS") {
+    res.statusCode = 204;
+    res.end();
+    return;
+  }
   if (req.method === "OPTIONS") {
     res.statusCode = 204;
     res.end();
