@@ -1,10 +1,23 @@
 (function () {
   const API_BASE = window.API_BASE_URL || "";
+  const fallbackBase = (window.API_BASE_URL || "").replace(/\/$/, "");
   const FALLBACK = [
-    { url: "/img/billboard-01.jpg", alt: "Billboard 1" },
-    { url: "/img/billboard-02.jpg", alt: "Billboard 2" },
-    { url: "/img/billboard-03.jpg", alt: "Billboard 3" },
-    { url: "/img/billboard-04.jpg", alt: "Billboard 4" },
+    {
+      url: fallbackBase ? `${fallbackBase}/img/billboard-01.jpg` : "/img/billboard-01.jpg",
+      alt: "Billboard 1",
+    },
+    {
+      url: fallbackBase ? `${fallbackBase}/img/billboard-02.jpg` : "/img/billboard-02.jpg",
+      alt: "Billboard 2",
+    },
+    {
+      url: fallbackBase ? `${fallbackBase}/img/billboard-03.jpg` : "/img/billboard-03.jpg",
+      alt: "Billboard 3",
+    },
+    {
+      url: fallbackBase ? `${fallbackBase}/img/billboard-04.jpg` : "/img/billboard-04.jpg",
+      alt: "Billboard 4",
+    },
   ];
   const AUTOPLAY_MS = 4000;
 
